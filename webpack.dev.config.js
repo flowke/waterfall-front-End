@@ -59,12 +59,7 @@ module.exports = {
             title:'duyun',
             filename: '../index.html',
             chunks: ['index']
-        }),
-        /*new htmlWebpackPlugin({
-            title: 'cloudDriver',
-            filename: 'cloudDriver.html',
-            chunks: ['./assets/cloud.js']
-        })*/    
+        })
         new webpack.HotModuleReplacementPlugin()
     ],
 
