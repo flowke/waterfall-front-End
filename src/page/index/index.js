@@ -1,16 +1,24 @@
 
+require('style/style.css');
+require('style/main.css');
+
 let React = require('react');
 let ReactDOM = require('react-dom');
 
-import App from 'components/hello/app.js'
+import Header from 'components/public/header/header.js'
+import Content from 'components/contentBox/content.js'
 
-let Hello = React.createClass({
-    render: function() {
-        return <div><App />2dfds22</div>
+class Index extends React.Component{
+    render(){
+        return(
+            <div id="index">
+                <Header/>
+                <Content/>
+            </div>
+        );
     }
-});
+}
 
-var div1 = document.createElement('div');
-document.body.appendChild(div1);
+let root = document.querySelector('#root');
 
-ReactDOM.render(<Hello />, div1);
+ReactDOM.render(<Index />, root);
