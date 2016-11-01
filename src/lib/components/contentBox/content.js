@@ -1,12 +1,11 @@
-let React = require('react');
-let ReactDOM = require('react-dom');
 
 let config = require('config/config.json');
 
 import Item from 'components/public/item/item.js';
 import content from './content.less';
 
-
+let imagesLoaded = require('imagesloaded');
+let wookmark = require('wookmark');
 
 export default class Content extends React.Component{
 
@@ -99,7 +98,7 @@ export default class Content extends React.Component{
             // Create a new layout handler.
             // $handler = $('li', $tiles);
             $tiles.wookmark(options);
-            $tiles.wookmarkInstance.layout(true)
+            $tiles.wookmarkInstance.layout(true);
         });
     }
 

@@ -4,7 +4,7 @@ let path = require('path');
 let webpack = require('webpack');
 let baseConfig = require('./base');
 let defaultSettings = require('./default');
-
+let ExtractTextPlugin = require('extract-text-webpack-plugin');
 let htmlWebpackPlugin = require('html-webpack-plugin');
 let openBrowserWebpackPlugin = require('open-browser-webpack-plugin');
 

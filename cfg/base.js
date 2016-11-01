@@ -7,13 +7,13 @@ let defaultSettings = require('./default');
 // @example:
 // let npmBase = path.join(__dirname, '../node_modules');
 // let additionalPaths = [ path.join(npmBase, 'react-bootstrap') ];
-let bowerBase = path.join(__dirname,'../bower_components');
+// let bowerBase = path.join(__dirname,'../bower_components');
 
 let additionalPaths = [];
 
-additionalPaths.push(path.join(bowerBase,'jquery'));
-additionalPaths.push(path.join(bowerBase, 'wookmark'));
-additionalPaths.push(path.join(bowerBase, 'imagesloaded/imagesloaded.pkgd'));
+// additionalPaths.push(path.join(bowerBase,'jquery'));
+// additionalPaths.push(path.join(bowerBase, 'wookmark'));
+// additionalPaths.push(path.join(bowerBase, 'imagesloaded/imagesloaded.pkgd'));
 
 module.exports = {
     additionalPaths: additionalPaths,

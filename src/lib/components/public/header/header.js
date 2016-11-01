@@ -1,7 +1,4 @@
 
-let React = require('react');
-let ReactDOM = require('react-dom');
-
 let config = require('config/config.json');
 
 import header from './header.less';

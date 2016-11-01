@@ -5,7 +5,7 @@
  * the base array output.
  */
 'use strict';
-
+let ExtractTextPlugin = require('extract-text-webpack-plugin');
 const path = require('path');
 const srcPath = path.join(__dirname, '/../src');
 const dfltPort = 8000;
@@ -38,7 +38,7 @@ function getDefaultModules() {
             },
             {
               test: /\.less/,
-                loader: 'style-loader!css-loader?modules!less-loader'
+                loader: ExtractTextPlugin.extract('css-loader?modules!less-loader')
             },
             {
               test: /\.styl/,
@@ -55,7 +55,11 @@ function getDefaultModules() {
             {
                 test: /\.json$/,
                 loader: 'json-loader'
-            }
+            },
+            {
+              test: require.resolve('jquery'),  // 此loader配置项的目标是NPM中的jquery
+              loader: 'expose?$!expose?jQuery', // 先把jQuery对象声明成为全局变量`jQuery`，再通过管道进一步又声明成为全局变量`$`
+            },
         ]
     };
 }

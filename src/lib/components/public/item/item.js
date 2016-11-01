@@ -1,7 +1,4 @@
 
-let React = require('react');
-let ReactDOM = require('react-dom');
-
 import item from './item.less';
 
 export default class Item extends React.Component{

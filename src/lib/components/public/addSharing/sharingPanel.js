@@ -1,7 +1,4 @@
 
-let React = require('react');
-let ReactDOM = require('react-dom');
-
 let config = require('config/config.json');
 
 import panel from './panel.less';
@@ -41,8 +38,6 @@ export default class SharingPanel extends React.Component{
 
 			}
 		});
-
-
 	}
 	/**
 	 * 点击分享时做的动作,包括调用ajax方法
