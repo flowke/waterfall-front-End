@@ -18,6 +18,11 @@ let config = Object.assign({}, baseConfig, {
     cache: true,
     devtool: 'eval-source-map',
     plugins: [
+        new webpack.ProvidePlugin({
+            React: 'react',
+            ReactDOM: 'react-dom'
+        }),
+        new ExtractTextPlugin('[name].css'),
         new htmlWebpackPlugin({
             template: defaultSettings.pagePath + '/index/index.html',
             filename: '../../index.html',
@@ -34,17 +39,27 @@ let config = Object.assign({}, baseConfig, {
             url: 'http://127.0.0.1:8000/index.html'
         })
     ],
+    externals: {
+        "window" : 'window',
+        "document": 'document'
+    },
     module: defaultSettings.getDefaultModules()
 });
 
 // Add needed loaders to the defaults here
-config.module.loaders.push({
-    test: /\.(js|jsx)$/,
-    loader: 'babel-loader',
-    include: [].concat(
-        config.additionalPaths,
-        [ path.join(__dirname, '/../src') ]
-    )
-});
+config.module.loaders.push(
+    {
+        test: /\.(js|jsx)$/,
+        loader: 'babel-loader',
+        include: [].concat(
+            config.additionalPaths,
+            [ path.join(__dirname, '/../src') ]
+        )
+    },
+    {
+      test: /\.less/,
+        loader: 'style-loader!css-loader?modules!less-loader'
+    }
+);
 
 module.exports = config;

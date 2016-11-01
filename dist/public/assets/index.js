@@ -162,8 +162,11 @@
 	        _this.state = {
 	            username: '',
 	            imgUrl: '',
-	            userid: ''
+	            userid: '',
+	            panelSwitch: true
 	        };
+	        _this.loginHover = _this.loginHover.bind(_this);
+	        _this.loginLeave = _this.loginLeave.bind(_this);
 	        return _this;
 	    }
 	
@@ -174,20 +177,61 @@
 	            this.refs.panel.handlePanel();
 	        }
 	    }, {
-	        key: 'toggleLogin',
-	        value: function toggleLogin(ev) {
+	        key: 'clickLogin',
+	        value: function clickLogin(ev) {
+	            this.setState({
+	                panelSwitch: false
+	            });
 	            var $btn = $(ev.target);
-	            if ($btn.hasClass('login')) {
-	                this.refs.loginPanel.btnClick('login');
-	            } else {
-	                this.refs.loginPanel.btnClick('register');
-	            }
+	            $(this.refs.progressBar).addClass(_header2.default.progressDone);
+	            this.refs.loginPanel.btnClick($btn.data('text'));
+	            $(this.refs.progressBar).off('transitionend');
 	        }
 	    }, {
 	        key: 'toggleSharePanel',
 	        value: function toggleSharePanel() {
 	            this.refs.panel.handleTogglePanel();
 	        }
+	    }, {
+	        key: 'loginHover',
+	        value: function loginHover(ev) {
+	            var _this2 = this;
+	
+	            if (!this.state.panelSwitch) {
+	                return;
+	            };
+	            var pnStr = ev.target.dataset.text;
+	            var $bar = $(this.refs.progressBar);
+	            this.refs.loginPanel.panelFadeIn(ev.target.dataset.text);
+	            $bar.addClass(_header2.default.progressIn);
+	            $bar.one('transitionend', function () {
+	                _this2.setState({
+	                    panelSwitch: false
+	                });
+	                _this2.refs.loginPanel.btnClick(pnStr);
+	            });
+	        }
+	    }, {
+	        key: 'loginLeave',
+	        value: function loginLeave() {
+	            if (!this.state.panelSwitch) {
+	                return;
+	            };
+	            var $bar = $(this.refs.progressBar);
+	            this.refs.loginPanel.panelFadeOut();
+	            $bar.removeClass(_header2.default.progressIn);
+	            $bar.off('transitionend');
+	        }
+	    }, {
+	        key: 'panelSwitchOn',
+	        value: function panelSwitchOn() {
+	            $(this.refs.progressBar).removeClass(_header2.default.progressDone);
+	            $(this.refs.progressBar).removeClass(_header2.default.progressIn);
+	            this.setState({
+	                panelSwitch: true
+	            });
+	        }
+	
 	        /**
 	         * 当登陆成功后会被调用
 	         */
@@ -202,14 +246,14 @@
 	    }, {
 	        key: 'componentDidMount',
 	        value: function componentDidMount() {
-	            var _this2 = this;
+	            var _this3 = this;
 	
 	            $.ajax({
 	                url: config.url + '?p=home&c=user&a=autologin',
 	                dataType: 'json',
 	                success: function success(data) {
 	                    if (data.message === 1) {
-	                        _this2.handleLogin({
+	                        _this3.handleLogin({
 	                            username: data.user_name,
 	                            userid: data.user_id,
 	                            imgUrl: data.user_icon
@@ -229,7 +273,7 @@
 	                    { className: 'wrap' },
 	                    React.createElement(
 	                        'div',
-	                        { className: _header2.default.share_btn + ' ' + _header2.default.btn, onClick: this.toggleSharePanel.bind(this) },
+	                        { className: _header2.default.share_btn + ' ' + _header2.default.btn + ' share_btn', onClick: this.toggleSharePanel.bind(this) },
 	                        'Sharing'
 	                    ),
 	                    React.createElement(
@@ -237,13 +281,13 @@
 	                        { className: '' + _header2.default.loginPanel, ref: 'loginBtn' },
 	                        React.createElement(
 	                            'span',
-	                            { className: ' ' + _header2.default.btn + ' ' + _header2.default.login + ' login', onClick: this.toggleLogin.bind(this) },
-	                            '\u767B\u9646'
+	                            { className: _header2.default.login + ' login', onClick: this.clickLogin.bind(this), onMouseEnter: this.loginHover, onMouseLeave: this.loginLeave, 'data-text': 'login' },
+	                            'Log in'
 	                        ),
 	                        React.createElement(
 	                            'span',
-	                            { className: ' ' + _header2.default.btn + ' ' + _header2.default.login + ' register', onClick: this.toggleLogin.bind(this) },
-	                            '\u6CE8\u518C'
+	                            { className: _header2.default.login + ' register', onClick: this.clickLogin.bind(this), onMouseEnter: this.loginHover, onMouseLeave: this.loginLeave, 'data-text': 'signin' },
+	                            'Sign Up'
 	                        )
 	                    ),
 	                    React.createElement(
@@ -257,8 +301,9 @@
 	                        )
 	                    ),
 	                    React.createElement(_sharingPanel2.default, { ref: 'panel', userid: this.state.userid }),
-	                    React.createElement(_loginPanel2.default, { ref: 'loginPanel', handleLogin: this.handleLogin.bind(this) })
-	                )
+	                    React.createElement(_loginPanel2.default, { ref: 'loginPanel', handleLogin: this.handleLogin.bind(this), switchOn: this.panelSwitchOn.bind(this) })
+	                ),
+	                React.createElement('div', { className: '' + _header2.default.progress, ref: 'progressBar' })
 	            );
 	        }
 	    }]);
@@ -274,7 +319,7 @@
 /***/ function(module, exports) {
 
 	// removed by extract-text-webpack-plugin
-	module.exports = {"hide":"_3bUTfXPQw2mGGPbfFL4v5F","userInfo":"_17BJBXtTVLMza2Uh8K_SWe","btn":"_3cbz2cpQxYv-TWGfFgA8hr","share_btn":"_3j3kW0K4sBaWRoKu5jBfQZ","loginPanel":"_1WoAzovZ-xaXef7ZUTQdLA","login":"_7L7thyy4VF3W2oqywbfTT","header":"_3kqxxZ2HSVuDKyOqJ16eVu"};
+	module.exports = {"hide":"_3bUTfXPQw2mGGPbfFL4v5F","header":"_3kqxxZ2HSVuDKyOqJ16eVu","userInfo":"_17BJBXtTVLMza2Uh8K_SWe","btn":"_3cbz2cpQxYv-TWGfFgA8hr","share_btn":"_3j3kW0K4sBaWRoKu5jBfQZ","loginPanel":"_1WoAzovZ-xaXef7ZUTQdLA","login":"_7L7thyy4VF3W2oqywbfTT","progress":"_2HxlhwyMj-_1mIXQyc1y6n","progressIn":"_1yC7NfmburR5Tvdq6RN2p-","progressDone":"_3qg7G7g_iXVBRGm6SX8ykr"};
 
 /***/ },
 /* 6 */
@@ -734,7 +779,7 @@
 	        key: 'btnClick',
 	        value: function btnClick(panel) {
 	            var form = this.refs.form;
-	            $(this.refs.panel).removeClass(_loginPanel2.default.hide);
+	            $(this.refs.panel).addClass(_loginPanel2.default.panelFade);
 	            if (panel === 'login') {
 	                this.setState({
 	                    action: 'login',
@@ -756,6 +801,39 @@
 	                $(this.refs.fastGoto).text('去登陆');
 	            }
 	        }
+	    }, {
+	        key: 'panelFadeIn',
+	        value: function panelFadeIn(panel) {
+	            console.log(panel);
+	            var form = this.refs.form;
+	            $(this.refs.panel).addClass(_loginPanel2.default.panelFade);
+	            if (panel === 'login') {
+	                this.setState({
+	                    action: 'login',
+	                    submitHint: '登陆'
+	                });
+	
+	                $(form.cfpassword).addClass(_loginPanel2.default.hide);
+	                $(form.submit).val('Login in');
+	                $(this.refs.fastGoto).attr('tit', 'signin');
+	                $(this.refs.fastGoto).text('去注册');
+	            } else {
+	                this.setState({
+	                    action: 'register',
+	                    submitHint: '注册'
+	                });
+	                $(form.cfpassword).removeClass(_loginPanel2.default.hide);
+	                $(form.submit).val('Sign up');
+	                $(this.refs.fastGoto).attr('tit', 'login');
+	                $(this.refs.fastGoto).text('去登陆');
+	            }
+	        }
+	    }, {
+	        key: 'panelFadeOut',
+	        value: function panelFadeOut() {
+	            $(this.refs.panel).removeClass(_loginPanel2.default.panelFade);
+	        }
+	
 	        /**
 	         * 表单提交
 	         */
@@ -837,7 +915,8 @@
 	    }, {
 	        key: 'closePanel',
 	        value: function closePanel() {
-	            $(this.refs.panel).toggleClass(_loginPanel2.default.hide);
+	            $(this.refs.panel).removeClass(_loginPanel2.default.panelFade);
+	            this.props.switchOn();
 	        }
 	    }, {
 	        key: 'fastGoto',
@@ -853,7 +932,7 @@
 	        value: function render() {
 	            return React.createElement(
 	                'div',
-	                { className: _loginPanel2.default.panel + ' ' + _loginPanel2.default.hide, ref: 'panel' },
+	                { className: '' + _loginPanel2.default.panel, ref: 'panel' },
 	                React.createElement(
 	                    'div',
 	                    { className: '' + _loginPanel2.default.johndoe_left },
@@ -902,7 +981,7 @@
 /***/ function(module, exports) {
 
 	// removed by extract-text-webpack-plugin
-	module.exports = {"center":"VA0oIXAMwgEhwjWY5oFhR","panel":"-b5aufFWmMftugtvVb3u1","hide":"_2V6SEE31fsW32Zbk4jKEbU","ico":"_2oU03Re51PI1MW43B_qNI5","fastGoto":"_2OO3dXYA6X8nNQadUAfYOs","johndoe_left":"Z6Tqtw6fISheehNONXysQ","johndoe_right":"_39-nJQgLMSTbUfiggXbEUR","john_img":"_3Az4iAs63Rt_qbIfNdCNxx","john_text":"_6Iirrmc5pfFiDYOsosxPa","email":"_2PAtH_8Ybxdz09vblbOySp"};
+	module.exports = {"center":"VA0oIXAMwgEhwjWY5oFhR","panel":"-b5aufFWmMftugtvVb3u1","panelFade":"_3vZBmx4kTCxprE6W6KcUvI","hide":"_2V6SEE31fsW32Zbk4jKEbU","ico":"_2oU03Re51PI1MW43B_qNI5","fastGoto":"_2OO3dXYA6X8nNQadUAfYOs","johndoe_left":"Z6Tqtw6fISheehNONXysQ","johndoe_right":"_39-nJQgLMSTbUfiggXbEUR","john_img":"_3Az4iAs63Rt_qbIfNdCNxx","john_text":"_6Iirrmc5pfFiDYOsosxPa","email":"_2PAtH_8Ybxdz09vblbOySp"};
 
 /***/ },
 /* 12 */
@@ -995,7 +1074,6 @@
 	        value: function handlerScroll(ev) {
 	            var _this3 = this;
 	
-	            console.log(wookmark);
 	            var $elem = $(ev.target);
 	            var data = {
 	                offset: this.refs.tileWrap.children.length,
@@ -2868,7 +2946,7 @@
 	
 	
 	// module
-	exports.push([module.id, "/* css reset */\nbody,p,h1,h2,h3,h4,h5,h6,dl,dd,form,select{margin:0;}\nol,ul{list-style:none; padding:0; margin:0;}\na{text-decoration:none; color:black;}\nimg{border:none; vertical-align:top;}\nem,i,{font-style:normal;}\nstrong{font-weight:normal;}\ntable{border-collapse:collapse;}\nth,td{padding:0;}\ninput{margin:0; padding:0;}\ntextarea{margin:0; padding:0; resize:none; overflow:auto; outline:none;}\n\n.f-clear:after{content:\"\";display:block;clear:both;}\n.f-clear{*zoom:1}\n\n.f-inlineBlock{ display: inline-block; *zoom:1; *display: inline; }\n\nfooter {\n  text-align: center;\n\n}\n\nfooter a {\n  color: #435DC5;\n  text-decoration: none;\n}\n\n/**\n * Progress bar for imagesLoaded\n */\n.progress-bar {\n  background-color: #0BC20B;\n  height: 2px;\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  width: 0;\n  box-shadow: 0 1px 3px rgba(11, 194, 11, 0.2);\n  -webkit-transition: width 0.3s ease-out;\n     -moz-transition: width 0.3s ease-out;\n       -o-transition: width 0.3s ease-out;\n          transition: width 0.3s ease-out;\n}\n\n/**\n * Placerholder css\n */\n.wookmark-placeholder {\n          border-radius: 2px;\n     -moz-border-radius: 2px;\n  -webkit-border-radius: 2px;\n  background-color: #eee;\n  border: 1px solid #dedede;\n  z-index: -1;\n}\n\n.example-tiles {\n  position: relative; /** Needed to ensure items are laid out relative to this container **/\n  margin: 0;\n  padding: 0;\n}\n\n.example-tiles li {\n  display: block;\n  list-style-type: none;\n  float: left;\n  margin: 5px;\n  -webkit-transition: all 0.3s ease-out;\n     -moz-transition: all 0.3s ease-out;\n       -o-transition: all 0.3s ease-out;\n          transition: all 0.3s ease-out;\n}\n\n.example-tiles a,\n.example-tiles a:hover {\n  color: #555;\n  background-color: #eee;\n  text-align: center;\n  display: table-cell;\n  vertical-align: middle;\n  width: 200px;\n  height: 200px;\n  font-size: 2em;\n  font-weight: bold;\n  text-decoration: none;\n  border: 1px solid #ddd;\n  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);\n  padding: 5px 8px;\n  border-radius: 3px;\n}\n\n.example-tiles a:hover {\n  background-color: #ddd;\n}\n/*--media Quries for 640px-monitors-*/\n@media only screen and (max-width:640px) and (min-width:480px) {\n\t#main {\n\t\tmargin-top: 7em;\n\t}\n}\n/*--media Quries for 480px-monitors-*/\n@media only screen and (max-width:480px) and (min-width:320px) {\n\t#main {\n\t\tmargin-top: 9.5em;\n\t}\n}\n/*--media Quries for 320px-monitors-*/\n@media only screen and (max-width:320px) and (min-width:240px) {\n\t#main {\n\t\tmargin-top: 9em;\n\t}\n\t#tiles li {\n\t\twidth: 266px;\n\t}\n}\n", ""]);
+	exports.push([module.id, "/* css reset */\nbody,p,h1,h2,h3,h4,h5,h6,dl,dd,form,select{margin:0;}\nol,ul{list-style:none; padding:0; margin:0;}\na{text-decoration:none; color:black;}\nimg{border:none; vertical-align:top;}\nem,i,{font-style:normal;}\nstrong{font-weight:normal;}\ntable{border-collapse:collapse;}\nth,td{padding:0;}\ninput{margin:0; padding:0;}\ntextarea{margin:0; padding:0; resize:none; overflow:auto; outline:none;}\n\n.f-clear:after{content:\"\";display:block;clear:both;}\n.f-clear{*zoom:1}\n\n.f-inlineBlock{ display: inline-block; *zoom:1; *display: inline; }\n\nfooter {\n  text-align: center;\n\n}\n\nfooter a {\n  color: #435DC5;\n  text-decoration: none;\n}\n\n/**\n * Progress bar for imagesLoaded\n */\n.progress-bar {\n  background-color: #0BC20B;\n  height: 2px;\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  width: 0;\n  box-shadow: 0 1px 3px rgba(11, 194, 11, 0.2);\n  -webkit-transition: width 0.3s ease-out;\n     -moz-transition: width 0.3s ease-out;\n       -o-transition: width 0.3s ease-out;\n          transition: width 0.3s ease-out;\n}\n\n/**\n * Placerholder css\n */\n.wookmark-placeholder {\n          border-radius: 2px;\n     -moz-border-radius: 2px;\n  -webkit-border-radius: 2px;\n  background-color: #eee;\n  border: 1px solid #dedede;\n  z-index: -1;\n}\n\n.example-tiles {\n  position: relative; /** Needed to ensure items are laid out relative to this container **/\n  margin: 0;\n  padding: 0;\n}\n\n.example-tiles li {\n  display: block;\n  list-style-type: none;\n  float: left;\n  margin: 5px;\n  -webkit-transition: all 0.3s ease-out;\n     -moz-transition: all 0.3s ease-out;\n       -o-transition: all 0.3s ease-out;\n          transition: all 0.3s ease-out;\n}\n\n.example-tiles a,\n.example-tiles a:hover {\n  color: #555;\n  background-color: #eee;\n  text-align: center;\n  display: table-cell;\n  vertical-align: middle;\n  width: 200px;\n  height: 200px;\n  font-size: 2em;\n  font-weight: bold;\n  text-decoration: none;\n  border: 1px solid #ddd;\n  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);\n  padding: 5px 8px;\n  border-radius: 3px;\n}\n\n.example-tiles a:hover {\n  background-color: #ddd;\n}\n", ""]);
 	
 	// exports
 

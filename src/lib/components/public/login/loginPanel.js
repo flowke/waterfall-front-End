@@ -18,7 +18,7 @@ export default class LoginPanel extends React.Component{
      */
     btnClick(panel){
         let form = this.refs.form;
-        $(this.refs.panel).removeClass(style.hide);
+        $(this.refs.panel).addClass(style.panelFade);
         if(panel==='login'){
             this.setState({
                 action:'login',
@@ -40,6 +40,37 @@ export default class LoginPanel extends React.Component{
             $(this.refs.fastGoto).text('去登陆');
         }
     }
+
+    panelFadeIn(panel){
+        console.log(panel)
+        let form = this.refs.form;
+        $(this.refs.panel).addClass(style.panelFade);
+        if(panel==='login'){
+            this.setState({
+                action:'login',
+                submitHint: '登陆'
+            });
+
+            $(form.cfpassword).addClass(style.hide);
+            $(form.submit).val('Login in');
+            $(this.refs.fastGoto).attr('tit','signin');
+            $(this.refs.fastGoto).text('去注册');
+        }else{
+            this.setState({
+                action:'register',
+                submitHint: '注册'
+            });
+            $(form.cfpassword).removeClass(style.hide);
+            $(form.submit).val('Sign up');
+            $(this.refs.fastGoto).attr('tit','login');
+            $(this.refs.fastGoto).text('去登陆');
+        }
+    }
+    panelFadeOut(){
+        $(this.refs.panel).removeClass(style.panelFade);
+    }
+
+
     /**
      * 表单提交
      */
@@ -108,7 +139,8 @@ export default class LoginPanel extends React.Component{
     }
 
     closePanel(){
-        $(this.refs.panel).toggleClass(style.hide);
+        $(this.refs.panel).removeClass(style.panelFade);
+        this.props.switchOn();
     }
 
     fastGoto(ev){
@@ -122,7 +154,7 @@ export default class LoginPanel extends React.Component{
 
     render(){
         return(
-            <div className={`${style.panel} ${style.hide}`} ref='panel'>
+            <div className={`${style.panel}`} ref='panel'>
                 <div className={`${style.johndoe_left}`}>
                     <div className={`${style.john_img}`}>
                         <img src={require("image/john.png")} alt=""/>

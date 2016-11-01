@@ -14,8 +14,11 @@ export default class Header extends React.Component{
         this.state = {
             username: '',
             imgUrl: '',
-            userid: ''
-        }
+            userid: '',
+            panelSwitch: true
+        };
+        this.loginHover = this.loginHover.bind(this);
+        this.loginLeave = this.loginLeave.bind(this);
     }
 
     handleAddItem(event){
@@ -23,18 +26,50 @@ export default class Header extends React.Component{
         this.refs.panel.handlePanel();
     }
 
-    toggleLogin(ev){
+    clickLogin(ev){
+        this.setState({
+            panelSwitch: false
+        });
         let $btn = $(ev.target);
-        if($btn.hasClass('login')){
-            this.refs.loginPanel.btnClick('login');
-        }else{
-            this.refs.loginPanel.btnClick('register');
-        }
+        $(this.refs.progressBar).addClass(header.progressDone);
+        this.refs.loginPanel.btnClick($btn.data('text'));
+        $(this.refs.progressBar).off('transitionend')
     }
 
     toggleSharePanel(){
         this.refs.panel.handleTogglePanel();
     }
+
+    loginHover(ev){
+        if(!this.state.panelSwitch){ return };
+        let pnStr = ev.target.dataset.text;
+        let $bar = $(this.refs.progressBar);
+        this.refs.loginPanel.panelFadeIn(ev.target.dataset.text);
+        $bar.addClass(header.progressIn);
+        $bar.one('transitionend',()=>{
+            this.setState({
+                panelSwitch: false
+            });
+            this.refs.loginPanel.btnClick(pnStr);
+        });
+
+    }
+    loginLeave(){
+        if(!this.state.panelSwitch){ return };
+        let $bar = $(this.refs.progressBar);
+        this.refs.loginPanel.panelFadeOut();
+        $bar.removeClass(header.progressIn);
+        $bar.off('transitionend');
+    }
+
+    panelSwitchOn(){
+        $(this.refs.progressBar).removeClass(header.progressDone);
+        $(this.refs.progressBar).removeClass(header.progressIn);
+        this.setState({
+            panelSwitch: true
+        });
+    }
+
     /**
      * 当登陆成功后会被调用
      */
@@ -64,20 +99,21 @@ export default class Header extends React.Component{
         return (
             <div className={`${header.header} header`}>
 				<div className="wrap">
-                    <div className={`${header.share_btn} ${header.btn}`} onClick={this.toggleSharePanel.bind(this)}>Sharing</div>
+                    <div className={`${header.share_btn} ${header.btn} share_btn`} onClick={this.toggleSharePanel.bind(this)}>Sharing</div>
                     <div className={`${header.loginPanel}`} ref='loginBtn'>
-                        <span className={` ${header.btn} ${header.login} login`} onClick={this.toggleLogin.bind(this)}>登陆</span>
-                        <span className={` ${header.btn} ${header.login} register`} onClick={this.toggleLogin.bind(this)}>注册</span>
+                        <span className={`${header.login} login`} onClick={this.clickLogin.bind(this)} onMouseEnter={this.loginHover} onMouseLeave={this.loginLeave} data-text="login">Log in</span>
+                        <span className={`${header.login} register`} onClick={this.clickLogin.bind(this)} onMouseEnter={this.loginHover} onMouseLeave={this.loginLeave} data-text="signin">Sign Up</span>
                     </div>
                     <div className={`${header.userInfo} ${header.hide} userInfo`} ref='userInfo'>
-                        <img src={this.state.imgUrl}  />
+                        <img src={this.state.imgUrl} />
                         <span>{this.state.username}</span>
                     </div>
 
                     <SharingPanel ref='panel' userid={this.state.userid}/>
-                    {/* <Login/> */}
-                    <LoginPanel ref='loginPanel' handleLogin={this.handleLogin.bind(this)}/>
+
+                    <LoginPanel ref='loginPanel' handleLogin={this.handleLogin.bind(this)} switchOn={this.panelSwitchOn.bind(this)} />
 			    </div>
+                <div className={`${header.progress}`} ref='progressBar'></div>
 		    </div>
         );
     }
