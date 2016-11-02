@@ -15,16 +15,35 @@ textarea{margin:0; padding:0; resize:none; overflow:auto; outline:none;}
 
 .f-inlineBlock{ display: inline-block; *zoom:1; *display: inline; }
 
-footer {
-  text-align: center;
-
+@font-face {
+  font-family: 'icomoon';
+  src:  url('/public/assets/icomoon.eot?mwc2os');
+  src:  url('/public/assets/icomoon.eot?mwc2os#iefix') format('embedded-opentype'),
+    url('/public/assets/icomoon.ttf?mwc2os') format('truetype'),
+    url('/public/assets/icomoon.woff?mwc2os') format('woff'),
+    url('/public/assets/icomoon.svg?mwc2os#icomoon') format('svg');
+  font-weight: normal;
+  font-style: normal;
 }
 
-footer a {
-  color: #435DC5;
-  text-decoration: none;
+.icon-user:before {
+  content: "\e900";
 }
-
+.icon-heart1:before {
+  content: "\e901";
+}
+.icon-heart2:before {
+  content: "\e902";
+}
+.icon-marker:before {
+  content: "\e903";
+}
+.icon-link:before {
+  content: "\e005";
+}
+.icon-cross:before {
+  content: "\e117";
+}
 /**
  * Progress bar for imagesLoaded
  */

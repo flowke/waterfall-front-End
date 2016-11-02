@@ -9,7 +9,7 @@ let defaultSettings = require('./default');
 
 // Add needed plugins here
 let BowerWebpackPlugin = require('bower-webpack-plugin');
-
+process.env.NODE_ENV = 'production';
 let config = Object.assign({}, baseConfig, {
     entry: {
           index: defaultSettings.pagePath + '/index/index.js'

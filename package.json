@@ -7,7 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "webpack-dev-server --env=dev",
     "dll": "webpack --env=dll",
-    "dist": "webpack --env=dist"
+    "dist": "webpack --env=dist",
+    "all": "gulp move & webpack --env=dll & webpack --env=dist"
   },
   "author": "",
   "license": "ISC",
@@ -15,6 +16,7 @@
     "babel-cli": "^6.16.0",
     "babel-core": "^6.17.0",
     "babel-loader": "^6.2.5",
+    "babel-plugin-react-transform": "^2.0.2",
     "babel-preset-es2015": "^6.16.0",
     "babel-preset-es2015-loose": "^8.0.0",
     "babel-preset-latest": "^6.16.0",
@@ -40,6 +42,7 @@
     "react": "^15.3.2",
     "react-dom": "^15.3.2",
     "react-hot-loader": "^3.0.0-beta.6",
+    "react-transform-hmr": "^1.0.4",
     "style-loader": "^0.13.1",
     "url-loader": "^0.5.7",
     "webpack": "^1.13.2",

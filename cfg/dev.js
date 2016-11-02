@@ -30,7 +30,7 @@ let config = Object.assign({}, baseConfig, {
             hash: false,
             chunks: ['index']
         }),
-        // new webpack.HotModuleReplacementPlugin(),
+        new webpack.HotModuleReplacementPlugin(),
         new webpack.NoErrorsPlugin(),
         new BowerWebpackPlugin({
             searchResolveModulesDirectories: false

@@ -28,6 +28,8 @@ module.exports = {
     devServer: {
         contentBase: './dist/', // 服务器目录根目录
         historyApiFallback: true,
+        inline: true,
+        progress: true,
         hot: true,
         port: defaultSettings.port,
         publicPath: defaultSettings.publicPath,

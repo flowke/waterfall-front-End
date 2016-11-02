@@ -4,7 +4,7 @@ let config = require('config/config.json');
 import header from './header.less';
 import SharingPanel from '../addSharing/sharingPanel.js';
 import LoginPanel from '../login/loginPanel.js';
-// import Register from '../login/register.js';
+import UserListPanel from '../userList/userList.js';
 
 
 export default class Header extends React.Component{
@@ -12,8 +12,8 @@ export default class Header extends React.Component{
     constructor(prop){
         super(prop);
         this.state = {
-            username: '',
-            imgUrl: '',
+            username: 'Flowke',
+            imgUrl: '/public/assets/john.png',
             userid: '',
             panelSwitch: true
         };
@@ -78,6 +78,23 @@ export default class Header extends React.Component{
         $(this.refs.userInfo).toggleClass(header.hide);
         $(this.refs.loginBtn).toggleClass(header.hide);
     }
+    // 用户注销界面
+    showUserSetting(){
+        $(this.refs.userSetting).addClass(header.bubleHov);
+    }
+    hideUserSetting(){
+        this.timer = setTimeout(()=>{
+            $(this.refs.userSetting).removeClass(header.bubleHov);
+        },300);
+    }
+
+    menuClick(){
+        let $lines = $(this.refs.lineWrap.children);
+        $lines.eq(0).toggleClass(header.reformLine1);
+        $lines.eq(1).toggleClass(header.reformLine2);
+        $lines.eq(2).toggleClass(header.reformLine3);
+        this.refs.listPanel.handleListPanel();
+    }
 
     componentDidMount(){
         $.ajax({
@@ -104,14 +121,28 @@ export default class Header extends React.Component{
                         <span className={`${header.login} login`} onClick={this.clickLogin.bind(this)} onMouseEnter={this.loginHover} onMouseLeave={this.loginLeave} data-text="login">Log in</span>
                         <span className={`${header.login} register`} onClick={this.clickLogin.bind(this)} onMouseEnter={this.loginHover} onMouseLeave={this.loginLeave} data-text="signin">Sign Up</span>
                     </div>
-                    <div className={`${header.userInfo} ${header.hide} userInfo`} ref='userInfo'>
+                    <div className={`${header.userInfo} ${header.hide} userInfo`} onMouseEnter={this.showUserSetting.bind(this)} onMouseLeave={this.hideUserSetting.bind(this)} ref='userInfo'>
                         <img src={this.state.imgUrl} />
                         <span>{this.state.username}</span>
+                        <div className={`${header.arrow_box} ${header.bubleFrame}`} ref='userSetting'>
+                            <div className={`${header.bubleWrap}`} onMouseEnter={()=>{clearTimeout(this.timer)}}>
+                                <a href="#">查看我的</a>
+                                <a href="#">注销</a>
+                            </div>
+                        </div>
                     </div>
-
                     <SharingPanel ref='panel' userid={this.state.userid}/>
 
                     <LoginPanel ref='loginPanel' handleLogin={this.handleLogin.bind(this)} switchOn={this.panelSwitchOn.bind(this)} />
+
+                    <UserListPanel ref='listPanel'/>
+                    <div className={`${header.menu}`} onClick={this.menuClick.bind(this)}>
+                        <div ref='lineWrap'>
+                            <i className={`${header.line_1}`}></i>
+                            <i className={`${header.line_2}`}></i>
+                            <i className={`${header.line_3}`}></i>
+                        </div>
+                    </div>
 			    </div>
                 <div className={`${header.progress}`} ref='progressBar'></div>
 		    </div>

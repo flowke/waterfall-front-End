@@ -26,7 +26,7 @@ export default class LoginPanel extends React.Component{
             });
 
             $(form.cfpassword).addClass(style.hide);
-            $(form.submit).val('Login in');
+            $(form.submit).val('Login');
             $(this.refs.fastGoto).attr('tit','signin');
             $(this.refs.fastGoto).text('去注册');
         }else{
@@ -40,9 +40,8 @@ export default class LoginPanel extends React.Component{
             $(this.refs.fastGoto).text('去登陆');
         }
     }
-
+    // hover时
     panelFadeIn(panel){
-        console.log(panel)
         let form = this.refs.form;
         $(this.refs.panel).addClass(style.panelFade);
         if(panel==='login'){
@@ -52,7 +51,7 @@ export default class LoginPanel extends React.Component{
             });
 
             $(form.cfpassword).addClass(style.hide);
-            $(form.submit).val('Login in');
+            $(form.submit).val('Login');
             $(this.refs.fastGoto).attr('tit','signin');
             $(this.refs.fastGoto).text('去注册');
         }else{
@@ -157,8 +156,7 @@ export default class LoginPanel extends React.Component{
             <div className={`${style.panel}`} ref='panel'>
                 <div className={`${style.johndoe_left}`}>
                     <div className={`${style.john_img}`}>
-                        <img src={require("image/john.png")} alt=""/>
-                        <h2>Beckham</h2>
+                        <h2>那时候没有人帮助他，他就一个人在晚上写代码，写出他心中的世界。</h2>
                     </div>
                     <div className={`${style.john_text}`}>
                         <form className='form' ref="form" action="#" method="post" data-action="{this.state.action}" onSubmit={this.submit.bind(this)}>
