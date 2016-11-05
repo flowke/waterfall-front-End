@@ -130,7 +130,6 @@ export default class SharingPanel extends React.Component{
 			url: `${config.url}?h=home&c=category&a=getCategory`,
 			dataType: 'json',
 			success: (data)=>{
-				console.log(data);
 				data.forEach(function(item, indx){
 					list.push(<li key={indx} data-categoryid={item.category_id}  onMouseOut={this.listOut} onMouseOver={this.listIn} onClick={this.listClick.bind(this)}>{item.category_name}</li>)
 				} ,this);
@@ -177,16 +176,17 @@ export default class SharingPanel extends React.Component{
 							<h3><a href="#">{this.state.title}</a></h3>
 							<span><a href="#"><label> </label>{this.state.type}</a></span>
 							<p>{this.state.desc}</p>
-							</div>
-							<div className="post-info-rate-share">
-							<div className="rateit">
-								<span> </span>
-							</div>
-							<div className="post-share">
-								<span> </span>
-							</div>
-							<div className="clear"> </div>
-						</div>
+                        </div>
+                        <div className={`${panel.rateBar} post-info-rate-share f-clear`}>
+                            <a href="#" className={`${panel.rate}`} ref="thumb">
+                                <i className={`icon-heart1`}></i>
+                                <span>0</span>
+                            </a>
+                            <a href="#" className={`${panel.author}`}>
+                                <span>By You</span>
+                                <i className={`icon-link`}></i>
+                            </a>
+                        </div>
 					</div>
 				</div>
 			</div>

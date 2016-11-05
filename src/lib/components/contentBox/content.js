@@ -1,6 +1,6 @@
 
 let config = require('config/config.json');
-
+let cookie = require('util/cookie.js');
 import Item from 'components/public/item/item.js';
 import content from './content.less';
 
@@ -13,36 +13,84 @@ export default class Content extends React.Component{
         super(props);
         this.state = {
             tileList: [],
-            canReq: true
+            data: {}
         };
+        // 修改this绑定
+        this.userTile = this.userTile.bind(this);
+        this.initTile = this.initTile.bind(this);
+        this.canReq = true;
+
     }
 
     componentDidMount(){
+        // 订阅userTile
+        PubSub.subscribe('userTile',this.userTile);
+        PubSub.subscribe('initTile',this.initTile);
+        this.initTile();
+    }
+
+    initTile(){
+        console.log('从新生气了')
         let data = {
             offset:0,
-            limit: 20
+            limit: 20,
+            from_user: cookie.get('user') || 0
         };
+        this.queryString = 'p=home&c=tile&a=getTile';
+
         this.requestTile(data,(data)=>{
-            let list = [];
-            data.forEach((elt,i)=>{
-                list.push(<Item key={i} data={elt}/>)
-            })
+            data = data.map((elt,i)=>{
+                if(elt.thumb_status !=1 ){elt.thumb_status =0;};
+                return (<Item key={i} data={elt}/>);
+            });
+
             this.setState({
-                tileList: list
-            },this.wookmarkLayout);
+                tileList: null
+            },()=>{
+                this.setState({
+                    tileList: data
+                });
+            });
         });
     }
-    // 请求tile
+
+    // 处理查看每个user的tile请求, 在你点击用户的时候调用，需要传入用户的id
+    userTile(subName,args){
+        if(!args.from_user){
+            args.from_user = 0
+        }
+        let data = {
+            offset:0,
+            limit: 20,
+            watch_user: args.watch_user,
+            from_user: args.from_user
+        };
+        // 重置queryString
+        this.queryString = 'p=home&c=tile&a=userTile';
+
+        this.requestTile(data,(data)=>{
+            data = data.map((elt,i)=>{
+                if(elt.thumb_status !=1 ){elt.thumb_status =0;};
+                console.log(elt)
+                return (<Item key={i} data={elt}/>);
+            });
+            this.setState({
+                tileList: data
+            });
+        });
+    }
+
+    // 通用的tile请求
     requestTile(data,cb){
         $.ajax({
-            url: `${config.url}?p=home&c=tile&a=getTile`,
+            url: `${config.url}?${this.queryString}`,
             type: 'POST',
             data: data,
             dataType: `json`,
             success: cb
         });
     }
-
+    // 滚动后的tile请求，不需要修改,在state设置好路由就行
     handlerScroll(ev){
         let $elem = $(ev.target);
         let data = {
@@ -50,20 +98,21 @@ export default class Content extends React.Component{
             limit: 10
         };
         if(detectScrollBar($elem) && this.state.canReq){
-            this.state.canReq = false;
+            this.canReq = false;
             this.requestTile(data,(data)=>{
-                this.state.canReq = true;
+                this.canReq = true;
                 if(data.length===0){
                     return;
                 }
                 data = data.map((elt, i)=>{
+                    if(elt.thumb_status !=1 ){elt.thumb_status =0;};
                     return (<Item key={Math.random().toString().slice(2)} data={elt}/>);
                 });
                 let list = this.state.tileList.concat(data);
                 this.setState({
                     tileList: list,
                     canReq: true
-                },this.wookmarkLayout);
+                });
 
             });
         }
@@ -100,6 +149,9 @@ export default class Content extends React.Component{
             $tiles.wookmark(options);
             $tiles.wookmarkInstance.layout(true);
         });
+    }
+    componentDidUpdate(){
+        this.wookmarkLayout();
     }
 
     render(){

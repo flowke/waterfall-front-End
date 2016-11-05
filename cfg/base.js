@@ -43,7 +43,8 @@ module.exports = {
             page: `${defaultSettings.srcPath}/page`,
             image: `${defaultSettings.srcPath}/static/images`,
             style: `${defaultSettings.srcPath}/static/style`,
-            config: `${defaultSettings.srcPath}/config`
+            config: `${defaultSettings.srcPath}/config`,
+            util: `${defaultSettings.srcPath}/lib/util`
         }
     },
     module: {}

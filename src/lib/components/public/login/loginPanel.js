@@ -1,6 +1,6 @@
 
 let config = require('config/config.json');
-
+let cookie = require('util/cookie.js');
 import style from './loginPanel.less';
 
 export default class LoginPanel extends React.Component{
@@ -97,7 +97,6 @@ export default class LoginPanel extends React.Component{
             data: data,
             dataType: `json`,
             success:(data)=>{
-                console.log(data)
                 if(data.message === 1){
                     $(this.refs.form.reset).click();
                     this.registedState(data);
@@ -124,8 +123,10 @@ export default class LoginPanel extends React.Component{
             data: data,
             dataType: `json`,
             success:(data)=>{
-                console.log(data);
                 if(data.message === 1){
+                    //在content里订阅了
+                    PubSub.publish('initTile');
+                    cookie.set('user',data.user_id);
                     this.closePanel();
                     this.props.handleLogin({
                         username: data.user_name,

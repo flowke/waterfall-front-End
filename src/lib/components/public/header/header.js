@@ -1,6 +1,8 @@
 
 let config = require('config/config.json');
 
+let cookie = require('util/cookie.js');
+
 import header from './header.less';
 import SharingPanel from '../addSharing/sharingPanel.js';
 import LoginPanel from '../login/loginPanel.js';
@@ -85,9 +87,9 @@ export default class Header extends React.Component{
     hideUserSetting(){
         this.timer = setTimeout(()=>{
             $(this.refs.userSetting).removeClass(header.bubleHov);
-        },300);
+        },200);
     }
-
+    // 点击menu后的toggle作用
     menuClick(){
         let $lines = $(this.refs.lineWrap.children);
         $lines.eq(0).toggleClass(header.reformLine1);
@@ -96,18 +98,34 @@ export default class Header extends React.Component{
         this.refs.listPanel.handleListPanel();
     }
 
+    watchMine(ev){
+        ev.stopPropagation();
+        ev.preventDefault();
+        // 从content里订阅了
+        PubSub.publish('userTile',{
+            watch_user:this.state.userid,
+            from_user: cookie.get('user')
+        });
+    }
+
     componentDidMount(){
         $.ajax({
             url: `${config.url}?p=home&c=user&a=autologin`,
             dataType: 'json',
             success:(data)=>{
                 if(data.message === 1){
+                    cookie.set('user',data.user_id);
                     this.handleLogin({
                         username: data.user_name,
                         userid: data.user_id,
                         imgUrl: data.user_icon
                     });
+                }else{
+                    cookie.remove('user');
                 }
+            },
+            error:(d)=>{
+                console.log(d)
             }
         });
     }
@@ -126,8 +144,8 @@ export default class Header extends React.Component{
                         <span>{this.state.username}</span>
                         <div className={`${header.arrow_box} ${header.bubleFrame}`} ref='userSetting'>
                             <div className={`${header.bubleWrap}`} onMouseEnter={()=>{clearTimeout(this.timer)}}>
-                                <a href="#">查看我的</a>
-                                <a href="#">注销</a>
+                                <a href="#" onClick={this.watchMine.bind(this)}>查看我的</a>
+                                <a onClick = {()=>{cookie.remove('user')}} href={`${config.url}?p=home&c=user&a=logout`}>注销</a>
                             </div>
                         </div>
                     </div>
