@@ -285,6 +285,16 @@
 	            });
 	        }
 	    }, {
+	        key: 'homeRefresh',
+	        value: function homeRefresh(ev) {
+	            if (ev.target !== ev.currentTarget) {
+	                return;
+	            }
+	            ev.stopPropagation();
+	            ev.preventDefault();
+	            PubSub.publish('initTile');
+	        }
+	    }, {
 	        key: 'componentDidMount',
 	        value: function componentDidMount() {
 	            var _this4 = this;
@@ -316,7 +326,7 @@
 	
 	            return React.createElement(
 	                'div',
-	                { className: _header2.default.header + ' header' },
+	                { className: _header2.default.header + ' header', ref: 'header', onClick: this.homeRefresh.bind(this) },
 	                React.createElement(
 	                    'div',
 	                    { className: 'wrap' },
@@ -524,7 +534,7 @@
 					dataType: 'json',
 					success: function success(data) {
 						console.log(data);
-						if (data.message === '1') {
+						if (data.message === 1) {
 							return alert('请登陆');
 						}
 					}
@@ -1131,7 +1141,7 @@
 	        _this.state = {
 	            userList: []
 	        };
-	
+	        _this.handleRefresh = _this.handleRefresh.bind(_this);
 	        _this.handleListPanel = _this.handleListPanel.bind(_this);
 	        _this.updateList = _this.updateList.bind(_this);
 	        return _this;
@@ -1203,6 +1213,10 @@
 	
 	            this.setState({
 	                userList: list
+	            }, function () {
+	                setTimeout(function () {
+	                    $(_this2.refs.loopIcon).removeClass('f-refreshing');
+	                }, 1000);
 	            });
 	        }
 	    }, {
@@ -1210,6 +1224,7 @@
 	        value: function handleRefresh(ev) {
 	            ev.stopPropagation();
 	            ev.preventDefault();
+	            $(this.refs.loopIcon).addClass('f-refreshing');
 	            this.reqUser(null, this.updateList);
 	        }
 	    }, {
@@ -1223,10 +1238,11 @@
 	            return React.createElement(
 	                'div',
 	                { className: _userList2.default.panel + ' userList', ref: 'panel' },
-	                React.createElement('i', { className: '' + _userList2.default.mask, ref: 'mask', onClick: this.handleRefresh.bind(this) }),
+	                React.createElement('i', { className: '' + _userList2.default.mask, ref: 'mask', onClick: this.handleRefresh }),
 	                React.createElement(
 	                    'div',
 	                    { className: '' + _userList2.default.listWrap, ref: 'listWrap' },
+	                    React.createElement('i', { className: 'icon-loop2 ' + _userList2.default.refresh, onClick: this.handleRefresh, ref: 'loopIcon' }),
 	                    React.createElement(
 	                        'ul',
 	                        null,
@@ -1248,7 +1264,7 @@
 /***/ function(module, exports) {
 
 	// removed by extract-text-webpack-plugin
-	module.exports = {"panel":"_3A-nFrer8wcWNn3kdsfGAo","mask":"_3NTVfJWm8KmCVFoazUEzT2","panelShow":"_2m25Kk3GmFv3BAa56-2Z1h","maskShow":"_3JLlOoz2D3Fe7kJG1TZ2TJ","listWrap":"_2v9aEqgk1LYrB_o8RnTO1x","listShow":"UaP8mjx8FFDM1wK0hNsMH","starWrap":"w-o20A3kiSiVaRXAUmxF8","starNum":"_2Ez4RiYsusLzq-RDU1RKR0"};
+	module.exports = {"panel":"_3A-nFrer8wcWNn3kdsfGAo","refresh":"_1_BexoHUR6phDl9xWJbxlw","mask":"_3NTVfJWm8KmCVFoazUEzT2","panelShow":"_2m25Kk3GmFv3BAa56-2Z1h","maskShow":"_3JLlOoz2D3Fe7kJG1TZ2TJ","listWrap":"_2v9aEqgk1LYrB_o8RnTO1x","listShow":"UaP8mjx8FFDM1wK0hNsMH","starWrap":"w-o20A3kiSiVaRXAUmxF8","starNum":"_2Ez4RiYsusLzq-RDU1RKR0"};
 
 /***/ },
 /* 15 */
@@ -1318,7 +1334,6 @@
 	        value: function initTile() {
 	            var _this2 = this;
 	
-	            console.log('从新生气了');
 	            var data = {
 	                offset: 0,
 	                limit: 20,
@@ -3363,7 +3378,7 @@
 	
 	
 	// module
-	exports.push([module.id, "/* css reset */\nbody,p,h1,h2,h3,h4,h5,h6,dl,dd,form,select{margin:0;}\nol,ul{list-style:none; padding:0; margin:0;}\na{text-decoration:none; color:black;}\nimg{border:none; vertical-align:top;}\nem,i,{font-style:normal;}\nstrong{font-weight:normal;}\ntable{border-collapse:collapse;}\nth,td{padding:0;}\ninput{margin:0; padding:0;}\ntextarea{margin:0; padding:0; resize:none; overflow:auto; outline:none;}\n\n.f-clear:after{content:\"\";display:block;clear:both;}\n.f-clear{*zoom:1}\n\n.f-inlineBlock{ display: inline-block; *zoom:1; *display: inline; }\n\n@font-face {\n  font-family: 'icomoon';\n  src:  url('/public/assets/icomoon.eot?mwc2os');\n  src:  url('/public/assets/icomoon.eot?mwc2os#iefix') format('embedded-opentype'),\n    url('/public/assets/icomoon.ttf?mwc2os') format('truetype'),\n    url('/public/assets/icomoon.woff?mwc2os') format('woff'),\n    url('/public/assets/icomoon.svg?mwc2os#icomoon') format('svg');\n  font-weight: normal;\n  font-style: normal;\n}\n\n.f-bubbleHint{position: absolute; top: -88%; left: -30px; font-size: 10px; padding: 0 5px; border-radius: 4px; background: #fc8282; box-shadow: 0 0 4px rgba(255, 127, 110, 0.49); text-align: center; color: #fff; font-weight: normal; white-space:nowrap;}\n\n.icon-user:before {\n  content: \"\\E900\";\n}\n.icon-heart1:before {\n  content: \"\\E901\";\n}\n.icon-heart2:before {\n  content: \"\\E902\";\n}\n.icon-marker:before {\n  content: \"\\E903\";\n}\n.icon-link:before {\n  content: \"\\E005\";\n}\n.icon-cross:before {\n  content: \"\\E117\";\n}\n/**\n * Progress bar for imagesLoaded\n */\n.progress-bar {\n  background-color: #0BC20B;\n  height: 2px;\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  width: 0;\n  box-shadow: 0 1px 3px rgba(11, 194, 11, 0.2);\n  -webkit-transition: width 0.3s ease-out;\n     -moz-transition: width 0.3s ease-out;\n       -o-transition: width 0.3s ease-out;\n          transition: width 0.3s ease-out;\n}\n\n/**\n * Placerholder css\n */\n.wookmark-placeholder {\n          border-radius: 2px;\n     -moz-border-radius: 2px;\n  -webkit-border-radius: 2px;\n  background-color: #eee;\n  border: 1px solid #dedede;\n  z-index: -1;\n}\n\n.example-tiles {\n  position: relative; /** Needed to ensure items are laid out relative to this container **/\n  margin: 0;\n  padding: 0;\n}\n\n.example-tiles li {\n  display: block;\n  list-style-type: none;\n  float: left;\n  margin: 5px;\n  -webkit-transition: all 0.3s ease-out;\n     -moz-transition: all 0.3s ease-out;\n       -o-transition: all 0.3s ease-out;\n          transition: all 0.3s ease-out;\n}\n\n.example-tiles a,\n.example-tiles a:hover {\n  color: #555;\n  background-color: #eee;\n  text-align: center;\n  display: table-cell;\n  vertical-align: middle;\n  width: 200px;\n  height: 200px;\n  font-size: 2em;\n  font-weight: bold;\n  text-decoration: none;\n  border: 1px solid #ddd;\n  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);\n  padding: 5px 8px;\n  border-radius: 3px;\n}\n\n.example-tiles a:hover {\n  background-color: #ddd;\n}\n", ""]);
+	exports.push([module.id, "/* css reset */\nbody,p,h1,h2,h3,h4,h5,h6,dl,dd,form,select{margin:0;}\nol,ul{list-style:none; padding:0; margin:0;}\na{text-decoration:none; color:black;}\nimg{border:none; vertical-align:top;}\nem,i,{font-style:normal;}\nstrong{font-weight:normal;}\ntable{border-collapse:collapse;}\nth,td{padding:0;}\ninput{margin:0; padding:0;}\ntextarea{margin:0; padding:0; resize:none; overflow:auto; outline:none;}\n\nbody,html{height: 100%; overflow: hidden;}\n\n.f-clear:after{content:\"\";display:block;clear:both;}\n.f-clear{*zoom:1}\n\n.f-inlineBlock{ display: inline-block; *zoom:1; *display: inline; }\n\n@font-face {\n  font-family: 'icomoon';\n  src:  url('/public/assets/icomoon.eot?ekdlp2');\n  src:  url('/public/assets/icomoon.eot?ekdlp2#iefix') format('embedded-opentype'),\n    url('/public/assets/icomoon.ttf?ekdlp2') format('truetype'),\n    url('/public/assets/icomoon.woff?ekdlp2') format('woff'),\n    url('/public/assets/icomoon.svg?ekdlp2#icomoon') format('svg');\n  font-weight: normal;\n  font-style: normal;\n}\n\n@keyframes rotate{\n    from{transform: rotate(0);}\n    to{transform: rotate(1turn);}\n}\ni.f-refreshing{\n    animation: rotate 2s linear infinite;\n}\n.f-bubbleHint{position: absolute; top: -88%; left: -30px; font-size: 10px; padding: 0 5px; border-radius: 4px; background: #fc8282; box-shadow: 0 0 4px rgba(255, 127, 110, 0.49); text-align: center; color: #fff; font-weight: normal; white-space:nowrap;}\n\n.icon-用户:before {\n  content: \"\\E900\";\n}\n.icon-heart1:before {\n  content: \"\\E901\";\n}\n.icon-heart2:before {\n  content: \"\\E902\";\n}\n.icon-marker:before {\n  content: \"\\E903\";\n}\n.icon-link:before {\n  content: \"\\E005\";\n}\n.icon-cross:before {\n  content: \"\\E117\";\n}\n.icon-location:before {\n  content: \"\\E947\";\n}\n.icon-loop2:before {\n  content: \"\\EA2E\";\n}\n/**\n * Progress bar for imagesLoaded\n */\n.progress-bar {\n  background-color: #0BC20B;\n  height: 2px;\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  width: 0;\n  box-shadow: 0 1px 3px rgba(11, 194, 11, 0.2);\n  -webkit-transition: width 0.3s ease-out;\n     -moz-transition: width 0.3s ease-out;\n       -o-transition: width 0.3s ease-out;\n          transition: width 0.3s ease-out;\n}\n\n/**\n * Placerholder css\n */\n.wookmark-placeholder {\n          border-radius: 2px;\n     -moz-border-radius: 2px;\n  -webkit-border-radius: 2px;\n  background-color: #eee;\n  border: 1px solid #dedede;\n  z-index: -1;\n}\n\n.example-tiles {\n  position: relative; /** Needed to ensure items are laid out relative to this container **/\n  margin: 0;\n  padding: 0;\n}\n\n.example-tiles li {\n  display: block;\n  list-style-type: none;\n  float: left;\n  margin: 5px;\n  -webkit-transition: all 0.3s ease-out;\n     -moz-transition: all 0.3s ease-out;\n       -o-transition: all 0.3s ease-out;\n          transition: all 0.3s ease-out;\n}\n\n.example-tiles a,\n.example-tiles a:hover {\n  color: #555;\n  background-color: #eee;\n  text-align: center;\n  display: table-cell;\n  vertical-align: middle;\n  width: 200px;\n  height: 200px;\n  font-size: 2em;\n  font-weight: bold;\n  text-decoration: none;\n  border: 1px solid #ddd;\n  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);\n  padding: 5px 8px;\n  border-radius: 3px;\n}\n\n.example-tiles a:hover {\n  background-color: #ddd;\n}\n", ""]);
 	
 	// exports
 

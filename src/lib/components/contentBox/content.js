@@ -30,7 +30,6 @@ export default class Content extends React.Component{
     }
 
     initTile(){
-        console.log('从新生气了')
         let data = {
             offset:0,
             limit: 20,

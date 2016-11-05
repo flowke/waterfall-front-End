@@ -1,16 +1,19 @@
 
 
-.panel{ position: absolute; left: 0; right: 0; top: 0; bottom: 0; z-index: 9999; visibility: hidden;}
+.panel{
+    position: absolute; left: 0; right: 0; top: 0; bottom: 0; z-index: 9999; visibility: hidden;
+    i{font-family: 'icomoon'; font-size: 20px;}
+}
+i.refresh{ position: absolute; right: 20px; top: 0px; padding: 20px; color: #808080; cursor: pointer;}
 
 .mask{ position: absolute; left: 0; right: 0; top: 0; bottom: 0; background: #fff; opacity: 0; transition: .3s ease-out;}
-
 .panel.panelShow{visibility: visible;}
 .mask.maskShow{opacity: 0.8; }
 .listWrap.listShow{opacity: 1; transform: translate(100%, 0%) matrix(1, 0, 0, 1, 0, 0); }
 
 .listWrap{ transition: .2s ease-out;
     position: absolute; top: 0; right: 100%; bottom: 0; width: 300px; overflow: auto; padding-top: 80px; border-right: 1px solid #e3e3e3; background: #fff; transform-style: flat; opacity: 0;
-    ul{}
+    ul{overflow: auto; height: 100%;}
     li{
         position: relative; height: 40px; line-height: 40px; font-weight: bold; margin-bottom: 10px;
         text-indent: 28px;

@@ -1,10 +1,10 @@
 @font-face {
   font-family: 'icomoon';
-  src:  url('fonts/icomoon.eot?mwc2os');
-  src:  url('fonts/icomoon.eot?mwc2os#iefix') format('embedded-opentype'),
-    url('fonts/icomoon.ttf?mwc2os') format('truetype'),
-    url('fonts/icomoon.woff?mwc2os') format('woff'),
-    url('fonts/icomoon.svg?mwc2os#icomoon') format('svg');
+  src:  url('fonts/icomoon.eot?ekdlp2');
+  src:  url('fonts/icomoon.eot?ekdlp2#iefix') format('embedded-opentype'),
+    url('fonts/icomoon.ttf?ekdlp2') format('truetype'),
+    url('fonts/icomoon.woff?ekdlp2') format('woff'),
+    url('fonts/icomoon.svg?ekdlp2#icomoon') format('svg');
   font-weight: normal;
   font-style: normal;
 }
@@ -27,10 +27,10 @@
 .icon-用户:before {
   content: "\e900";
 }
-.icon-收藏2:before {
+.icon-heart1:before {
   content: "\e901";
 }
-.icon-收藏:before {
+.icon-heart2:before {
   content: "\e902";
 }
 .icon-map-marker:before {
@@ -44,5 +44,8 @@
 }
 .icon-location:before {
   content: "\e947";
+}
+.icon-loop2:before {
+  content: "\ea2e";
 }
 

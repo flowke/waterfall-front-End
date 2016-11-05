@@ -108,6 +108,16 @@ export default class Header extends React.Component{
         });
     }
 
+    homeRefresh(ev){
+        if(ev.target !== ev.currentTarget){
+            return;
+        }
+        ev.stopPropagation();
+        ev.preventDefault();
+        PubSub.publish('initTile');
+
+    }
+
     componentDidMount(){
         $.ajax({
             url: `${config.url}?p=home&c=user&a=autologin`,
@@ -132,7 +142,7 @@ export default class Header extends React.Component{
 
     render(){
         return (
-            <div className={`${header.header} header`}>
+            <div className={`${header.header} header`} ref='header' onClick={this.homeRefresh.bind(this)}>
 				<div className="wrap">
                     <div className={`${header.share_btn} ${header.btn} share_btn`} onClick={this.toggleSharePanel.bind(this)}>Sharing</div>
                     <div className={`${header.loginPanel}`} ref='loginBtn'>

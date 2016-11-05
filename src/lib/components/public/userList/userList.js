@@ -10,7 +10,7 @@ export default class UserList extends React.Component{
         this.state = {
             userList: []
         };
-
+        this.handleRefresh = this.handleRefresh.bind(this);
         this.handleListPanel = this.handleListPanel.bind(this);
         this.updateList = this.updateList.bind(this);
     }
@@ -62,26 +62,31 @@ export default class UserList extends React.Component{
 
         this.setState({
             userList: list
+        },()=>{
+            setTimeout(()=>{
+                $(this.refs.loopIcon).removeClass('f-refreshing');
+            },1000)
         });
     }
 
     handleRefresh(ev){
         ev.stopPropagation();
         ev.preventDefault();
+        $(this.refs.loopIcon).addClass('f-refreshing');
         this.reqUser(null,this.updateList);
     }
 
     componentDidMount(){
         this.reqUser(null,this.updateList);
-
     }
 
 
     render(){
         return (
             <div className={`${style.panel} userList`} ref = 'panel'>
-                <i className={`${style.mask}`} ref='mask' onClick={this.handleRefresh.bind(this)}></i>
+                <i className={`${style.mask}`} ref='mask' onClick={this.handleRefresh}></i>
                 <div className={`${style.listWrap}`} ref='listWrap'>
+                    <i className={`icon-loop2 ${style.refresh}`} onClick={this.handleRefresh} ref='loopIcon'></i>
                     <ul>
                         {this.state.userList}
                     </ul>

@@ -32,7 +32,7 @@ export default class SharingPanel extends React.Component{
 			dataType: 'json',
 			success: function(data){
 				console.log(data)
-				if(data.message === '1'){
+				if(data.message === 1){
 					return alert('请登陆');
 				}
 
