@@ -7,7 +7,6 @@ export default class Item extends React.Component{
 	constructor(props){
 		super(props);
 		this.thumbStatus = ['icon-heart1','icon-heart2'];
-
 		this.state = {
 			star: Number(this.props.data.tile_star),
 			starClass: this.thumbStatus[this.props.data.thumb_status],
@@ -83,7 +82,7 @@ export default class Item extends React.Component{
 	}
 
 	componentDidUpdate(){
-		
+
 	}
 
     render(){

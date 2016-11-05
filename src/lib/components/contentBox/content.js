@@ -30,14 +30,15 @@ export default class Content extends React.Component{
     }
 
     initTile(){
-        let data = {
+        this.ajaxData = {
             offset:0,
             limit: 20,
             from_user: cookie.get('user') || 0
         };
         this.queryString = 'p=home&c=tile&a=getTile';
-
-        this.requestTile(data,(data)=>{
+        this.getRange = 'all';
+        this.canReq = true;
+        this.requestTile(this.ajaxData,(data)=>{
             data = data.map((elt,i)=>{
                 if(elt.thumb_status !=1 ){elt.thumb_status =0;};
                 return (<Item key={i} data={elt}/>);
@@ -58,23 +59,27 @@ export default class Content extends React.Component{
         if(!args.from_user){
             args.from_user = 0
         }
-        let data = {
+        this.ajaxData = {
             offset:0,
             limit: 20,
             watch_user: args.watch_user,
             from_user: args.from_user
         };
+        this.canReq = true;
         // 重置queryString
         this.queryString = 'p=home&c=tile&a=userTile';
-
-        this.requestTile(data,(data)=>{
+        this.getRange = 'user';
+        this.requestTile(this.ajaxData,(data)=>{
             data = data.map((elt,i)=>{
                 if(elt.thumb_status !=1 ){elt.thumb_status =0;};
-                console.log(elt)
                 return (<Item key={i} data={elt}/>);
             });
             this.setState({
-                tileList: data
+                tileList: null
+            },()=>{
+                this.setState({
+                    tileList: data
+                });
             });
         });
     }
@@ -92,14 +97,13 @@ export default class Content extends React.Component{
     // 滚动后的tile请求，不需要修改,在state设置好路由就行
     handlerScroll(ev){
         let $elem = $(ev.target);
-        let data = {
-            offset: this.refs.tileWrap.children.length,
-            limit: 10
-        };
-        if(detectScrollBar($elem) && this.state.canReq){
+
+        if(detectScrollBar($elem) && this.canReq){
+
+            this.ajaxData.offset = this.refs.tileWrap.children.length;
+            this.ajaxData.limit = 10;
             this.canReq = false;
-            this.requestTile(data,(data)=>{
-                this.canReq = true;
+            this.requestTile(this.ajaxData,(data)=>{
                 if(data.length===0){
                     return;
                 }
@@ -109,8 +113,9 @@ export default class Content extends React.Component{
                 });
                 let list = this.state.tileList.concat(data);
                 this.setState({
-                    tileList: list,
-                    canReq: true
+                    tileList: list
+                },()=>{
+                    this.canReq = true;
                 });
 
             });

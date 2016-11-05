@@ -1334,14 +1334,15 @@
 	        value: function initTile() {
 	            var _this2 = this;
 	
-	            var data = {
+	            this.ajaxData = {
 	                offset: 0,
 	                limit: 20,
 	                from_user: cookie.get('user') || 0
 	            };
 	            this.queryString = 'p=home&c=tile&a=getTile';
-	
-	            this.requestTile(data, function (data) {
+	            this.getRange = 'all';
+	            this.canReq = true;
+	            this.requestTile(this.ajaxData, function (data) {
 	                data = data.map(function (elt, i) {
 	                    if (elt.thumb_status != 1) {
 	                        elt.thumb_status = 0;
@@ -1369,25 +1370,29 @@
 	            if (!args.from_user) {
 	                args.from_user = 0;
 	            }
-	            var data = {
+	            this.ajaxData = {
 	                offset: 0,
 	                limit: 20,
 	                watch_user: args.watch_user,
 	                from_user: args.from_user
 	            };
+	            this.canReq = true;
 	            // 重置queryString
 	            this.queryString = 'p=home&c=tile&a=userTile';
-	
-	            this.requestTile(data, function (data) {
+	            this.getRange = 'user';
+	            this.requestTile(this.ajaxData, function (data) {
 	                data = data.map(function (elt, i) {
 	                    if (elt.thumb_status != 1) {
 	                        elt.thumb_status = 0;
 	                    };
-	                    console.log(elt);
 	                    return React.createElement(_item2.default, { key: i, data: elt });
 	                });
 	                _this3.setState({
-	                    tileList: data
+	                    tileList: null
+	                }, function () {
+	                    _this3.setState({
+	                        tileList: data
+	                    });
 	                });
 	            });
 	        }
@@ -1413,14 +1418,13 @@
 	            var _this4 = this;
 	
 	            var $elem = $(ev.target);
-	            var data = {
-	                offset: this.refs.tileWrap.children.length,
-	                limit: 10
-	            };
-	            if (detectScrollBar($elem) && this.state.canReq) {
+	
+	            if (detectScrollBar($elem) && this.canReq) {
+	
+	                this.ajaxData.offset = this.refs.tileWrap.children.length;
+	                this.ajaxData.limit = 10;
 	                this.canReq = false;
-	                this.requestTile(data, function (data) {
-	                    _this4.canReq = true;
+	                this.requestTile(this.ajaxData, function (data) {
 	                    if (data.length === 0) {
 	                        return;
 	                    }
@@ -1432,8 +1436,9 @@
 	                    });
 	                    var list = _this4.state.tileList.concat(data);
 	                    _this4.setState({
-	                        tileList: list,
-	                        canReq: true
+	                        tileList: list
+	                    }, function () {
+	                        _this4.canReq = true;
 	                    });
 	                });
 	            }
@@ -1542,7 +1547,6 @@
 			var _this = _possibleConstructorReturn(this, (Item.__proto__ || Object.getPrototypeOf(Item)).call(this, props));
 	
 			_this.thumbStatus = ['icon-heart1', 'icon-heart2'];
-	
 			_this.state = {
 				star: Number(_this.props.data.tile_star),
 				starClass: _this.thumbStatus[_this.props.data.thumb_status],
