@@ -155,6 +155,7 @@ export default class Header extends React.Component{
                         <div className={`${header.arrow_box} ${header.bubleFrame}`} ref='userSetting'>
                             <div className={`${header.bubleWrap}`} onMouseEnter={()=>{clearTimeout(this.timer)}}>
                                 <a href="#" onClick={this.watchMine.bind(this)}>查看我的</a>
+                                <a href="#">更改头像</a>
                                 <a onClick = {()=>{cookie.remove('user')}} href={`${config.url}?p=home&c=user&a=logout`}>注销</a>
                             </div>
                         </div>

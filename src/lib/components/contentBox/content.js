@@ -91,7 +91,9 @@ export default class Content extends React.Component{
             type: 'POST',
             data: data,
             dataType: `json`,
-            success: cb
+            success: (data)=>{
+                cb && cb(data);
+            }
         });
     }
     // 滚动后的tile请求，不需要修改,在state设置好路由就行

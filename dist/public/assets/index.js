@@ -373,6 +373,11 @@
 	                                ),
 	                                React.createElement(
 	                                    'a',
+	                                    { href: '#' },
+	                                    '\u66F4\u6539\u5934\u50CF'
+	                                ),
+	                                React.createElement(
+	                                    'a',
 	                                    { onClick: function onClick() {
 	                                            cookie.remove('user');
 	                                        }, href: config.url + '?p=home&c=user&a=logout' },
@@ -815,7 +820,7 @@
 /***/ function(module, exports) {
 
 	module.exports = {
-		"url": "http://www.waterfall.com"
+		"url": "http://www.flowke.com"
 	};
 
 /***/ },
@@ -1407,7 +1412,9 @@
 	                type: 'POST',
 	                data: data,
 	                dataType: 'json',
-	                success: cb
+	                success: function success(data) {
+	                    cb && cb(data);
+	                }
 	            });
 	        }
 	        // 滚动后的tile请求，不需要修改,在state设置好路由就行
