@@ -68,8 +68,6 @@ export default class LoginPanel extends React.Component{
     panelFadeOut(){
         $(this.refs.panel).removeClass(style.panelFade);
     }
-
-
     /**
      * 表单提交
      */

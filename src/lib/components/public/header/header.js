@@ -117,6 +117,34 @@ export default class Header extends React.Component{
         PubSub.publish('initTile');
 
     }
+    // 点击更改头像更改头像
+    updateAvatar(){
+        this.refs.avatarUpload.click();
+    }
+    // 头像file变化之后
+    AvatarChange(ev){
+        ev.stopPropagation();
+		ev.preventDefault();
+		let fileList = ev.target.files || ev.dataTransfer.files;
+        let file = fileList[fileList.length-1];
+
+        let fd = new FormData();
+		fd.append('avatar',file);
+        console.log(file)
+        $.ajax({
+            url: `${config.url}?p=home&c=user&a=changeMyAvatar`,
+            type: 'POST',
+            dataType: 'json',
+            processData: false,
+		    contentType: false,
+            data: fd,
+            success:(data)=>{
+                this.setState({
+                    imgUrl: data.url
+                });
+            }
+        });
+    }
 
     componentDidMount(){
         $.ajax({
@@ -155,7 +183,8 @@ export default class Header extends React.Component{
                         <div className={`${header.arrow_box} ${header.bubleFrame}`} ref='userSetting'>
                             <div className={`${header.bubleWrap}`} onMouseEnter={()=>{clearTimeout(this.timer)}}>
                                 <a href="#" onClick={this.watchMine.bind(this)}>查看我的</a>
-                                <a href="#">更改头像</a>
+                                <a href="#" onClick={this.updateAvatar.bind(this)}>更改头像</a>
+                                <input type="file" className={`${header.hide}`} onChange={this.AvatarChange.bind(this)} ref="avatarUpload"/>
                                 <a onClick = {()=>{cookie.remove('user')}} href={`${config.url}?p=home&c=user&a=logout`}>注销</a>
                             </div>
                         </div>
