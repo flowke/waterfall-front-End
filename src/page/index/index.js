@@ -1,6 +1,5 @@
 
-require('style/style.css');
-require('style/main.css');
+require('style/gen.css');
 
 
 import Header from 'components/public/header/header.js'
@@ -8,15 +7,15 @@ import Content from 'components/contentBox/content.js'
 
 class Index extends React.Component{
     render(){
-        return(
-            <div id="index">
-                <Header/>
-                <Content/>
-            </div>
-        );
+        return;
     }
 }
 
 let root = document.querySelector('#root');
 
-ReactDOM.render(<Index />, root);
+ReactDOM.render((
+    <Index>
+        <Header/>
+        <Content/>
+    </Index>
+), root);

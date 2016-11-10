@@ -4,8 +4,6 @@ const defaultSettings = require('./default.js'); // 与业务代码共用同一�
 const base = require('./base.js');
 const path = require('path');
 
-console.log(111)
-
 module.exports = {
     output: {
         path: path.join(__dirname, '/../dist/public/assets'),

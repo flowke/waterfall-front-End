@@ -38,13 +38,13 @@ module.exports = {
     resolve: {
         extensions: ['', '.js', '.jsx'],
         alias: {
-            framework: `${defaultSettings.srcPath}/lib/framework`,
-            components: `${defaultSettings.srcPath}/lib/components`,
+            framework: `framework`,
+            components: `${defaultSettings.srcPath}/component`,
             page: `${defaultSettings.srcPath}/page`,
-            image: `${defaultSettings.srcPath}/static/images`,
+            image: `${defaultSettings.srcPath}/static/image`,
             style: `${defaultSettings.srcPath}/static/style`,
             config: `${defaultSettings.srcPath}/config`,
-            util: `${defaultSettings.srcPath}/lib/util`
+            util: `${defaultSettings.srcPath}/framework/util`
         }
     },
     module: {}
