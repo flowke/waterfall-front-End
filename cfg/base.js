@@ -1,7 +1,7 @@
 'use strict';
 let path = require('path');
 let defaultSettings = require('./default');
-
+let values = require('postcss-modules-values');
 // Additional npm or bower modules to include in builds
 // Add all foreign plugins you may need into this array
 // @example:
@@ -38,14 +38,17 @@ module.exports = {
     resolve: {
         extensions: ['', '.js', '.jsx'],
         alias: {
-            framework: `framework`,
-            components: `${defaultSettings.srcPath}/component`,
+            framework: `${defaultSettings.rootPath}/framework`,
+            component: `${defaultSettings.srcPath}/component`,
             page: `${defaultSettings.srcPath}/page`,
             image: `${defaultSettings.srcPath}/static/image`,
             style: `${defaultSettings.srcPath}/static/style`,
             config: `${defaultSettings.srcPath}/config`,
-            util: `${defaultSettings.srcPath}/framework/util`
+            util: `${defaultSettings.rootPath}/framework/util`
         }
     },
-    module: {}
+    module: {},
+    postcss: [
+      values
+    ]
 };

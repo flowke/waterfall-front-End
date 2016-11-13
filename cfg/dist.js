@@ -1,6 +1,7 @@
 'use strict';
 let htmlWebpackPlugin = require('html-webpack-plugin');
 let ExtractTextPlugin = require('extract-text-webpack-plugin');
+
 let path = require('path');
 let webpack = require('webpack');
 
@@ -71,7 +72,7 @@ config.module.loaders.push(
     },
     {
       test: /\.less/,
-        loader: ExtractTextPlugin.extract('css-loader?modules!less-loader')
+        loader: ExtractTextPlugin.extract('css-loader?modules&localIdentName=[local]_[hash:base64:10]!postcss-loader!less-loader')
     }
 );
 

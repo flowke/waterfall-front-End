@@ -7,7 +7,7 @@ let defaultSettings = require('./default');
 let ExtractTextPlugin = require('extract-text-webpack-plugin');
 let htmlWebpackPlugin = require('html-webpack-plugin');
 let openBrowserWebpackPlugin = require('open-browser-webpack-plugin');
-
+let values = require('postcss-modules-values');
 // Add needed plugins here
 let BowerWebpackPlugin = require('bower-webpack-plugin');
 
@@ -58,7 +58,7 @@ config.module.loaders.push(
     },
     {
       test: /\.less/,
-        loader: 'style-loader!css-loader?modules!less-loader'
+        loader: 'style-loader!css-loader?modules&localIdentName=[local]_[hash:base64:10]!postcss-loader!less-loader'
     }
 );
 

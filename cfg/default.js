@@ -8,6 +8,7 @@
 let ExtractTextPlugin = require('extract-text-webpack-plugin');
 const path = require('path');
 const srcPath = path.join(__dirname, '/../src');
+const rootPath = path.join(__dirname, '../')
 const dfltPort = 8000;
 
 // my path
@@ -63,6 +64,7 @@ function getDefaultModules() {
 
 module.exports = {
     srcPath: srcPath,
+    rootPath: rootPath,
     publicPath: publicPath,  // 文件映射在在后端服务器的目录，根据后端设置而定
     port: dfltPort,
     getDefaultModules: getDefaultModules,

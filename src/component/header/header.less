@@ -1,0 +1,70 @@
+@img: '/public/assets';
+.m-header{position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; background: #fff;}
+
+/* topBar */
+.topBar{ position: relative; height: 58px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); text-align: center;}
+
+.share_btn{ width: 80px; height: 40px; margin: 9px auto; background: #fd0202; border-radius: 22px; text-align: center;line-height: 40px; color: #fff; box-sizing: border-box; border: 1px solid #f01a1a;}
+.topBar-info{ position: absolute; right: 40px; top: 0; height: 100%; line-height: 58px;
+	>*{float: left;}
+	.userIcon{font-size: 20px;}
+}
+
+
+/* userInfo */
+.userInfo{ position: relative; margin-top: 9px; cursor: pointer;
+	.imgWrap{
+		float: left; width: 40px; height: 40px; text-align: center; border-radius: 50%; overflow: hidden;
+	}
+	img{ width: 100%; height: 100%; }
+	span{float: right; margin-left: 10px; line-height: 40px;}
+}
+/* 气泡框子 */
+
+.arrow_box {
+	position: relative;
+	background: #fff;
+	box-shadow: 0 0 0 1px rgba(0,0,0,.1);
+}
+.arrow_box:after, .arrow_box:before {
+	bottom: 100%;
+	left: 30%;
+	border: solid transparent;
+	content: " ";
+	height: 0;
+	width: 0;
+	position: absolute;
+	pointer-events: none;
+}
+
+.arrow_box:after {
+	border-color: rgba(136, 183, 213, 0);
+	border-bottom-color: #fff;
+	border-width: 8px;
+	margin-left: -8px;
+}
+.arrow_box:before {
+	border-color: rgba(10, 10, 9, 0);
+	border-bottom-color: rgba(0,0,0,.2);
+	border-width: 9px;
+	margin-left: -9px;
+}
+
+.bubleFrame{ position: absolute; border-radius:6px; left: -20px; top: 50px; z-index: 1299; transition: .2s; opacity: 0; visibility: hidden; width: 100px;
+    &:hover{ top: 56px; height: auto; opacity: 1; visibility: visible;}
+	a{ display: block;  height: 24px; line-height: 24px; text-align: left; text-indent: 1.6em; font-size: 12px;
+		&:hover{ color:#fd0202; cursor: pointer;}
+	}
+}
+.bubleHov{ top: 56px;  opacity: 1; visibility: visible;}
+.bubleWrap{ padding-top: 5px; border-radius: 6px; overflow: hidden;}
+/* end of userInfo */
+
+
+.progress{ position: absolute; z-index: 9999; height: 3px; width: 100%; top: 100%; left: -100%; background: #fd0202; transition: left 0.4s; box-shadow: 0 1px 3px rgba(219, 172, 172, 1); z-index: 1000;}
+.progressIn{left:0;transition: left 2s cubic-bezier(0.195, 0.545, 0.275, 0.845);}
+.progressDone{transition: none;}
+/* endof topBar */
+
+/* 通用样式，包括一些组件 */
+.hide{ display: none;}

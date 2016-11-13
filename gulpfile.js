@@ -2,7 +2,7 @@ const gulp = require('gulp'),
     clean = require('gulp-clean');
 
 gulp.task('move',['clean'],function(){
-    return gulp.src(['src/static/images/*.{jpg,png}','./framework/vendor/**','src/static/fonts/*'])
+    return gulp.src(['src/static/image/*.{jpg,png}','./framework/vendor/**','src/static/fonts/*'])
     .pipe(gulp.dest('dist/public/assets'));
 });
 

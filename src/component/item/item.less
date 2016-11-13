@@ -1,0 +1,33 @@
+
+.tileWrap{
+    width: 260px; box-shadow: 0 0 3px rgba(0, 0, 0, 0.1); background-color: #ffffff; border: 1px solid #dedede; border-radius: 0.2em;
+    img{display: block; width: 100%; height: auto;border-top-left-radius: 0.2em; border-top-right-radius: 0.2em;}
+}
+
+.postInfo{
+    .basicInfo{
+        padding: 7% 7% 5% 7%;
+        h3{
+            a{
+                word-break: break-all; color: #717171; font-size: 19px; margin-bottom: 0.2em; display: block; transition: 0.5s all;
+            }
+        }
+        a{color: #ACAAAA; font-size: 14.4px;
+            i{font-size: 14px;}
+        }
+        p{margin: 0.6em 0; line-height: 1.5em; font-size: 14px; color: #B7B5B5; word-break: break-all;}
+    }
+    .rateBar{
+        cursor: default; padding: 6px 18px; line-height: 28px; box-sizing: border-box; font-size: 14px; color: #9f9f9f;  user-select: none; border-top: 1px solid rgba(183, 181, 181, 0.36);}
+        .rate{float: left; position: relative; color: inherit;
+            >*{margin-right: 4px;}
+            i{ color: #fd0202; font-size: 22px; font-weight: bold;}
+        }
+        .author{float: right; cursor: pointer; font-size: 14px; color:inherit;
+            *>{margin-left: 4px;}
+            i{font-size: 16px; color: #454545; font-weight: bold;}
+            &:hover{
+                i{color: #fd0202; }
+            }
+        }
+}
