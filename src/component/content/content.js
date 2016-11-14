@@ -36,8 +36,9 @@ export default class Content extends React.Component{
         // 路由信息
         this.queryString = 'p=home&c=tile&a=getTile';
         this.canReq = true;
-
+        PubSub.publish('progressLoading');
         this.requestTile(this.ajaxData,(data)=>{
+            PubSub.publish('progressLoadingDone');
             data = data.map((elt,i)=>{
                 if(elt.thumb_status !=1 ){elt.thumb_status =0;};
                 return (<Item key={i} data={elt}/>);
@@ -67,8 +68,10 @@ export default class Content extends React.Component{
         this.canReq = true;
         // 重置queryString
         this.queryString = 'p=home&c=tile&a=userTile';
+        PubSub.publish('progressLoading');
         this.requestTile(this.ajaxData,(data)=>{
             data = data.map((elt,i)=>{
+                PubSub.publish('progressLoadingDone');
                 if(elt.thumb_status !=1 ){elt.thumb_status =0;};
                 return (<Item key={i} data={elt}/>);
             });
@@ -86,13 +89,15 @@ export default class Content extends React.Component{
     // 它绑定在body上
     handlerScroll(ev){
         let $elem = $(window);
-        console.log(detectScrollBar($elem),this.canReq)
         if(detectScrollBar($elem) && this.canReq){
+            // 进度条载入
+            PubSub.publish('progressLoading');
 
             this.ajaxData.offset = this.refs.tileWrap.children.length;
             this.ajaxData.limit = 10;
             this.canReq = false;
             this.requestTile(this.ajaxData,(data)=>{
+                PubSub.publish('progressLoadingDone');
                 if(data.length===0){
                     return;
                 }

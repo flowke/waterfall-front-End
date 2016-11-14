@@ -20,13 +20,13 @@ export default class Header extends React.Component{
         this.userLeave = this.userLeave.bind(this);
         this.fadeEntryOn = this.fadeEntryOn.bind(this);
         this.loginDone = this.loginDone.bind(this);
+        this.progressLoading = this.progressLoading.bind(this);
+        this.progressLoadingDone = this.progressLoadingDone.bind(this);
         // 控制fadein的开关
         this.userEntrySwitch = false;
 
 
     }
-
-    
 
     // 用户点击了分享按钮，只涉及到ui上的隐藏和显示
     shareBtnClick(){
@@ -73,7 +73,7 @@ export default class Header extends React.Component{
         $bar.removeClass(style.progressIn);
         $bar.off('transitionend');
     }
-    // 让entryfade能继续触发
+    // 让entryfade能继续触发, 进度条会重置
     fadeEntryOn(){
         $(this.refs.loadingLine).removeClass(style.progressDone);
         $(this.refs.loadingLine).removeClass(style.progressIn);
@@ -144,11 +144,28 @@ export default class Header extends React.Component{
         $(this.refs.userInfo).removeClass(style.hide);
         $(this.refs.userIcon).addClass(style.hide);
     }
+    /**
+     * 进度条关于tile加载
+     */
+    progressLoading(){
+        $(this.refs.loadingLine).addClass(style.progressLoading);
+    }
+    progressLoadingDone(){
+
+        $(this.refs.loadingLine).addClass(style.progressLoadingDone);
+        setTimeout(()=>{
+            $(this.refs.loadingLine).removeClass(style.progressLoading);
+            $(this.refs.loadingLine).removeClass(style.progressLoadingDone);
+        },100);
+    }
 
     componentDidMount(){
         PubSub.subscribe('fadeEntryOn', this.fadeEntryOn);
         PubSub.subscribe('userClick', this.userClick);
         PubSub.subscribe('loginDone', this.loginDone);
+        PubSub.subscribe('progressLoading', this.progressLoading);
+        PubSub.subscribe('progressLoadingDone', this.progressLoadingDone);
+
 
         $.ajax({
             url: `${config.url}?p=home&c=user&a=autologin`,
@@ -199,7 +216,6 @@ export default class Header extends React.Component{
                         </div>
                     </div>
                 </div>
-
                 <div className={`${style.progress}`} ref='loadingLine'></div>
             </header>
         );

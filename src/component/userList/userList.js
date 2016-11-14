@@ -25,6 +25,10 @@ export default class UserList extends React.Component{
         $(elems.panel).toggleClass(style.panelShow);
         $(elems.mask).toggleClass(style.maskShow);
         $(elems.listWrap).toggleClass(style.listShow);
+        // 分享面板的关闭
+        PubSub.publish('closePanelWrap');
+        // 用户入口的关闭
+        PubSub.publish('closeUserEntry');
     }
 
     watchMine(ev){
@@ -87,7 +91,6 @@ export default class UserList extends React.Component{
         this.reqUser(null,this.updateList);
         PubSub.subscribe('toggleUserList', this.toggleUserList);
     }
-
 
     render(){
         return (

@@ -1,5 +1,5 @@
 @img: '/public/assets';
-.m-header{position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; background: #fff;}
+.m-header{position: fixed; z-index: 99999; left: 0; top: 0; width: 100%; background: #fff;}
 
 /* topBar */
 .topBar{ position: relative; height: 58px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); text-align: center;}
@@ -61,9 +61,11 @@
 /* end of userInfo */
 
 
-.progress{ position: absolute; z-index: 9999; height: 3px; width: 100%; top: 100%; left: -100%; background: #fd0202; transition: left 0.4s; box-shadow: 0 1px 3px rgba(219, 172, 172, 1); z-index: 1000;}
+.progress{ position: absolute; z-index: 9999; height: 3px; width: 100%; top: 100%; left: -100%; background: #fd0202; transition: left 0.4s; box-shadow: 0 1px 3px rgba(219, 172, 172, 1);}
 .progressIn{left:0;transition: left 2s cubic-bezier(0.195, 0.545, 0.275, 0.845);}
 .progressDone{transition: none;}
+.progressLoading{ left:-30%; transition: left 1.5s cubic-bezier(0.195, 0.545, 0.275, 0.845); }
+.progressLoadingDone{left:0; transition: none;}
 /* endof topBar */
 
 /* 通用样式，包括一些组件 */

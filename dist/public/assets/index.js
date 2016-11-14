@@ -64,11 +64,11 @@
 	
 	var _shareingPanel2 = _interopRequireDefault(_shareingPanel);
 	
-	var _userEntry = __webpack_require__(24);
+	var _userEntry = __webpack_require__(25);
 	
 	var _userEntry2 = _interopRequireDefault(_userEntry);
 	
-	var _userList = __webpack_require__(26);
+	var _userList = __webpack_require__(27);
 	
 	var _userList2 = _interopRequireDefault(_userList);
 	
@@ -80,7 +80,7 @@
 	
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 	
-	__webpack_require__(28);
+	__webpack_require__(29);
 	
 	var Index = function (_React$Component) {
 	    _inherits(Index, _React$Component);
@@ -180,6 +180,8 @@
 	        _this.userLeave = _this.userLeave.bind(_this);
 	        _this.fadeEntryOn = _this.fadeEntryOn.bind(_this);
 	        _this.loginDone = _this.loginDone.bind(_this);
+	        _this.progressLoading = _this.progressLoading.bind(_this);
+	        _this.progressLoadingDone = _this.progressLoadingDone.bind(_this);
 	        // 控制fadein的开关
 	        _this.userEntrySwitch = false;
 	
@@ -249,7 +251,7 @@
 	            $bar.removeClass(_header2.default.progressIn);
 	            $bar.off('transitionend');
 	        }
-	        // 让entryfade能继续触发
+	        // 让entryfade能继续触发, 进度条会重置
 	
 	    }, {
 	        key: 'fadeEntryOn',
@@ -346,12 +348,34 @@
 	            $(this.refs.userInfo).removeClass(_header2.default.hide);
 	            $(this.refs.userIcon).addClass(_header2.default.hide);
 	        }
+	        /**
+	         * 进度条关于tile加载
+	         */
+	
+	    }, {
+	        key: 'progressLoading',
+	        value: function progressLoading() {
+	            $(this.refs.loadingLine).addClass(_header2.default.progressLoading);
+	        }
+	    }, {
+	        key: 'progressLoadingDone',
+	        value: function progressLoadingDone() {
+	            var _this5 = this;
+	
+	            $(this.refs.loadingLine).addClass(_header2.default.progressLoadingDone);
+	            setTimeout(function () {
+	                $(_this5.refs.loadingLine).removeClass(_header2.default.progressLoading);
+	                $(_this5.refs.loadingLine).removeClass(_header2.default.progressLoadingDone);
+	            }, 100);
+	        }
 	    }, {
 	        key: 'componentDidMount',
 	        value: function componentDidMount() {
 	            PubSub.subscribe('fadeEntryOn', this.fadeEntryOn);
 	            PubSub.subscribe('userClick', this.userClick);
 	            PubSub.subscribe('loginDone', this.loginDone);
+	            PubSub.subscribe('progressLoading', this.progressLoading);
+	            PubSub.subscribe('progressLoadingDone', this.progressLoadingDone);
 	
 	            $.ajax({
 	                url: config.url + '?p=home&c=user&a=autologin',
@@ -379,7 +403,7 @@
 	    }, {
 	        key: 'render',
 	        value: function render() {
-	            var _this5 = this;
+	            var _this6 = this;
 	
 	            return React.createElement(
 	                'header',
@@ -421,7 +445,7 @@
 	                                React.createElement(
 	                                    'div',
 	                                    { className: '' + _header2.default.bubleWrap, onMouseEnter: function onMouseEnter() {
-	                                            clearTimeout(_this5.timer);
+	                                            clearTimeout(_this6.timer);
 	                                        } },
 	                                    React.createElement(
 	                                        'a',
@@ -462,7 +486,7 @@
 /***/ function(module, exports) {
 
 	// removed by extract-text-webpack-plugin
-	module.exports = {"m-header":"m-header_1CGPEzKEt3","topBar":"topBar_2gKG4o7ip7","share_btn":"share_btn_2C7aOjro3L","topBar-info":"topBar-info_3DAQcPiKgN","userIcon":"userIcon_6qZeb8lCft","userInfo":"userInfo_3RF2mg6rpu","imgWrap":"imgWrap_1dIfsnFMEC","arrow_box":"arrow_box_1FTWqrqkdk","bubleFrame":"bubleFrame_4bpVGZLxnM","bubleHov":"bubleHov_2ZBJVpAMRm","bubleWrap":"bubleWrap_3028F_RY0w","progress":"progress_2tBNv3KHe4","progressIn":"progressIn_2jbCEeET8o","progressDone":"progressDone__aDQ3AyaWs","hide":"hide_3jlkoTYUWQ"};
+	module.exports = {"m-header":"m-header_1CGPEzKEt3","topBar":"topBar_2gKG4o7ip7","share_btn":"share_btn_2C7aOjro3L","topBar-info":"topBar-info_3DAQcPiKgN","userIcon":"userIcon_6qZeb8lCft","userInfo":"userInfo_3RF2mg6rpu","imgWrap":"imgWrap_1dIfsnFMEC","arrow_box":"arrow_box_1FTWqrqkdk","bubleFrame":"bubleFrame_4bpVGZLxnM","bubleHov":"bubleHov_2ZBJVpAMRm","bubleWrap":"bubleWrap_3028F_RY0w","progress":"progress_2tBNv3KHe4","progressIn":"progressIn_2jbCEeET8o","progressDone":"progressDone__aDQ3AyaWs","progressLoading":"progressLoading_2nNK5hpS0C","progressLoadingDone":"progressLoadingDone_1xq7KWQBBU","hide":"hide_3jlkoTYUWQ"};
 
 /***/ },
 /* 6 */
@@ -532,26 +556,30 @@
 /* 8 */
 /***/ function(module, exports) {
 
+	'use strict';
 	
 	module.exports = {
-	    set: function(key, val, timeout){
-	        if (!key || /^(?:expires|max\-age|path|domain|secure)$/i.test(key)) { return false; }
-	        timeout = timeout ? '; max-age='+60*60*24*timeout : '';
+	    set: function set(key, val, timeout) {
+	        if (!key || /^(?:expires|max\-age|path|domain|secure)$/i.test(key)) {
+	            return false;
+	        }
+	        timeout = timeout ? '; max-age=' + 60 * 60 * 24 * timeout : '';
 	        document.cookie = encodeURIComponent(key) + '=' + encodeURIComponent(val) + timeout;
 	    },
-	    get: function(key){
+	    get: function get(key) {
 	        return decodeURIComponent(document.cookie.replace(new RegExp("(?:(?:^|.*;)\\s*" + encodeURIComponent(key).replace(/[\-\.\+\*]/g, "\\$&") + "\\s*\\=\\s*([^;]*).*$)|^.*$"), "$1")) || null;
 	    },
-	    remove: function(key){
-	        if (!key || !this.hasIt(key)) { return false; }
+	    remove: function remove(key) {
+	        if (!key || !this.hasIt(key)) {
+	            return false;
+	        }
 	        document.cookie = encodeURIComponent(key) + "=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
 	        return true;
 	    },
-	    hasIt: function(key){
-	        return (new RegExp("(?:^|;\\s*)" + encodeURIComponent(key).replace(/[\-\.\+\*]/g, "\\$&") + "\\s*\\=")).test(document.cookie);
+	    hasIt: function hasIt(key) {
+	        return new RegExp("(?:^|;\\s*)" + encodeURIComponent(key).replace(/[\-\.\+\*]/g, "\\$&") + "\\s*\\=").test(document.cookie);
 	    }
 	};
-
 
 /***/ },
 /* 9 */
@@ -626,8 +654,9 @@
 	            // 路由信息
 	            this.queryString = 'p=home&c=tile&a=getTile';
 	            this.canReq = true;
-	
+	            PubSub.publish('progressLoading');
 	            this.requestTile(this.ajaxData, function (data) {
+	                PubSub.publish('progressLoadingDone');
 	                data = data.map(function (elt, i) {
 	                    if (elt.thumb_status != 1) {
 	                        elt.thumb_status = 0;
@@ -664,8 +693,10 @@
 	            this.canReq = true;
 	            // 重置queryString
 	            this.queryString = 'p=home&c=tile&a=userTile';
+	            PubSub.publish('progressLoading');
 	            this.requestTile(this.ajaxData, function (data) {
 	                data = data.map(function (elt, i) {
+	                    PubSub.publish('progressLoadingDone');
 	                    if (elt.thumb_status != 1) {
 	                        elt.thumb_status = 0;
 	                    };
@@ -690,13 +721,15 @@
 	            var _this4 = this;
 	
 	            var $elem = $(window);
-	            console.log(detectScrollBar($elem), this.canReq);
 	            if (detectScrollBar($elem) && this.canReq) {
+	                // 进度条载入
+	                PubSub.publish('progressLoading');
 	
 	                this.ajaxData.offset = this.refs.tileWrap.children.length;
 	                this.ajaxData.limit = 10;
 	                this.canReq = false;
 	                this.requestTile(this.ajaxData, function (data) {
+	                    PubSub.publish('progressLoadingDone');
 	                    if (data.length === 0) {
 	                        return;
 	                    }
@@ -2418,7 +2451,11 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _shareingPanel = __webpack_require__(23);
+	var _validation = __webpack_require__(23);
+	
+	var _validation2 = _interopRequireDefault(_validation);
+	
+	var _shareingPanel = __webpack_require__(24);
 	
 	var _shareingPanel2 = _interopRequireDefault(_shareingPanel);
 	
@@ -2441,7 +2478,10 @@
 	
 			var _this = _possibleConstructorReturn(this, (ShareingPanel.__proto__ || Object.getPrototypeOf(ShareingPanel)).call(this, props));
 	
+			_this.validation = new _validation2.default();
+	
 			_this.togglePanelWrap = _this.togglePanelWrap.bind(_this);
+			_this.closePanelWrap = _this.closePanelWrap.bind(_this);
 			_this.state = {
 				type: '请选择一种类型',
 				typeList: null,
@@ -2450,6 +2490,11 @@
 				img: null,
 				category_id: '0'
 			};
+	
+			// 注册验证
+			_this.validation.addByValue('title', [{ strategy: 'isEmpty', errorMsg: 'title不能是空' }]);
+			_this.validation.addByValue('desc', [{ strategy: 'isEmpty', errorMsg: '输入点描述吧' }]);
+	
 			return _this;
 		}
 		/**
@@ -2471,7 +2516,9 @@
 					success: function success(data) {
 	
 						if (data.message === 1) {
-							return alert('请登陆');
+							this.bubbleHint('先登录哦', this.refs.submitBtn);
+						} else if (data.message === 0) {
+							$(this.refs.panelWrap).toggle(100);
 						}
 					}
 				});
@@ -2485,9 +2532,33 @@
 			key: 'submit',
 			value: function submit(ev) {
 				ev.preventDefault();
-				var panelBox = this.refs.panelWrap,
-				    form = ev.target;
-				$(panelBox).toggle(100);
+				var form = ev.target;
+				// 进入验证步骤
+				var msg = void 0;
+	
+				msg = this.validation.valiOneByValue('title', form.title.value);
+				if (msg) {
+					$(form.title).addClass(_shareingPanel2.default.warning);
+				}
+	
+				msg = this.validation.valiOneByValue('desc', form.desc.value);
+				if (msg) {
+					$(form.desc).addClass(_shareingPanel2.default.warning);
+				}
+	
+				if (this.state.category_id == 0) {
+					$(this.refs.typeWrap).addClass(_shareingPanel2.default.warning);
+					msg = true;
+				}
+	
+				if (this.state.img == null) {
+					$(this.refs.coverBtn).addClass(_shareingPanel2.default.warning);
+					msg = true;
+				}
+	
+				if (msg) {
+					return;
+				}
 	
 				var fd = new FormData();
 				fd.append('title', form.title.value);
@@ -2506,8 +2577,20 @@
 	
 		}, {
 			key: 'togglePanelWrap',
-			value: function togglePanelWrap() {
+			value: function togglePanelWrap(ev) {
+				if (ev.stopPropagation) {
+					if (ev.target === ev.currentTarget) {
+						$(this.refs.panelWrap).toggle(180);
+					}
+					return;
+				}
+	
 				$(this.refs.panelWrap).toggle(180);
+			}
+		}, {
+			key: 'closePanelWrap',
+			value: function closePanelWrap() {
+				$(this.refs.panelWrap).hide(100);
 			}
 			// tile类型的显示和隐藏
 	
@@ -2530,7 +2613,16 @@
 			value: function listOut(event) {
 				$(event.target).removeClass(_shareingPanel2.default.active);
 			}
-	
+		}, {
+			key: 'titleFocus',
+			value: function titleFocus(ev) {
+				$(ev.target).removeClass(_shareingPanel2.default.warning);
+			}
+		}, {
+			key: 'descFocus',
+			value: function descFocus(ev) {
+				$(ev.target).removeClass(_shareingPanel2.default.warning);
+			}
 			/**
 	   * 选择类型后做的动作
 	   */
@@ -2538,6 +2630,7 @@
 		}, {
 			key: 'listClick',
 			value: function listClick(ev) {
+				$(this.refs.typeWrap).removeClass(_shareingPanel2.default.warning);
 				this.setState({
 					type: ev.target.innerText,
 					category_id: ev.target.dataset.categoryid
@@ -2555,6 +2648,9 @@
 				// 阻止文件打开
 				ev.stopPropagation();
 				ev.preventDefault();
+	
+				$(this.refs.coverBtn).removeClass(_shareingPanel2.default.warning);
+	
 				var fileList = ev.target.files || ev.dataTransfer.files,
 				    imgWrap = this.refs.imgWrap,
 				    img = this.refs.uploadImg;
@@ -2580,6 +2676,24 @@
 				ev.stopPropagation();
 				ev.preventDefault();
 			}
+			//
+	
+		}, {
+			key: 'bubbleHint',
+			value: function bubbleHint(hint, wrap) {
+				var _this2 = this;
+	
+				if (this.hintTimer) {
+					return;
+				};
+				$(wrap).append('<sapn class="' + _shareingPanel2.default.bubbleHint + ' ' + _shareingPanel2.default.ipt + ' u-bubbleHint">' + hint + '</span>');
+				this.hintTimer = setTimeout(function () {
+					$('.u-bubbleHint').fadeOut('slow', function () {
+						$('.u-bubbleHint').remove();
+						_this2.hintTimer = null;
+					});
+				}, 500);
+			}
 			/**
 	   * 	React 组件生命周期的函数在下方声明
 	   */
@@ -2587,16 +2701,17 @@
 		}, {
 			key: 'componentDidMount',
 			value: function componentDidMount() {
-				var _this2 = this;
+				var _this3 = this;
 	
 				// 订阅分享按钮的点击，header可能会订阅它
 				PubSub.subscribe('togglePanelWrap', this.togglePanelWrap);
-	
+				// 分享面板的关闭
+				PubSub.subscribe('closePanelWrap', this.closePanelWrap);
 				// 图片上传动作处理
 				this.refs.imgWrap.addEventListener('drop', this.fileUpload.bind(this), false);
 				this.refs.imgWrap.addEventListener('dragover', this.imgDragover.bind(this), false);
 				this.refs.imgWrap.onclick = function () {
-					_this2.refs.file.click();
+					_this3.refs.file.click();
 				};
 	
 				//请求分类信息
@@ -2607,18 +2722,18 @@
 						data = data.map(function (elt, indx) {
 							return React.createElement(
 								'li',
-								{ key: indx, 'data-categoryid': elt.category_id, onMouseOut: _this2.listOut, onMouseOver: _this2.listIn, onClick: _this2.listClick.bind(_this2) },
+								{ key: indx, 'data-categoryid': elt.category_id, onMouseOut: _this3.listOut, onMouseOver: _this3.listIn, onClick: _this3.listClick.bind(_this3) },
 								elt.category_name
 							);
 						});
-						_this2.setState({ typeList: data });
+						_this3.setState({ typeList: data });
 					}
 				});
 			}
 		}, {
 			key: 'render',
 			value: function render() {
-				var _this3 = this;
+				var _this4 = this;
 	
 				return React.createElement(
 					'div',
@@ -2626,121 +2741,125 @@
 					React.createElement('div', { className: '' + _shareingPanel2.default.mask, onClick: this.togglePanelWrap }),
 					React.createElement(
 						'div',
-						{ className: _shareingPanel2.default.sharePanel + ' sharePanel' },
+						{ className: '' + _shareingPanel2.default.eltWrap, onClick: this.togglePanelWrap },
 						React.createElement(
 							'div',
-							{ className: '' },
+							{ className: _shareingPanel2.default.tilePreview + ' tilePreview' },
 							React.createElement(
-								'form',
-								{ className: '' + _shareingPanel2.default.subForm, onSubmit: this.submit.bind(this) },
-								React.createElement('input', { type: 'text', placeholder: 'title', name: 'title', onChange: function onChange(ev) {
-										_this3.setState({ title: ev.target.value });
-									} }),
-								React.createElement('textarea', { rows: '8', placeholder: '\u8BF4\u70B9\u63CF\u8FF0\u5427', name: 'desc', onChange: function onChange(ev) {
-										_this3.setState({ desc: ev.target.value });
-									} }),
+								'div',
+								{ className: _shareingPanel2.default.imgWrap + ' imgWrap', ref: 'imgWrap', onDrop: this.fileUpload.bind(this) },
 								React.createElement(
 									'div',
-									{ className: _shareingPanel2.default.type + ' type', onClick: this.typeBoard.bind(this) },
+									{ className: '' + _shareingPanel2.default.imgHint, ref: 'imgHint' },
+									'\u53EF\u4EE5\u628A\u56FE\u7247\u62D6\u62FD\u5230\u8FD9\u91CC\uFF0C\u4E0D\u5927\u4E8E2M'
+								),
+								React.createElement('img', { src: '', ref: 'uploadImg', className: '' + _shareingPanel2.default.hide })
+							),
+							React.createElement(
+								'div',
+								{ className: '' + _shareingPanel2.default.postInfo },
+								React.createElement(
+									'div',
+									{ className: '' + _shareingPanel2.default.basicInfo },
 									React.createElement(
-										'div',
-										{ className: 'f-clear' },
+										'h3',
+										null,
 										React.createElement(
-											'p',
-											{ ref: 'typeName' },
+											'a',
+											{ href: '#' },
+											this.state.title
+										)
+									),
+									React.createElement(
+										'span',
+										null,
+										React.createElement(
+											'a',
+											{ href: '#' },
+											React.createElement(
+												'label',
+												null,
+												' '
+											),
 											this.state.type
 										)
 									),
 									React.createElement(
-										'ul',
-										{ className: _shareingPanel2.default.hide + ' ' + _shareingPanel2.default.typeList, ref: 'typeList' },
-										this.state.typeList
+										'p',
+										null,
+										this.state.desc
 									)
 								),
 								React.createElement(
 									'div',
-									{ className: '' + _shareingPanel2.default.upload },
-									'\u4E0A\u4F20\u4F60\u7684\u5C01\u9762',
-									React.createElement('input', { className: _shareingPanel2.default.fadeHide, ref: 'file', name: true, type: 'file', onChange: this.fileUpload.bind(this) })
-								),
-								React.createElement(
-									'button',
-									{ type: 'submit' },
-									'\u5206\u4EAB\uFF5E\uFF5E\uFF5E'
+									{ className: _shareingPanel2.default.rateBar + ' f-clear' },
+									React.createElement(
+										'a',
+										{ href: '#', className: '' + _shareingPanel2.default.rate, ref: 'thumb' },
+										React.createElement('i', { className: 'icon-heart1' }),
+										React.createElement(
+											'span',
+											null,
+											'0'
+										)
+									),
+									React.createElement(
+										'a',
+										{ href: '#', className: '' + _shareingPanel2.default.author },
+										React.createElement(
+											'span',
+											null,
+											'By You'
+										),
+										React.createElement('i', { className: 'icon-link' })
+									)
 								)
 							)
-						)
-					),
-					React.createElement(
-						'div',
-						{ className: _shareingPanel2.default.tilePreview + ' tilePreview' },
-						React.createElement(
-							'div',
-							{ className: _shareingPanel2.default.imgWrap + ' imgWrap', ref: 'imgWrap', onDrop: this.fileUpload.bind(this) },
-							React.createElement(
-								'div',
-								{ className: '' + _shareingPanel2.default.imgHint, ref: 'imgHint' },
-								'\u53EF\u4EE5\u628A\u56FE\u7247\u62D6\u62FD\u5230\u8FD9\u91CC\uFF0C\u4E0D\u5927\u4E8E2M'
-							),
-							React.createElement('img', { src: '', ref: 'uploadImg', className: '' + _shareingPanel2.default.hide })
 						),
 						React.createElement(
 							'div',
-							{ className: '' + _shareingPanel2.default.postInfo },
+							{ className: _shareingPanel2.default.sharePanel + ' sharePanel' },
 							React.createElement(
 								'div',
-								{ className: '' + _shareingPanel2.default.basicInfo },
+								{ className: '' },
 								React.createElement(
-									'h3',
-									null,
+									'form',
+									{ className: '' + _shareingPanel2.default.subForm, onSubmit: this.submit.bind(this) },
+									React.createElement('input', { type: 'text', placeholder: 'title', name: 'title', onChange: function onChange(ev) {
+											_this4.setState({ title: ev.target.value });
+										}, onFocus: this.titleFocus.bind(this) }),
+									React.createElement('textarea', { rows: '8', placeholder: '\u8BF4\u70B9\u63CF\u8FF0\u5427', name: 'desc', onChange: function onChange(ev) {
+											_this4.setState({ desc: ev.target.value });
+										}, onFocus: this.descFocus.bind(this) }),
 									React.createElement(
-										'a',
-										{ href: '#' },
-										this.state.title
-									)
-								),
-								React.createElement(
-									'span',
-									null,
-									React.createElement(
-										'a',
-										{ href: '#' },
+										'div',
+										{ className: _shareingPanel2.default.type + ' type', onClick: this.typeBoard.bind(this), ref: 'typeWrap' },
 										React.createElement(
-											'label',
-											null,
-											' '
+											'div',
+											{ className: 'f-clear' },
+											React.createElement(
+												'p',
+												{ ref: 'typeName' },
+												this.state.type
+											)
 										),
-										this.state.type
-									)
-								),
-								React.createElement(
-									'p',
-									null,
-									this.state.desc
-								)
-							),
-							React.createElement(
-								'div',
-								{ className: _shareingPanel2.default.rateBar + ' f-clear' },
-								React.createElement(
-									'a',
-									{ href: '#', className: '' + _shareingPanel2.default.rate, ref: 'thumb' },
-									React.createElement('i', { className: 'icon-heart1' }),
-									React.createElement(
-										'span',
-										null,
-										'0'
-									)
-								),
-								React.createElement(
-									'a',
-									{ href: '#', className: '' + _shareingPanel2.default.author },
-									React.createElement(
-										'span',
-										null,
-										'By You'
+										React.createElement(
+											'ul',
+											{ className: _shareingPanel2.default.hide + ' ' + _shareingPanel2.default.typeList, ref: 'typeList' },
+											this.state.typeList
+										)
 									),
-									React.createElement('i', { className: 'icon-link' })
+									React.createElement(
+										'div',
+										{ className: '' + _shareingPanel2.default.upload, ref: 'coverBtn' },
+										'\u4E0A\u4F20\u4F60\u7684\u5C01\u9762',
+										React.createElement('input', { className: _shareingPanel2.default.fadeHide, ref: 'file', name: true, type: 'file', onChange: this.fileUpload.bind(this) })
+									),
+									React.createElement(
+										'button',
+										{ type: 'submit', ref: 'submitBtn' },
+										'\u5206\u4EAB\uFF5E\uFF5E\uFF5E'
+									)
 								)
 							)
 						)
@@ -2759,11 +2878,239 @@
 /* 23 */
 /***/ function(module, exports) {
 
-	// removed by extract-text-webpack-plugin
-	module.exports = {"hide":"hide_lKUHq8JcFY","fadeHide":"fadeHide_BxdsgJVkcN","panelWrap":"panelWrap_2eyuNnmQs9","mask":"mask_2dSUL1NFK_","sharePanel":"sharePanel_2m3mJR1eP0","type":"type_1fHJmNvoXu","typeList":"typeList_14RMPCCbVi","active":"active_32CjFTwYVz","subForm":"subForm_2g1MZTUfe3","upload":"upload_3ynaBuSeBh","tilePreview":"tilePreview_7JPJZ4eeNR","imgWrap":"imgWrap_1Yz_gs71Gw","imgHint":"imgHint_2bVNLheMO4","postInfo":"postInfo_2msDH2feyC","basicInfo":"basicInfo_3N2-AQ-PWZ","rateBar":"rateBar_3etQ6eSRLQ","rate":"rate_2MdZQRgN4t","author":"author_1NcLbiTxFr"};
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	// 表单的策略类, 定义了所有的验证算法, 他们不会主动调用, 而是等待执行环境的调用
+	var formValidation = {
+	    isEmpty: function isEmpty(val, errorMsg) {
+	        if (val === '') {
+	            return errorMsg;
+	        }
+	    },
+	    hasSpace: function hasSpace(val, errorMsg) {
+	        if (/\s/g.test(val)) {
+	            return errorMsg;
+	        }
+	    },
+	    minLength: function minLength(val, length, errorMsg) {
+	        if (val.length < length) {
+	            return errorMsg;
+	        }
+	    },
+	    maxLength: function maxLength(val, length, errorMsg) {
+	        if (val.length > length) {
+	            return errorMsg;
+	        }
+	    },
+	    mustLetterHead: function mustLetterHead(val, errorMsg) {
+	        if (!/^[a-z]/i.test(val)) {
+	            return errorMsg;
+	        }
+	    },
+	    isNumberHead: function isNumberHead(val, errorMsg) {
+	        if (/^\d/.test(val)) {
+	            return errorMsg;
+	        }
+	    },
+	    isZeroHead: function isZeroHead(val, errorMsg) {
+	        if (/^0/.test(val)) {
+	            return errorMsg;
+	        }
+	    },
+	    mustAllNum: function mustAllNum(val, errorMsg) {
+	        if (/\D/g.test(val)) {
+	            return errorMsg;
+	        }
+	    },
+	    isPhoneNum: function isPhoneNum(val, errorMsg) {
+	        if (!/^1[34578][0-9]{9}$/.test(val)) {
+	            return errorMsg;
+	        }
+	    },
+	    isID: function isID(val, errorMsg) {
+	        var ary = val.split('');
+	        var facAry = [7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2];
+	        var tempFac = 0;
+	        for (var i = 0, l = facAry.length; i < l; i++) {
+	            tempFac += parseInt(ary[i]) * facAry[i];
+	        }
+	        tempFac = tempFac % 11;
+	        tempFac = tempFac === 10 ? 'X' : tempFac;
+	
+	        if (!/^([1[1-5]|2[1-3]|3[1-7]|4[1-6]|5[0-4]|6[1-5]])0\d{14}[\dX]$/.test(val) || tempFac != ary[17]) {
+	            return errorMsg;
+	        }
+	    },
+	    isMail: function isMail(val, errorMsg) {
+	        if (!/^[a-z][\w\.-]{3,19}@[\da-z]{2,12}\.com(\.cn)?$/i.test(val)) {
+	            return errorMsg;
+	        }
+	    },
+	    isBirth: function isBirth(val, errorMsg) {
+	        var dateArr = val.match(/\d+/g);
+	        var date = dateInfo(new Date(dateArr.join()));
+	
+	        if (!isMatch() || !isVali()) {
+	            return errorMsg;
+	        }
+	
+	        function isMatch() {
+	            return dateArr[2] == date.day;
+	        };
+	
+	        function isVali() {
+	            var newDate = dateInfo(new Date());
+	            console.log(date);
+	            console.log(newDate);
+	            if (newDate.year > date.year) {
+	                return true;
+	            };
+	            if (newDate.year == date.year && newDate.mon > date.mon) {
+	                return true;
+	            };
+	            if (newDate.year == date.year && newDate.mon == date.mon && newDate.day >= date.day) {
+	                return true;
+	            };
+	        };
+	        function dateInfo(date) {
+	            return {
+	                year: date.getFullYear(),
+	                mon: date.getMonth(),
+	                day: date.getDate()
+	            };
+	        };
+	    }
+	};
+	
+	/*
+	    Validator 是一个执行环境,它接收用户请求,并告知用户是否验证通过
+	    但它本身不具备验证能力, 它需要把请求委托给表单的策略类, 策略类才是真正的封装了验证算法(策略类见上面代码)
+	*/
+	
+	var Validator = function () {
+	    function Validator() {
+	        _classCallCheck(this, Validator);
+	
+	        this.domRuleCache = {};
+	        this.valueRuleCache = {};
+	    }
+	    /*
+	    add方法负责给某个表单控件绑定验证规则, 把验证规则存到ruleCache中
+	    它支持同时一次添加多条规则到同一个dom上
+	    */
+	
+	
+	    _createClass(Validator, [{
+	        key: 'addByDom',
+	        value: function addByDom(dom, name, rules) {
+	            var ary = [],
+	                self = this;
+	            for (var i = 0, rule; rule = rules[i++];) {
+	                (function (rule) {
+	                    var strategyAry = rule.strategy.split(':'),
+	                        strategy = strategyAry.shift();
+	                    strategyAry.unshift(null);
+	                    strategyAry.push(rule.errorMsg);
+	
+	                    ary.push(function () {
+	                        strategyAry[0] = dom.value;
+	                        return formValidation[strategy].apply(self, strategyAry);
+	                    });
+	                })(rule);
+	            }
+	            this.domRuleCache[name] = ary;
+	        }
+	    }, {
+	        key: 'addByValue',
+	        value: function addByValue(name, rules) {
+	            var ary = [],
+	                self = this;
+	            for (var i = 0, rule; rule = rules[i++];) {
+	                (function (rule) {
+	                    var strategyAry = rule.strategy.split(':'),
+	                        strategy = strategyAry.shift();
+	                    strategyAry.unshift(null);
+	                    strategyAry.push(rule.errorMsg);
+	
+	                    ary.push(function (value) {
+	                        strategyAry[0] = value;
+	                        return formValidation[strategy].apply(self, strategyAry);
+	                    });
+	                })(rule);
+	            }
+	            this.valueRuleCache[name] = ary;
+	        }
+	        /*
+	        valiOne方法对某个表单提交的值进行验证,
+	        它需要传入一个name,来取出对应的验证规则
+	        如果值不合法, 返回对应的错误信息
+	        */
+	
+	    }, {
+	        key: 'valiOneByDom',
+	        value: function valiOneByDom(name) {
+	            for (var i = 0, fn; fn = this.domRuleCache[name][i++];) {
+	                var msg = fn();
+	                if (msg) {
+	                    return msg;
+	                }
+	            }
+	        }
+	    }, {
+	        key: 'valiOneByValue',
+	        value: function valiOneByValue(name, value) {
+	            for (var i = 0, fn; fn = this.valueRuleCache[name][i++];) {
+	                var msg = fn(value);
+	                if (msg) {
+	                    return msg;
+	                }
+	            }
+	        }
+	
+	        /*
+	        valiAll方法在此处用不到,他会遍历所有的规则进行验证,并返回错误信息
+	        比如你有一个提交按钮对整个表单进行提交,这个方法就很有用了
+	        因为是遍历所有绑定到dom上的验证规则,也就不需要传入name了
+	        */
+	
+	    }, {
+	        key: 'valiAllByDom',
+	        value: function valiAllByDom() {
+	            for (var name in this.ruleCache) {
+	                this.valiOneByDom(name);
+	            }
+	        }
+	    }, {
+	        key: 'alertTool',
+	        value: function alertTool(msg) {
+	            if (msg) {
+	                return mag;
+	            }
+	        }
+	    }]);
+	
+	    return Validator;
+	}();
+	
+	exports.default = Validator;
 
 /***/ },
 /* 24 */
+/***/ function(module, exports) {
+
+	// removed by extract-text-webpack-plugin
+	module.exports = {"hide":"hide_lKUHq8JcFY","bubbleHint":"bubbleHint_2gJOXoMnEJ","ipt":"ipt_2-HMPfBbyQ","subForm":"subForm_2g1MZTUfe3","warning":"warning_2UuXeafGeL","fadeHide":"fadeHide_BxdsgJVkcN","panelWrap":"panelWrap_2eyuNnmQs9","mask":"mask_2dSUL1NFK_","eltWrap":"eltWrap_3bGFHAtz1N","sharePanel":"sharePanel_2m3mJR1eP0","type":"type_1fHJmNvoXu","typeList":"typeList_14RMPCCbVi","active":"active_32CjFTwYVz","upload":"upload_3ynaBuSeBh","tilePreview":"tilePreview_7JPJZ4eeNR","imgWrap":"imgWrap_1Yz_gs71Gw","imgHint":"imgHint_2bVNLheMO4","postInfo":"postInfo_2msDH2feyC","basicInfo":"basicInfo_3N2-AQ-PWZ","rateBar":"rateBar_3etQ6eSRLQ","rate":"rate_2MdZQRgN4t","author":"author_1NcLbiTxFr"};
+
+/***/ },
+/* 25 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(React) {'use strict';
@@ -2774,7 +3121,7 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _userEntry = __webpack_require__(25);
+	var _userEntry = __webpack_require__(26);
 	
 	var _userEntry2 = _interopRequireDefault(_userEntry);
 	
@@ -2803,7 +3150,7 @@
 	        };
 	
 	        _this.showEntryPanel = _this.showEntryPanel.bind(_this);
-	
+	        _this.closePanel = _this.closePanel.bind(_this);
 	        _this.userEntryFadeOut = _this.userEntryFadeOut.bind(_this);
 	        return _this;
 	    }
@@ -2960,6 +3307,7 @@
 	        value: function componentDidMount() {
 	            PubSub.subscribe('showEntryPanel', this.showEntryPanel);
 	            PubSub.subscribe('userEntryFadeOut', this.userEntryFadeOut);
+	            PubSub.subscribe('closeUserEntry', this.closePanel);
 	        }
 	    }, {
 	        key: 'render',
@@ -3010,14 +3358,14 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1)))
 
 /***/ },
-/* 25 */
+/* 26 */
 /***/ function(module, exports) {
 
 	// removed by extract-text-webpack-plugin
 	module.exports = {"hide":"hide_2V-M8kB0Oo","fastGoto":"fastGoto_1zPUCksir8","center":"center_2QgOpoe2lr","panelWrap":"panelWrap_15l9SiN1qs","panelFade":"panelFade_1NEb7kJbkV","entryPanel":"entryPanel_2FFrDnm00s","entryHint":"entryHint_2QUzniN0Me","inputInfo":"inputInfo_1WQUxR5bBV","close":"close_2WBqe84tKI"};
 
 /***/ },
-/* 26 */
+/* 27 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(React) {'use strict';
@@ -3028,7 +3376,7 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _userList = __webpack_require__(27);
+	var _userList = __webpack_require__(28);
 	
 	var _userList2 = _interopRequireDefault(_userList);
 	
@@ -3078,6 +3426,10 @@
 	            $(elems.panel).toggleClass(_userList2.default.panelShow);
 	            $(elems.mask).toggleClass(_userList2.default.maskShow);
 	            $(elems.listWrap).toggleClass(_userList2.default.listShow);
+	            // 分享面板的关闭
+	            PubSub.publish('closePanelWrap');
+	            // 用户入口的关闭
+	            PubSub.publish('closeUserEntry');
 	        }
 	    }, {
 	        key: 'watchMine',
@@ -3201,23 +3553,23 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1)))
 
 /***/ },
-/* 27 */
+/* 28 */
 /***/ function(module, exports) {
 
 	// removed by extract-text-webpack-plugin
 	module.exports = {"panel":"panel_2gNOsLDbT1","menu":"menu_17x2Wl6iEN","line_1":"line_1_3xEmjFAoOm","line_2":"line_2_2prxqY_I3_","line_3":"line_3_2rwZrmYMME","menu-in":"menu-in_3G2DISoNE6","reformLine1":"reformLine1_31ti3-OIax","reformLine2":"reformLine2_34uN3WjDfy","reformLine3":"reformLine3_KMjqrpAC-I","refresh":"refresh_1OrQ57TBJM","mask":"mask_2BgDS0F_kJ","panelShow":"panelShow_mWFph1K3jb","maskShow":"maskShow_3zFytcwy3T","listWrap":"listWrap_2PmI_xCLSf","listShow":"listShow_GYy9qD0vM4","starWrap":"starWrap_1vS3N8yBvD","starNum":"starNum_150aaQMUJB"};
 
 /***/ },
-/* 28 */
+/* 29 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 	
 	// load the styles
-	var content = __webpack_require__(29);
+	var content = __webpack_require__(30);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
-	var update = __webpack_require__(30)(content, {});
+	var update = __webpack_require__(31)(content, {});
 	if(content.locals) module.exports = content.locals;
 	// Hot Module Replacement
 	if(false) {
@@ -3234,7 +3586,7 @@
 	}
 
 /***/ },
-/* 29 */
+/* 30 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(6)();
@@ -3248,7 +3600,7 @@
 
 
 /***/ },
-/* 30 */
+/* 31 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*

@@ -13,7 +13,7 @@ export default class LoginPanel extends React.Component{
         };
 
         this.showEntryPanel = this.showEntryPanel.bind(this);
-
+        this.closePanel = this.closePanel.bind(this);
         this.userEntryFadeOut = this.userEntryFadeOut.bind(this);
     }
 
@@ -139,6 +139,7 @@ export default class LoginPanel extends React.Component{
     componentDidMount(){
         PubSub.subscribe('showEntryPanel', this.showEntryPanel);
         PubSub.subscribe('userEntryFadeOut', this.userEntryFadeOut);
+        PubSub.subscribe('closeUserEntry',this.closePanel);
     }
 
     render(){
