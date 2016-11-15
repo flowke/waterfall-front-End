@@ -20,6 +20,7 @@ export default class Content extends React.Component{
         this.initTile = this.initTile.bind(this);
         this.handlerScroll = this.handlerScroll.bind(this);
         this.toggleWelcome = this.toggleWelcome.bind(this);
+        this.updateTile = this.updateTile.bind(this);
         // 控制是否可以发起请求
         // 它在发起一次请求后变成false，state更新后变成true
         this.canReq = true;
@@ -41,7 +42,7 @@ export default class Content extends React.Component{
             PubSub.publish('progressLoadingDone');
             data = data.map((elt,i)=>{
                 if(elt.thumb_status !=1 ){elt.thumb_status =0;};
-                return (<Item key={i} data={elt}/>);
+                return (<Item key={Math.random().toString().slice(2)} data={elt}/>);
             });
 
             this.setState({
@@ -73,7 +74,7 @@ export default class Content extends React.Component{
             data = data.map((elt,i)=>{
                 PubSub.publish('progressLoadingDone');
                 if(elt.thumb_status !=1 ){elt.thumb_status =0;};
-                return (<Item key={i} data={elt}/>);
+                return (<Item key={Math.random().toString().slice(2)} data={elt}/>);
             });
             this.setState({
                 tileList: null
@@ -123,6 +124,26 @@ export default class Content extends React.Component{
             }
         }
     }
+    // 一个通用的tile请求请求,需要传入数据
+    updateTile(msg, data){
+        this.queryString = 'p=home&c=tile&a=getTile';
+        data = data.map((elt,i)=>{
+            if(elt.thumb_status !=1 ){elt.thumb_status =0;};
+            return (<Item key={Math.random().toString().slice(2)} data={elt}/>);
+        });
+        this.setState({
+            tileList: null
+        },()=>{
+            setTimeout(()=>{
+                this.setState({
+                    tileList: data
+                },()=>{
+                    $(this.refs.tileWrap.children[0]).addClass('f-blingbling');
+                });
+            },300);
+        });
+
+    }
 
     // 通用的tile请求
     requestTile(data,cb){
@@ -169,16 +190,17 @@ export default class Content extends React.Component{
      * react的生命周期函数
      */
     componentDidMount(){
+        $(window).on('scroll', this.handlerScroll);
         // 订阅订阅tile请求
         PubSub.subscribe('userTile',this.userTile);
         PubSub.subscribe('initTile',this.initTile);
         PubSub.subscribe('toggleWelcome', this.toggleWelcome);
+        PubSub.subscribe('updateTile', this.updateTile);
         this.initTile();
     }
 
     componentDidUpdate(){
         this.wookmarkLayout();
-        $(window).on('scroll', this.handlerScroll);
     }
 
     render(){

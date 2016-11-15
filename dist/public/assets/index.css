@@ -14,7 +14,7 @@
   text-align: center;
 }
 .share_btn_2C7aOjro3L {
-  width: 80px;
+  padding: 0 20px;
   height: 40px;
   margin: 9px auto;
   background: #fd0202;
@@ -160,6 +160,19 @@
 /* 通用样式，包括一些组件 */
 .hide_3jlkoTYUWQ {
   display: none;
+}
+.globalBubble_3_LZKmXo74 {
+  position: absolute;
+  left: 10%;
+  bottom: 100%;
+  font-size: 14px;
+  padding: 10px 20px;
+  background: rgba(235, 68, 68, 0.79);
+  border-radius: .5em;
+  color: #fff;
+}
+.bubbleAnima {
+  animation: globalBubble 3s ;
 }
 .tileWrap_2aqlJqjlMx {
   width: 260px;

@@ -4,7 +4,7 @@
 /* topBar */
 .topBar{ position: relative; height: 58px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); text-align: center;}
 
-.share_btn{ width: 80px; height: 40px; margin: 9px auto; background: #fd0202; border-radius: 22px; text-align: center;line-height: 40px; color: #fff; box-sizing: border-box; border: 1px solid #f01a1a;}
+.share_btn{ padding: 0 20px; height: 40px; margin: 9px auto; background: #fd0202; border-radius: 22px; text-align: center; line-height: 40px; color: #fff; box-sizing: border-box; border: 1px solid #f01a1a;}
 .topBar-info{ position: absolute; right: 40px; top: 0; height: 100%; line-height: 58px;
 	>*{float: left;}
 	.userIcon{font-size: 20px;}
@@ -70,3 +70,10 @@
 
 /* 通用样式，包括一些组件 */
 .hide{ display: none;}
+
+.globalBubble{ position: absolute; left: 10%; bottom: 100%;
+	font-size: 14px; padding: 10px 20px; background: rgba(235, 68, 68, 0.79); border-radius: .5em; color: #fff;
+
+}
+
+:global .bubbleAnima{animation: globalBubble 3s ;  }

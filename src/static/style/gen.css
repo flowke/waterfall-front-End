@@ -18,7 +18,7 @@ h1,h2,h3,h4,h5,h6,em,strong,b{font-weight:normal;}
 del,ins,u,s,a,a:hover{text-decoration:none;}
 body,textarea,input,button,select,keygen,legend{font:14px/1.14 "Microsoft YaHei", arial, simsun; color:#333; outline:0;}
 body{background:#fff; font-size: 14px;}
-body,html{}
+img{user-select:none;}
 a,a:hover{color:#333;}
 /* all will be global */
 
@@ -27,14 +27,27 @@ a,a:hover{color:#333;}
 
 .f-inlineBlock{ display: inline-block; *zoom:1; *display: inline; }
 .f-hide{display: none;}
-@keyframes :global(rotate){
-    from{transform: rotate(0);}
-    to{transform: rotate(1turn);}
-}
 i.f-refreshing{
     animation: rotate 2s linear infinite;
 }
+.f-blingbling{ animation: blingbling .6s 6 alternate; }
 
+@keyframes blingbling {
+    from{box-shadow:0 4px 5px rgba(255, 0, 0, 0);}
+    to{box-shadow: 0 0 15px #fd0202;}
+}
+@keyframes rotate{
+    from{transform: rotate(0);}
+    to{transform: rotate(1turn);}
+}
+
+
+@keyframes globalBubble{
+    from{ bottom: 100%; }
+    20%{ bottom: 30%; }
+    50%{ bottom: 30%; }
+    to{ bottom: 100%; }
+}
 
 /* fontface */
 

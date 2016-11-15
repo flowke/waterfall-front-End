@@ -46,10 +46,17 @@ export default class ShareingPanel extends React.Component{
 			dataType: 'json',
 			success: function(data){
 
-				if(data.message === 1){
-					this.bubbleHint('先登录哦',this.refs.submitBtn);
-				}else if(data.message === 0){
+				if(data.message == 0){
 					$(this.refs.panelWrap).toggle(100);
+					PubSub.publish('globalHint',{rawText: 'Sharing', endText: 'Succeed in Sharing'});
+					PubSub.publish('updateTile', data.data);
+
+				}else if(data.message == 1){
+					this.bubbleHint('先登录哦',this.refs.submitBtn);
+				}else if(data.message == 2){
+					PubSub.publish('globalHint',{ rawText: 'Sharing', endText: 'Fail to share'});
+				}else if (data.message == 3) {
+					PubSub.publish('globalHint',{ rawText: 'Sharing', endText: 'Fail to share'});
 				}
 			}
 		});
@@ -112,8 +119,6 @@ export default class ShareingPanel extends React.Component{
 
 		$(this.refs.panelWrap).toggle(180);
 
-
-
 	}
 	closePanelWrap(){
 		$(this.refs.panelWrap).hide(100);
@@ -163,8 +168,9 @@ export default class ShareingPanel extends React.Component{
 			imgWrap = this.refs.imgWrap,
 			img = this.refs.uploadImg;
 
-		let file = fileList[fileList.length - 1];
-
+		let file = fileList[fileList.length-1];
+		
+		if(!file){ return; }
 		this.setState({img: file});
 
 		img.src = window.URL.createObjectURL(file);

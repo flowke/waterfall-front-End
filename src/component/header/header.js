@@ -2,6 +2,8 @@ let config = require('config/config.json');
 
 let cookie = require('util/cookie.js');
 
+import CreazyLetter from 'util/textTransform.js';
+
 import style from './header.less';
 
 export default class Header extends React.Component{
@@ -12,7 +14,8 @@ export default class Header extends React.Component{
         this.state = {
             username: 'Flowke',
             avatarUrl: '',
-            userid: ''
+            userid: '',
+            hintText: ''
         };
 
         this.userClick = this.userClick.bind(this);
@@ -22,6 +25,7 @@ export default class Header extends React.Component{
         this.loginDone = this.loginDone.bind(this);
         this.progressLoading = this.progressLoading.bind(this);
         this.progressLoadingDone = this.progressLoadingDone.bind(this);
+        this.globalHint = this.globalHint.bind(this);
         // 控制fadein的开关
         this.userEntrySwitch = false;
 
@@ -159,14 +163,30 @@ export default class Header extends React.Component{
         },100);
     }
 
+    // 全局的bubble提示
+    globalHint( msg, data ){
+        /* $(this.refs.globalBubble).addClass('bubbleAnima');
+        $(this.refs.globalBubble).one('animationend',()=>{
+            $(this.refs.globalBubble).removeClass('bubbleAnima');
+        }); */
+        let rawText = data.rawText,
+            endText = data.endText;
+        let creazyLetter = new CreazyLetter(this.refs.shareBtn);
+        creazyLetter.letterMutting(this.refs.shareBtn,endText,5);
+        clearTimeout(this.letterTimer)
+        this.letterTimer = setTimeout(()=>{
+            creazyLetter.letterMutting(this.refs.shareBtn,rawText,5);
+        }, 1600);
+    }
+
     componentDidMount(){
+
         PubSub.subscribe('fadeEntryOn', this.fadeEntryOn);
         PubSub.subscribe('userClick', this.userClick);
         PubSub.subscribe('loginDone', this.loginDone);
         PubSub.subscribe('progressLoading', this.progressLoading);
         PubSub.subscribe('progressLoadingDone', this.progressLoadingDone);
-
-
+        PubSub.subscribe('globalHint',this.globalHint);
         $.ajax({
             url: `${config.url}?p=home&c=user&a=autologin`,
             dataType: 'json',
@@ -193,10 +213,10 @@ export default class Header extends React.Component{
 
     render(){
         return (
-            <header className={`${style['m-header']}`}>
+            <header className={`${style['m-header']}`} ref="headerWrap">
 
                 <div className={`${style.topBar}`}>
-                    <button className={`${style.share_btn} u-btn`} onClick={this.shareBtnClick.bind(this)}>Sharing</button>
+                    <button className={`${style.share_btn} u-btn`} onClick={this.shareBtnClick.bind(this)} ref="shareBtn">Sharing</button>
 
                     <div className={`${style['topBar-info']}`}>
                         <span onClick={()=>{PubSub.publish('userClick',{panel: 'login'})}} onMouseEnter={this.userEnter} onMouseLeave={this.userLeave} ref="userIcon"><i className={`${style.userIcon} icon-user u-btn`}></i></span>
@@ -216,7 +236,9 @@ export default class Header extends React.Component{
                         </div>
                     </div>
                 </div>
+
                 <div className={`${style.progress}`} ref='loadingLine'></div>
+                <div className={`${style.globalBubble}`} ref="globalBubble">{this.state.hintText}</div>
             </header>
         );
     }
