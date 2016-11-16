@@ -2,7 +2,39 @@
 .contentBox{ min-height: 200px;
 	position: relative; margin-top: 58px;  background: #fff; transition: 1s cubic-bezier(0.250, 0.100, 0.250, 1.000);
 	ul{position: relative;}
+	ul>li{ transition: 1s;}
 	.layoutWrap{ margin:auto; width: 80%; padding-top: 40px;}
 }
+
+/* g */
+.g-left{margin-right: 0; position: relative; transition: marginRight 1s;}
+.leftSpread{margin-right: 280px;}
+
+.g-right{position: fixed;  right: 0; top: 58px; bottom: 0; width: 0px; border-left: 1px solid #e8e1e1; box-sizing: border-box;
+	overflow: hidden; transition: width 1s; background: #fff;}
+.rightSpread{width: 280px;}
+/*end g */
+.aside{ width: 200px; margin: auto; padding-top: 230px;
+	h3{font-weight: bold;}
+	i{position: absolute; right: 10px; top: 0; height: 35px; width: 60px; line-height: 35px; cursor: pointer;}
+}
+.sortElement{ margin-top: 10px; border: 1px solid #e8e1e1; border-bottom: none; text-indent: 2em; border-radius: 4px;
+	overflow: hidden;
+	>li{ line-height: 35px; border-bottom: 1px solid #e8e1e1;}
+	li{position: relative; cursor: default; user-select: none;}
+}
+.typeList{font-size: 14px; text-indent: 3em; color: #87888a; line-height: 20px; padding-bottom: 8px;
+	li:hover{ padding-left: 5px; }
+}
+
+.spreadMenu{ position: fixed; top: 230px; right: 30px; width: 30px; height: 30px; border-radius: 50%; background: #fd0202;
+	transition: right 1s;
+}
+
+.MenuSpreaded{ right: 265px; }
+
+
 /* 通用样式 */
 .notLogin{margin-top: 160+58px;}
+.hide{ display: none;}
+.redColor{color: #fd0202;}

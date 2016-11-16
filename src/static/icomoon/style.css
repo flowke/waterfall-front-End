@@ -1,10 +1,10 @@
 @font-face {
   font-family: 'icomoon';
-  src:  url('fonts/icomoon.eot?ekdlp2');
-  src:  url('fonts/icomoon.eot?ekdlp2#iefix') format('embedded-opentype'),
-    url('fonts/icomoon.ttf?ekdlp2') format('truetype'),
-    url('fonts/icomoon.woff?ekdlp2') format('woff'),
-    url('fonts/icomoon.svg?ekdlp2#icomoon') format('svg');
+  src:  url('fonts/icomoon.eot?687xqw');
+  src:  url('fonts/icomoon.eot?687xqw#iefix') format('embedded-opentype'),
+    url('fonts/icomoon.ttf?687xqw') format('truetype'),
+    url('fonts/icomoon.woff?687xqw') format('woff'),
+    url('fonts/icomoon.svg?687xqw#icomoon') format('svg');
   font-weight: normal;
   font-style: normal;
 }
@@ -24,7 +24,7 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-.icon-用户:before {
+.icon-user:before {
   content: "\e900";
 }
 .icon-heart1:before {
@@ -42,10 +42,19 @@
 .icon-cross:before {
   content: "\e117";
 }
+.icon-home:before {
+  content: "\e904";
+}
 .icon-location:before {
   content: "\e947";
 }
 .icon-loop2:before {
   content: "\ea2e";
+}
+.icon-arrow-up2:before {
+  content: "\ea3a";
+}
+.icon-arrow-down2:before {
+  content: "\ea3e";
 }
 

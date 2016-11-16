@@ -11,9 +11,13 @@ export default class Content extends React.Component{
 
     constructor(props){
         super(props);
+        /*
+        * typeList 请求分类数据
+         */
         this.state = {
             tileList: null,
-            data: {}
+            data: {},
+            typeList: null,
         };
         // 修改this绑定
         this.userTile = this.userTile.bind(this);
@@ -24,22 +28,38 @@ export default class Content extends React.Component{
         // 控制是否可以发起请求
         // 它在发起一次请求后变成false，state更新后变成true
         this.canReq = true;
+        // 用于判断向什么角色发起请求，
+        // all代表向全局发起请求，
+        // 非all向user发起请求，值代表userid， watch_user
+        this.filterRole = 'all' ;
+        // category_id, 0 代表全部
+        this.filterType = 0;
+        this.sortBy = 'TIME';
+        this.order = 'DESC';
     }
     // 这是一个初始化请求
     // 它应该在访问首页的时候调用一次
-    initTile(){
+    initTile( msg, args={} ){
         // ajax的请求数据
         this.ajaxData = {
             offset:0,
             limit: 20,
-            from_user: cookie.get('user') || 0
+            from_user: cookie.get('user') || 0,
+            filterType: args.filterType || this.filterType,
+            sortBy: args.sortBy || this.sortBy,
+            order: args.order || this.order
         };
         // 路由信息
         this.queryString = 'p=home&c=tile&a=getTile';
         this.canReq = true;
+        this.filterRole = 'all' ;
+
         PubSub.publish('progressLoading');
         this.requestTile(this.ajaxData,(data)=>{
             PubSub.publish('progressLoadingDone');
+            if(data.length==0){
+                PubSub.publish('globalHint',{ rawText: 'Sharing', endText: 'Nothing at all'});
+            }
             data = data.map((elt,i)=>{
                 if(elt.thumb_status !=1 ){elt.thumb_status =0;};
                 return (<Item key={Math.random().toString().slice(2)} data={elt}/>);
@@ -64,15 +84,26 @@ export default class Content extends React.Component{
             offset:0,
             limit: 20,
             watch_user: args.watch_user,
-            from_user: args.from_user
+            from_user: cookie.get('user'),
+            filterType: args.filterType || this.filterType,
+            sortBy: args.sortBy || this.sortBy,
+            order: args.order || this.order
         };
+
         this.canReq = true;
+        this.filterRole = args.watch_user;
+
         // 重置queryString
         this.queryString = 'p=home&c=tile&a=userTile';
         PubSub.publish('progressLoading');
         this.requestTile(this.ajaxData,(data)=>{
+            PubSub.publish('progressLoadingDone');
+
+            if(data.length==0){
+                PubSub.publish('globalHint',{ rawText: 'Sharing', endText: 'Nothing at all'});
+            }
+
             data = data.map((elt,i)=>{
-                PubSub.publish('progressLoadingDone');
                 if(elt.thumb_status !=1 ){elt.thumb_status =0;};
                 return (<Item key={Math.random().toString().slice(2)} data={elt}/>);
             });
@@ -127,6 +158,10 @@ export default class Content extends React.Component{
     // 一个通用的tile请求请求,需要传入数据
     updateTile(msg, data){
         this.queryString = 'p=home&c=tile&a=getTile';
+
+        $(this.refs.timeArrow).addClass(style.redColor);
+        $(this.refs.thumbArrow).removeClass(style.redColor);
+
         data = data.map((elt,i)=>{
             if(elt.thumb_status !=1 ){elt.thumb_status =0;};
             return (<Item key={Math.random().toString().slice(2)} data={elt}/>);
@@ -144,7 +179,7 @@ export default class Content extends React.Component{
         });
 
     }
-
+    
     // 通用的tile请求
     requestTile(data,cb){
         $.ajax({
@@ -157,6 +192,121 @@ export default class Content extends React.Component{
             }
         });
     }
+    /* handler for aside */
+
+    typeShow(ev){
+        // if(ev.target !== ev.currentTarget){ return };
+
+        $(this.refs.typeList).toggleClass(style.hide);
+
+    }
+
+    listClick(ev){
+        if(this.refs.typeName.innerText.toUpperCase() === ev.target.innerText.toUpperCase()){
+            return;
+        };
+        this.refs.typeName.innerText = ev.target.innerText ;
+        this.filterType = $(ev.target).data('categoryid');
+        if(this.filterRole === 'all'){
+            PubSub.publish('initTile',{
+                filterType: this.filterType,
+                sortBy: this.sortBy,
+                order: this.order
+            });
+        }else{
+            PubSub.publish('userTile',{
+                watch_user: this.filterRole,
+                filterType: this.filterType,
+                sortBy: this.sortBy,
+                order: this.order
+            });
+        }
+
+
+    }
+
+    orderThumbs(ev){
+        ev.stopPropagation();
+        ev.preventDefault();
+
+
+
+        if(ev.target.tagName.toUpperCase() === "I"){
+            $(this.refs.thumbArrow).toggleClass('icon-arrow-up2');
+            if(this.refs.thumbArrow.onOff = !this.refs.thumbArrow.onOff){
+                this.order = 'ASC';
+            }else{
+                this.order = 'DESC';
+            }
+            this.refs.thumbArrow.order = this.order;
+
+        }else if (this.sortBy === 'THUMBS') {
+            return;
+        }
+
+        $(this.refs.thumbArrow).addClass(style.redColor);
+        $(this.refs.timeArrow).removeClass(style.redColor);
+
+        this.sortBy = 'THUMBS';
+
+        if(this.filterRole === 'all'){
+            PubSub.publish('initTile',{
+                filterType: this.filterType,
+                sortBy: this.sortBy,
+                order: this.refs.thumbArrow.order
+            });
+        }else{
+            PubSub.publish('userTile',{
+                watch_user: this.filterRole,
+                filterType: this.filterType,
+                sortBy: this.sortBy,
+                order: this.refs.thumbArrow.order
+            });
+        }
+
+
+    }
+
+    orderTime(ev){
+        ev.stopPropagation();
+        ev.preventDefault();
+
+
+        if(ev.target.tagName.toUpperCase() === "I"){
+            $(this.refs.timeArrow).toggleClass('icon-arrow-up2');
+            if(this.refs.timeArrow.onOff = !this.refs.timeArrow.onOff){
+                this.order = 'ASC';
+            }else{
+                this.order = 'DESC';
+            }
+            this.refs.timeArrow.order = this.order;
+        }else if(this.sortBy === 'TIME'){
+            return;
+        }
+
+        $(this.refs.timeArrow).addClass(style.redColor);
+        $(this.refs.thumbArrow).removeClass(style.redColor);
+
+        this.sortBy = 'TIME';
+
+        if(this.filterRole === 'all'){
+            PubSub.publish('initTile',{
+                filterType: this.filterType,
+                sortBy: this.sortBy,
+                order: this.refs.timeArrow.order
+            });
+        }else{
+            PubSub.publish('userTile',{
+                watch_user: this.filterRole,
+                filterType: this.filterType,
+                sortBy: this.sortBy,
+                order: this.refs.timeArrow.order
+            });
+        }
+    }
+
+
+    /* end handler for aside */
 
     wookmarkLayout(){
         let options = {
@@ -185,7 +335,14 @@ export default class Content extends React.Component{
     toggleWelcome(){
         $(this.refs.content).toggleClass(style.notLogin);
     }
-
+    toggleSpread(ev){
+        ev.stopPropagation();
+        ev.preventDefault();
+        this.wookmarkLayout();
+        $(this.refs.spreadMenu).toggleClass(style.MenuSpreaded);
+        $(this.refs.leftWrap).toggleClass(style.leftSpread);
+        $(this.refs.rightWrap).toggleClass(style.rightSpread);
+    }
     /**
      * react的生命周期函数
      */
@@ -197,6 +354,22 @@ export default class Content extends React.Component{
         PubSub.subscribe('toggleWelcome', this.toggleWelcome);
         PubSub.subscribe('updateTile', this.updateTile);
         this.initTile();
+
+        //请求分类信息
+		$.ajax({
+			url: `${config.url}?h=home&c=category&a=getCategory`,
+			dataType: 'json',
+			success: (data)=>{
+				data = data.map((elt,indx)=>{
+					return (<li key={indx} data-categoryid={elt.category_id} onClick={this.listClick.bind(this)}>{elt.category_name}</li>);
+				});
+                data.unshift(<li key={Math.random().toString().slice(2)} data-categoryid={0} onClick={this.listClick.bind(this)}>All</li>)
+				this.setState({typeList: data});
+			}
+		});
+
+        $(this.refs.timeArrow).addClass(style.redColor);
+
     }
 
     componentDidUpdate(){
@@ -206,11 +379,29 @@ export default class Content extends React.Component{
     render(){
         return(
             <section className={`${style.contentBox}`} ref="content">
-                <div className={`${style.layoutWrap}`}>
-                    <ul ref="tileWrap">
-                        {this.state.tileList}
-                    </ul>
+                <div className={`${style["g-left"]}`} ref="leftWrap">
+                    <div className={`${style.layoutWrap}`}>
+                        <ul ref="tileWrap">
+                            {this.state.tileList}
+                        </ul>
+                    </div>
                 </div>
+                <div className={`${style["g-right"]}`} ref="rightWrap">
+                    <aside className={`${style.aside}`}>
+                        <h3>FILTER BY</h3>
+                        <ul className={`${style.sortElement}`}>
+                            <li onClick={this.orderThumbs.bind(this)}><span>THUMBS</span> <i className="icon-arrow-down2" ref="thumbArrow"></i></li>
+                            <li onClick={ this.typeShow.bind(this) }>
+                                TYPE: <span ref="typeName" >All</span>
+                                <ul className={`${style.typeList} ${style.hide}`} ref="typeList">
+                                    {this.state.typeList}
+                                </ul>
+                            </li>
+                            <li onClick={this.orderTime.bind(this)}><span>TIME</span><i className="icon-arrow-down2" ref="timeArrow"></i></li>
+                        </ul>
+                    </aside>
+                </div>
+                <span ref="spreadMenu" className={`${style.spreadMenu}`} onClick={this.toggleSpread.bind(this)}></span>
             </section>
         );
     }

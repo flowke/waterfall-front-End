@@ -29,6 +29,9 @@ export default class UserList extends React.Component{
         PubSub.publish('closePanelWrap');
         // 用户入口的关闭
         PubSub.publish('closeUserEntry');
+        if(elems.panel.onOff = !elems.panel.onOff){
+            this.reqUser(null,this.updateList);
+        }
     }
 
     watchMine(ev){
@@ -68,8 +71,16 @@ export default class UserList extends React.Component{
     userListRefresh(ev){
         ev.stopPropagation();
         ev.preventDefault();
-        $(this.refs.loopIcon).addClass('f-refreshing');
+        // $(this.refs.loopIcon).addClass('f-refreshing');
         this.reqUser(null,this.updateList);
+    }
+
+    homeRefresh(){
+        PubSub.publish('initTile',{
+            filterType: 0,
+            sortBy: 'TIME',
+            order: 'DESC'
+        })
     }
 
     // 处理user的请求
@@ -104,7 +115,8 @@ export default class UserList extends React.Component{
                 </div>
                 <i className={`${style.mask}`} ref='mask' onClick={this.userListRefresh}></i>
                 <div className={`${style.listWrap}`} ref='listWrap'>
-                    <i className={`icon-loop2 ${style.refresh}`} onClick={this.userListRefresh} ref='loopIcon'></i>
+                    <a href="http://www.flowke.com" className={`${style.home}`}><i className={`icon-home`} ref='loopIcon'></i></a>
+                    <h3 className={`${style.listTitle}`}>Users Whome Shared</h3>
                     <ul>
                         {this.state.userList}
                     </ul>

@@ -104,7 +104,7 @@ export default class Header extends React.Component{
     }
     // 主页刷新
     homeRefresh(ev){
-        if(ev.target !== ev.currentTarget){
+        if(typeof ev !== 'string' && ev.target !== ev.currentTarget){
             return;
         }
         ev.stopPropagation();
@@ -172,10 +172,10 @@ export default class Header extends React.Component{
         let rawText = data.rawText,
             endText = data.endText;
         let creazyLetter = new CreazyLetter(this.refs.shareBtn);
-        creazyLetter.letterMutting(this.refs.shareBtn,endText,5);
+        creazyLetter.letterMutting(this.refs.shareBtn,endText,4);
         clearTimeout(this.letterTimer)
         this.letterTimer = setTimeout(()=>{
-            creazyLetter.letterMutting(this.refs.shareBtn,rawText,5);
+            creazyLetter.letterMutting(this.refs.shareBtn,rawText,4);
         }, 1600);
     }
 
