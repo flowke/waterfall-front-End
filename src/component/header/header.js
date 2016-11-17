@@ -99,7 +99,8 @@ export default class Header extends React.Component{
         // 从content里订阅了
         PubSub.publish('userTile',{
             watch_user:this.state.userid,
-            from_user: cookie.get('user')
+            from_user: cookie.get('user'),
+            userName: this.state.username
         });
     }
     // 主页刷新
@@ -133,9 +134,15 @@ export default class Header extends React.Component{
 		    contentType: false,
             data: fd,
             success:(data)=>{
-                this.setState({
-                    avatarUrl: data.url
-                });
+                if(data.message ===1){
+                    PubSub.publish('globalHint',{rawText: 'Sharing', endText: 'Avatar updated'});
+                    this.setState({
+                        avatarUrl: data.url
+                    });
+                }else if(data.message === 2){
+                    PubSub.publish('globalHint',{rawText: 'Sharing', endText: 'Avatar update fail'});
+                }
+
             }
         });
     }
@@ -176,7 +183,7 @@ export default class Header extends React.Component{
         clearTimeout(this.letterTimer)
         this.letterTimer = setTimeout(()=>{
             creazyLetter.letterMutting(this.refs.shareBtn,rawText,4);
-        }, 1600);
+        }, 2500);
     }
 
     componentDidMount(){
@@ -216,6 +223,7 @@ export default class Header extends React.Component{
             <header className={`${style['m-header']}`} ref="headerWrap">
 
                 <div className={`${style.topBar}`}>
+                    <a href="http://www.flowke.com" className={`${style.home}`}><i className={`icon-home`} ref='loopIcon'></i></a>
                     <button className={`${style.share_btn} u-btn`} onClick={this.shareBtnClick.bind(this)} ref="shareBtn">Sharing</button>
 
                     <div className={`${style['topBar-info']}`}>

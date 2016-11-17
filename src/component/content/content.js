@@ -16,8 +16,8 @@ export default class Content extends React.Component{
          */
         this.state = {
             tileList: null,
-            data: {},
             typeList: null,
+            belong: 'All'
         };
         // 修改this绑定
         this.userTile = this.userTile.bind(this);
@@ -53,6 +53,8 @@ export default class Content extends React.Component{
         this.queryString = 'p=home&c=tile&a=getTile';
         this.canReq = true;
         this.filterRole = 'all' ;
+
+        this.setState({ belong: "All" });
 
         PubSub.publish('progressLoading');
         this.requestTile(this.ajaxData,(data)=>{
@@ -92,6 +94,8 @@ export default class Content extends React.Component{
 
         this.canReq = true;
         this.filterRole = args.watch_user;
+
+        this.setState({ belong: args.userName || '' });
 
         // 重置queryString
         this.queryString = 'p=home&c=tile&a=userTile';
@@ -161,7 +165,7 @@ export default class Content extends React.Component{
 
         $(this.refs.timeArrow).addClass(style.redColor);
         $(this.refs.thumbArrow).removeClass(style.redColor);
-
+        this.setState({ belong: "All" });
         data = data.map((elt,i)=>{
             if(elt.thumb_status !=1 ){elt.thumb_status =0;};
             return (<Item key={Math.random().toString().slice(2)} data={elt}/>);
@@ -179,7 +183,7 @@ export default class Content extends React.Component{
         });
 
     }
-    
+
     // 通用的tile请求
     requestTile(data,cb){
         $.ajax({
@@ -218,7 +222,8 @@ export default class Content extends React.Component{
                 watch_user: this.filterRole,
                 filterType: this.filterType,
                 sortBy: this.sortBy,
-                order: this.order
+                order: this.order,
+                userName: this.state.belong
             });
         }
 
@@ -260,7 +265,8 @@ export default class Content extends React.Component{
                 watch_user: this.filterRole,
                 filterType: this.filterType,
                 sortBy: this.sortBy,
-                order: this.refs.thumbArrow.order
+                order: this.refs.thumbArrow.order,
+                userName: this.state.belong
             });
         }
 
@@ -300,9 +306,18 @@ export default class Content extends React.Component{
                 watch_user: this.filterRole,
                 filterType: this.filterType,
                 sortBy: this.sortBy,
-                order: this.refs.timeArrow.order
+                order: this.refs.timeArrow.order,
+                userName: this.state.belong
             });
         }
+    }
+
+    backTohome(){
+        PubSub.publish('initTile',{
+            filterType: 0,
+            sortBy: 'TIME',
+            order: 'DESC'
+        })
     }
 
 
@@ -317,6 +332,7 @@ export default class Content extends React.Component{
             itemWidth:260, // Optional, the width of a grid item
             ignoreInactiveItems: false,
             onLayoutChanged: false,
+            direction: 'left'
         };
         let $tiles = $(this.refs.tileWrap);
         imagesLoaded($tiles,function() {
@@ -338,10 +354,14 @@ export default class Content extends React.Component{
     toggleSpread(ev){
         ev.stopPropagation();
         ev.preventDefault();
-        this.wookmarkLayout();
+
         $(this.refs.spreadMenu).toggleClass(style.MenuSpreaded);
         $(this.refs.leftWrap).toggleClass(style.leftSpread);
         $(this.refs.rightWrap).toggleClass(style.rightSpread);
+        $(this.refs.icon_cross).toggleClass(style.spreadRotate);
+        this.wookmarkLayout();
+
+
     }
     /**
      * react的生命周期函数
@@ -388,6 +408,7 @@ export default class Content extends React.Component{
                 </div>
                 <div className={`${style["g-right"]}`} ref="rightWrap">
                     <aside className={`${style.aside}`}>
+                        <h4 className={`${style.userHint}`} onClick={this.backTohome.bind(this)}>{this.state.belong}</h4>
                         <h3>FILTER BY</h3>
                         <ul className={`${style.sortElement}`}>
                             <li onClick={this.orderThumbs.bind(this)}><span>THUMBS</span> <i className="icon-arrow-down2" ref="thumbArrow"></i></li>
@@ -401,7 +422,9 @@ export default class Content extends React.Component{
                         </ul>
                     </aside>
                 </div>
-                <span ref="spreadMenu" className={`${style.spreadMenu}`} onClick={this.toggleSpread.bind(this)}></span>
+                <span ref="spreadMenu" className={`${style.spreadMenu}`} onClick={this.toggleSpread.bind(this)}>
+                    <i className="icon-cross" ref="icon_cross"></i>
+                </span>
             </section>
         );
     }

@@ -12,6 +12,7 @@ export default class UserList extends React.Component{
         this.userListRefresh = this.userListRefresh.bind(this);
         this.toggleUserList = this.toggleUserList.bind(this);
         this.updateList = this.updateList.bind(this);
+        this.menuClick = this.menuClick.bind(this);
     }
 
     // 点击用户菜单按钮，只涉及到ui上的隐藏和显示
@@ -39,7 +40,8 @@ export default class UserList extends React.Component{
         ev.preventDefault();
         PubSub.publish('userTile', {
             watch_user:$(ev.currentTarget).data('userid'),
-            from_user:cookie.get('user')
+            from_user:cookie.get('user'),
+            userName: $(ev.currentTarget).data('username')
         });
     }
     // 请求后的回调
@@ -47,7 +49,7 @@ export default class UserList extends React.Component{
         let list = data.map((elt,i)=>{
             return (
                 <li key={i}>
-                    <a href="#" onClick={this.watchMine.bind(this)} data-userid={elt.user_id}>
+                    <a href="#" onClick={this.watchMine.bind(this)} data-userid={elt.user_id} data-username={elt.user_name}>
                         <img src={elt.user_icon}/>
                         <span>{elt.user_name}</span>
                         <span className={`${style.starWrap}`}>
@@ -106,17 +108,17 @@ export default class UserList extends React.Component{
     render(){
         return (
             <div className={`${style.panel} userList`} ref = 'panel'>
-                <div className={`${style.menu}`} onClick={this.menuClick.bind(this)}>
+                <div className={`${style.menu}`} onClick={this.menuClick}>
                     <div ref='lineWrap'>
                         <i className={`${style.line_1} ${style.reformLine1}`}></i>
                         <i className={`${style.line_2} ${style.reformLine2}`}></i>
                         <i className={`${style.line_3} ${style.reformLine3}`}></i>
                     </div>
                 </div>
-                <i className={`${style.mask}`} ref='mask' onClick={this.userListRefresh}></i>
+                <i className={`${style.mask}`} ref='mask' onClick={this.menuClick}></i>
                 <div className={`${style.listWrap}`} ref='listWrap'>
                     <a href="http://www.flowke.com" className={`${style.home}`}><i className={`icon-home`} ref='loopIcon'></i></a>
-                    <h3 className={`${style.listTitle}`}>Users Whome Shared</h3>
+                    <h3 className={`${style.listTitle}`}>Users Who Shared</h3>
                     <ul>
                         {this.state.userList}
                     </ul>

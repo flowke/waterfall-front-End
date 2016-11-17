@@ -2,19 +2,22 @@
 .contentBox{ min-height: 200px;
 	position: relative; margin-top: 58px;  background: #fff; transition: 1s cubic-bezier(0.250, 0.100, 0.250, 1.000);
 	ul{position: relative;}
-	ul>li{ transition: 1s;}
-	.layoutWrap{ margin:auto; width: 80%; padding-top: 40px;}
+
+	.layoutWrap{ margin:auto; width: 80%; padding-top: 40px;
+		>ul>li{ transition: left 1s, top 1s;}
+	}
 }
 
 /* g */
-.g-left{margin-right: 0; position: relative; transition: marginRight 1s;}
+.g-left{margin-right: 0; position: relative; transition: margin-left 1s;}
 .leftSpread{margin-right: 280px;}
 
 .g-right{position: fixed;  right: 0; top: 58px; bottom: 0; width: 0px; border-left: 1px solid #e8e1e1; box-sizing: border-box;
 	overflow: hidden; transition: width 1s; background: #fff;}
 .rightSpread{width: 280px;}
 /*end g */
-.aside{ width: 200px; margin: auto; padding-top: 230px;
+.aside{ position: relative; width: 200px; margin: auto; padding-top: 180px;
+	h4{position: absolute; left: 50%; transform: translateX(-50%); top: 115px; font-size: 22px; cursor: pointer;}
 	h3{font-weight: bold;}
 	i{position: absolute; right: 10px; top: 0; height: 35px; width: 60px; line-height: 35px; cursor: pointer;}
 }
@@ -29,6 +32,10 @@
 
 .spreadMenu{ position: fixed; top: 230px; right: 30px; width: 30px; height: 30px; border-radius: 50%; background: #fd0202;
 	transition: right 1s;
+	i{display: block; width: 100%; height: 100%; text-align: center; font-size: 18px; line-height: 30px; color: #fff;
+		transform: rotate(45deg); transition: transform 1s;
+	}
+	i.spreadRotate{ transform: rotate(0);}
 }
 
 .MenuSpreaded{ right: 265px; }

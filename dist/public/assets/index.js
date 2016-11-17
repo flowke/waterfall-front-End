@@ -292,7 +292,8 @@
 	            // 从content里订阅了
 	            PubSub.publish('userTile', {
 	                watch_user: this.state.userid,
-	                from_user: cookie.get('user')
+	                from_user: cookie.get('user'),
+	                userName: this.state.username
 	            });
 	        }
 	        // 主页刷新
@@ -336,9 +337,14 @@
 	                contentType: false,
 	                data: fd,
 	                success: function success(data) {
-	                    _this4.setState({
-	                        avatarUrl: data.url
-	                    });
+	                    if (data.message === 1) {
+	                        PubSub.publish('globalHint', { rawText: 'Sharing', endText: 'Avatar updated' });
+	                        _this4.setState({
+	                            avatarUrl: data.url
+	                        });
+	                    } else if (data.message === 2) {
+	                        PubSub.publish('globalHint', { rawText: 'Sharing', endText: 'Avatar update fail' });
+	                    }
 	                }
 	            });
 	        }
@@ -393,7 +399,7 @@
 	            clearTimeout(this.letterTimer);
 	            this.letterTimer = setTimeout(function () {
 	                creazyLetter.letterMutting(_this6.refs.shareBtn, rawText, 4);
-	            }, 1600);
+	            }, 2500);
 	        }
 	    }, {
 	        key: 'componentDidMount',
@@ -439,6 +445,11 @@
 	                React.createElement(
 	                    'div',
 	                    { className: '' + _header2.default.topBar },
+	                    React.createElement(
+	                        'a',
+	                        { href: 'http://www.flowke.com', className: '' + _header2.default.home },
+	                        React.createElement('i', { className: 'icon-home', ref: 'loopIcon' })
+	                    ),
 	                    React.createElement(
 	                        'button',
 	                        { className: _header2.default.share_btn + ' u-btn', onClick: this.shareBtnClick.bind(this), ref: 'shareBtn' },
@@ -616,7 +627,7 @@
 /***/ function(module, exports) {
 
 	// removed by extract-text-webpack-plugin
-	module.exports = {"m-header":"m-header_1CGPEzKEt3","topBar":"topBar_2gKG4o7ip7","share_btn":"share_btn_2C7aOjro3L","topBar-info":"topBar-info_3DAQcPiKgN","userIcon":"userIcon_6qZeb8lCft","userInfo":"userInfo_3RF2mg6rpu","imgWrap":"imgWrap_1dIfsnFMEC","arrow_box":"arrow_box_1FTWqrqkdk","bubleFrame":"bubleFrame_4bpVGZLxnM","bubleHov":"bubleHov_2ZBJVpAMRm","bubleWrap":"bubleWrap_3028F_RY0w","progress":"progress_2tBNv3KHe4","progressIn":"progressIn_2jbCEeET8o","progressDone":"progressDone__aDQ3AyaWs","progressLoading":"progressLoading_2nNK5hpS0C","progressLoadingDone":"progressLoadingDone_1xq7KWQBBU","hide":"hide_3jlkoTYUWQ","globalBubble":"globalBubble_3_LZKmXo74"};
+	module.exports = {"m-header":"m-header_1CGPEzKEt3","topBar":"topBar_2gKG4o7ip7","share_btn":"share_btn_2C7aOjro3L","topBar-info":"topBar-info_3DAQcPiKgN","userIcon":"userIcon_6qZeb8lCft","home":"home_3o9XVyY8BO","userInfo":"userInfo_3RF2mg6rpu","imgWrap":"imgWrap_1dIfsnFMEC","arrow_box":"arrow_box_1FTWqrqkdk","bubleFrame":"bubleFrame_4bpVGZLxnM","bubleHov":"bubleHov_2ZBJVpAMRm","bubleWrap":"bubleWrap_3028F_RY0w","progress":"progress_2tBNv3KHe4","progressIn":"progressIn_2jbCEeET8o","progressDone":"progressDone__aDQ3AyaWs","progressLoading":"progressLoading_2nNK5hpS0C","progressLoadingDone":"progressLoadingDone_1xq7KWQBBU","hide":"hide_3jlkoTYUWQ","globalBubble":"globalBubble_3_LZKmXo74"};
 
 /***/ },
 /* 7 */
@@ -757,8 +768,8 @@
 	
 	        _this.state = {
 	            tileList: null,
-	            data: {},
-	            typeList: null
+	            typeList: null,
+	            belong: 'All'
 	        };
 	        // 修改this绑定
 	        _this.userTile = _this.userTile.bind(_this);
@@ -803,6 +814,8 @@
 	            this.queryString = 'p=home&c=tile&a=getTile';
 	            this.canReq = true;
 	            this.filterRole = 'all';
+	
+	            this.setState({ belong: "All" });
 	
 	            PubSub.publish('progressLoading');
 	            this.requestTile(this.ajaxData, function (data) {
@@ -849,6 +862,8 @@
 	
 	            this.canReq = true;
 	            this.filterRole = args.watch_user;
+	
+	            this.setState({ belong: args.userName || '' });
 	
 	            // 重置queryString
 	            this.queryString = 'p=home&c=tile&a=userTile';
@@ -932,7 +947,7 @@
 	
 	            $(this.refs.timeArrow).addClass(_content2.default.redColor);
 	            $(this.refs.thumbArrow).removeClass(_content2.default.redColor);
-	
+	            this.setState({ belong: "All" });
 	            data = data.map(function (elt, i) {
 	                if (elt.thumb_status != 1) {
 	                    elt.thumb_status = 0;
@@ -995,7 +1010,8 @@
 	                    watch_user: this.filterRole,
 	                    filterType: this.filterType,
 	                    sortBy: this.sortBy,
-	                    order: this.order
+	                    order: this.order,
+	                    userName: this.state.belong
 	                });
 	            }
 	        }
@@ -1033,7 +1049,8 @@
 	                    watch_user: this.filterRole,
 	                    filterType: this.filterType,
 	                    sortBy: this.sortBy,
-	                    order: this.refs.thumbArrow.order
+	                    order: this.refs.thumbArrow.order,
+	                    userName: this.state.belong
 	                });
 	            }
 	        }
@@ -1071,9 +1088,19 @@
 	                    watch_user: this.filterRole,
 	                    filterType: this.filterType,
 	                    sortBy: this.sortBy,
-	                    order: this.refs.timeArrow.order
+	                    order: this.refs.timeArrow.order,
+	                    userName: this.state.belong
 	                });
 	            }
+	        }
+	    }, {
+	        key: 'backTohome',
+	        value: function backTohome() {
+	            PubSub.publish('initTile', {
+	                filterType: 0,
+	                sortBy: 'TIME',
+	                order: 'DESC'
+	            });
 	        }
 	
 	        /* end handler for aside */
@@ -1088,7 +1115,8 @@
 	                offset: 20, // Optional, the distance between grid items
 	                itemWidth: 260, // Optional, the width of a grid item
 	                ignoreInactiveItems: false,
-	                onLayoutChanged: false
+	                onLayoutChanged: false,
+	                direction: 'left'
 	            };
 	            var $tiles = $(this.refs.tileWrap);
 	            imagesLoaded($tiles, function () {
@@ -1113,10 +1141,12 @@
 	        value: function toggleSpread(ev) {
 	            ev.stopPropagation();
 	            ev.preventDefault();
-	            this.wookmarkLayout();
+	
 	            $(this.refs.spreadMenu).toggleClass(_content2.default.MenuSpreaded);
 	            $(this.refs.leftWrap).toggleClass(_content2.default.leftSpread);
 	            $(this.refs.rightWrap).toggleClass(_content2.default.rightSpread);
+	            $(this.refs.icon_cross).toggleClass(_content2.default.spreadRotate);
+	            this.wookmarkLayout();
 	        }
 	        /**
 	         * react的生命周期函数
@@ -1189,6 +1219,11 @@
 	                        'aside',
 	                        { className: '' + _content2.default.aside },
 	                        React.createElement(
+	                            'h4',
+	                            { className: '' + _content2.default.userHint, onClick: this.backTohome.bind(this) },
+	                            this.state.belong
+	                        ),
+	                        React.createElement(
 	                            'h3',
 	                            null,
 	                            'FILTER BY'
@@ -1235,7 +1270,11 @@
 	                        )
 	                    )
 	                ),
-	                React.createElement('span', { ref: 'spreadMenu', className: '' + _content2.default.spreadMenu, onClick: this.toggleSpread.bind(this) })
+	                React.createElement(
+	                    'span',
+	                    { ref: 'spreadMenu', className: '' + _content2.default.spreadMenu, onClick: this.toggleSpread.bind(this) },
+	                    React.createElement('i', { className: 'icon-cross', ref: 'icon_cross' })
+	                )
 	            );
 	        }
 	    }]);
@@ -1463,7 +1502,7 @@
 /***/ function(module, exports) {
 
 	// removed by extract-text-webpack-plugin
-	module.exports = {"contentBox":"contentBox_3s92cNA0wt","layoutWrap":"layoutWrap_3lsSYpAvN0","g-left":"g-left_1irHrfbe1e","leftSpread":"leftSpread_EBarCVtHhA","g-right":"g-right_11Go81irgz","rightSpread":"rightSpread_1-TiCHl_lg","aside":"aside_3_7Tv4TGTN","sortElement":"sortElement_3Z9qFB1fgb","typeList":"typeList_1hESDwKzKf","spreadMenu":"spreadMenu_3E_-yAmX4z","MenuSpreaded":"MenuSpreaded_cp-rt1CFqo","notLogin":"notLogin_373DqV1sgo","hide":"hide_cqspzJvttZ","redColor":"redColor_1meIouxnOg"};
+	module.exports = {"contentBox":"contentBox_3s92cNA0wt","layoutWrap":"layoutWrap_3lsSYpAvN0","g-left":"g-left_1irHrfbe1e","leftSpread":"leftSpread_EBarCVtHhA","g-right":"g-right_11Go81irgz","rightSpread":"rightSpread_1-TiCHl_lg","aside":"aside_3_7Tv4TGTN","sortElement":"sortElement_3Z9qFB1fgb","typeList":"typeList_1hESDwKzKf","spreadMenu":"spreadMenu_3E_-yAmX4z","spreadRotate":"spreadRotate_28CIQK2Fy4","MenuSpreaded":"MenuSpreaded_cp-rt1CFqo","notLogin":"notLogin_373DqV1sgo","hide":"hide_cqspzJvttZ","redColor":"redColor_1meIouxnOg"};
 
 /***/ },
 /* 14 */
@@ -3061,6 +3100,16 @@
 	
 				var file = fileList[fileList.length - 1];
 	
+				if (file.type.search(/^image/) == -1) {
+					PubSub.publish('globalHint', { rawText: 'Sharing', endText: 'Invalid image type' });
+					return;
+				}
+	
+				if (file.size >= 2097152) {
+					PubSub.publish('globalHint', { rawText: 'Sharing', endText: 'Image size overflow' });
+					return;
+				}
+	
 				if (!file) {
 					return;
 				}
@@ -3532,6 +3581,10 @@
 	
 	var _userEntry2 = _interopRequireDefault(_userEntry);
 	
+	var _validation = __webpack_require__(24);
+	
+	var _validation2 = _interopRequireDefault(_validation);
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -3559,6 +3612,9 @@
 	        _this.showEntryPanel = _this.showEntryPanel.bind(_this);
 	        _this.closePanel = _this.closePanel.bind(_this);
 	        _this.userEntryFadeOut = _this.userEntryFadeOut.bind(_this);
+	
+	        _this.validation = new _validation2.default();
+	
 	        return _this;
 	    }
 	
@@ -3628,16 +3684,94 @@
 	        value: function submit(ev) {
 	            ev.preventDefault();
 	            var form = ev.target;
+	            var self = this;
+	            var $username = $(form.username),
+	                $password = $(form.password),
+	                $cfpassword = $(form.cfpassword);
+	
 	            if (this.state.action === 'login') {
+	
+	                // 开始验证
+	                var msg = this.validation.valiOneByDom('usernameR');
+	                var isBreake = false;
+	                if (msg) {
+	                    $username.val('');
+	                    $username.attr('placeholder', msg);
+	                    $username.addClass(_userEntry2.default.warning);
+	                    isBreake = true;
+	                    rmWarning($username);
+	                }
+	
+	                msg = this.validation.valiOneByDom('passwordR');
+	
+	                if (msg) {
+	                    $password.val('');
+	                    $password.attr('placeholder', msg);
+	                    $password.addClass(_userEntry2.default.warning);
+	                    isBreake = true;
+	                    rmWarning($password);
+	                }
+	
+	                // 如果验证不通过，退出
+	                if (isBreake) {
+	                    return;
+	                }
+	
 	                this.ajaxLogin({
 	                    username: form.username.value,
 	                    password: form.password.value
 	                });
 	            } else {
+	
+	                // 开始验证
+	                var _isBreake = false;
+	                var _msg = this.validation.valiOneByDom('usernameR');
+	
+	                if (_msg) {
+	                    $username.val('');
+	                    $username.addClass(_userEntry2.default.warning);
+	                    _isBreake = true;
+	                    $username.attr('placeholder', _msg);
+	                    rmWarning($username);
+	                }
+	
+	                _msg = this.validation.valiOneByDom('passwordR');
+	
+	                if ($password.val() !== $cfpassword.val()) {
+	                    $cfpassword.val('');
+	                    $cfpassword.addClass(_userEntry2.default.warning);
+	                    $cfpassword.attr('placeholder', _msg);
+	                    rmWarning($cfpassword);
+	                }
+	
+	                if (_msg) {
+	                    $password.val('');
+	                    $password.addClass(_userEntry2.default.warning);
+	                    _isBreake = true;
+	                    $password.attr('placeholder', _msg);
+	                    rmWarning($password);
+	                }
+	
+	                console.log(_isBreake, this.formBreak);
+	
+	                // 如果验证不通过，退出
+	                if (_isBreake) {
+	                    return;
+	                }
+	
 	                this.ajaxRegister({
 	                    username: form.username.value,
 	                    password: form.password.value,
 	                    cfpassword: form.cfpassword.value
+	                });
+	            }
+	
+	            function rmWarning(elt) {
+	                $(elt).one('click', function () {
+	                    var $this = $(this);
+	                    $this.removeClass(_userEntry2.default.warning);
+	                    $this.val('');
+	                    $this.attr('placeholder', $this.data('ph'));
 	                });
 	            }
 	        }
@@ -3654,11 +3788,18 @@
 	                data: data,
 	                dataType: 'json',
 	                success: function success(data) {
-	                    if (data.message === 1) {
-	                        $(_this2.refs.form.reset).click();
+	                    var $name = $(_this2.refs.form.username);
+	
+	                    if (data.message === 0) {
 	                        _this2.registedDone(data);
-	                    } else if (data.message === 0) {
-	                        alert('不对！！！');
+	                        PubSub.publish('globalHint', { rawText: 'Sharing', endText: 'Done! Please login' });
+	                    } else if (data.message === 1) {
+	                        PubSub.publish('globalHint', { rawText: 'Sharing', endText: 'Fail to register' });
+	                    } else if (data.message === 2) {
+	                        $name.addClass(_userEntry2.default.warning);
+	                        $name.attr('placeholder', data.desc);
+	                        PubSub.publish('globalHint', { rawText: 'Sharing', endText: 'User already exists' });
+	                        _this2.rmWarning($name);
 	                    }
 	                }
 	            });
@@ -3688,7 +3829,11 @@
 	                data: data,
 	                dataType: 'json',
 	                success: function success(data) {
-	                    if (data.message === 1) {
+	
+	                    var form = _this3.refs.form;
+	                    var $username = $(form.username);
+	                    var $password = $(form.password);
+	                    if (data.message === 0) {
 	                        //在content里订阅了
 	                        PubSub.publish('initTile');
 	                        cookie.set('user', data.user_id);
@@ -3700,8 +3845,31 @@
 	                            userid: data.user_id,
 	                            avatarUrl: data.user_icon
 	                        });
+	                    } else if (data.message === 1) {
+	
+	                        $username.attr('placeholder', data.desc);
+	                        $username.val('');
+	                        $username.addClass(_userEntry2.default.warning);
+	                        _this3.rmWarning($username);
+	                        PubSub.publish('globalHint', { rawText: 'Sharing', endText: 'User dose not exist' });
+	                    } else if (data.message === 2) {
+	                        $password.attr('placeholder', data.desc);
+	                        $password.val('');
+	                        $password.addClass(_userEntry2.default.warning);
+	                        _this3.rmWarning($password);
+	                        PubSub.publish('globalHint', { rawText: 'Sharing', endText: 'Invalid password' });
 	                    }
 	                }
+	            });
+	        }
+	    }, {
+	        key: 'rmWarning',
+	        value: function rmWarning(elt) {
+	            $(elt).one('click', function () {
+	                var $this = $(this);
+	                $this.removeClass(_userEntry2.default.warning);
+	                $this.val('');
+	                $this.attr('placeholder', $this.data('ph'));
 	            });
 	        }
 	
@@ -3715,6 +3883,18 @@
 	            PubSub.subscribe('showEntryPanel', this.showEntryPanel);
 	            PubSub.subscribe('userEntryFadeOut', this.userEntryFadeOut);
 	            PubSub.subscribe('closeUserEntry', this.closePanel);
+	
+	            var form = this.refs.form;
+	
+	            this.validation.addByDom(form.username, 'usernameR', [{ strategy: 'isEmpty', errorMsg: '用户名不能为空' }, { strategy: 'hasSpace', errorMsg: '不能有空格' }, { strategy: 'isNumberHead', errorMsg: '不能数字开头' }]);
+	
+	            this.validation.addByDom(form.password, 'passwordR', [{ strategy: 'isEmpty', errorMsg: '密码不能为空' }]);
+	
+	            this.validation.addByDom(form.username, 'usernameL', [{ strategy: 'isEmpty', errorMsg: '用户名不能为空' }, { strategy: 'hasSpace', errorMsg: '不能有空格' }
+	            // {strategy: 'isNumberHead', errorMsg:'不能数字开头'}
+	            ]);
+	
+	            this.validation.addByDom(form.password, 'passwordL', [{ strategy: 'isEmpty', errorMsg: '密码不能为空' }, { strategy: 'hasSpace', errorMsg: '不能有空格' }]);
 	        }
 	    }, {
 	        key: 'render',
@@ -3731,7 +3911,7 @@
 	                        React.createElement(
 	                            'h2',
 	                            null,
-	                            '\u90A3\u65F6\u5019\u6CA1\u6709\u4EBA\u5E2E\u52A9\u4ED6\uFF0C\u4ED6\u5C31\u4E00\u4E2A\u4EBA\u5728\u665A\u4E0A\u5199\u4EE3\u7801\uFF0C\u5199\u51FA\u4ED6\u5FC3\u4E2D\u7684\u4E16\u754C\u3002'
+	                            '1982-1983\u5E74\uFF0C\u4ED6\u5C31\u4E00\u4E2A\u4EBA\uFF0C\u5199\u4E86GCC, GDB, Emacs\u7B49\u4E00\u7CFB\u5217\u8F6F\u4EF6'
 	                        )
 	                    ),
 	                    React.createElement(
@@ -3740,9 +3920,9 @@
 	                        React.createElement(
 	                            'form',
 	                            { className: 'form', ref: 'form', action: '#', method: 'post', 'data-action': '{this.state.action}', onSubmit: this.submit.bind(this) },
-	                            React.createElement('input', { className: 'email', type: 'text', name: 'username', placeholder: 'Username', required: '' }),
-	                            React.createElement('input', { className: 'lock', type: 'password', name: 'password', placeholder: 'Password', required: '' }),
-	                            React.createElement('input', { className: '' + _userEntry2.default.hide, type: 'password', name: 'cfpassword', placeholder: 'confirm Password', required: '' }),
+	                            React.createElement('input', { type: 'text', name: 'username', 'data-type': 'text', 'data-ph': 'Username', placeholder: 'Username', required: '' }),
+	                            React.createElement('input', { type: 'password', name: 'password', 'data-type': 'password', 'data-ph': 'password', placeholder: 'Password', required: '' }),
+	                            React.createElement('input', { className: '' + _userEntry2.default.hide, 'data-type': 'password', type: 'password', name: 'cfpassword', placeholder: 'confirm Password', 'data-ph': 'confirm Password', required: '' }),
 	                            React.createElement('input', { name: 'submit', type: 'submit', value: this.state.submitHint }),
 	                            React.createElement('input', { className: _userEntry2.default.hide, name: 'reset', type: 'reset', value: this.state.submitHint })
 	                        ),
@@ -3769,7 +3949,7 @@
 /***/ function(module, exports) {
 
 	// removed by extract-text-webpack-plugin
-	module.exports = {"hide":"hide_2V-M8kB0Oo","fastGoto":"fastGoto_1zPUCksir8","center":"center_2QgOpoe2lr","panelWrap":"panelWrap_15l9SiN1qs","panelFade":"panelFade_1NEb7kJbkV","entryPanel":"entryPanel_2FFrDnm00s","entryHint":"entryHint_2QUzniN0Me","inputInfo":"inputInfo_1WQUxR5bBV","close":"close_2WBqe84tKI"};
+	module.exports = {"hide":"hide_2V-M8kB0Oo","fastGoto":"fastGoto_1zPUCksir8","center":"center_2QgOpoe2lr","panelWrap":"panelWrap_15l9SiN1qs","panelFade":"panelFade_1NEb7kJbkV","entryPanel":"entryPanel_2FFrDnm00s","entryHint":"entryHint_2QUzniN0Me","inputInfo":"inputInfo_1WQUxR5bBV","close":"close_2WBqe84tKI","warning":"warning_3XBZlsJjhg"};
 
 /***/ },
 /* 28 */
@@ -3812,6 +3992,7 @@
 	        _this.userListRefresh = _this.userListRefresh.bind(_this);
 	        _this.toggleUserList = _this.toggleUserList.bind(_this);
 	        _this.updateList = _this.updateList.bind(_this);
+	        _this.menuClick = _this.menuClick.bind(_this);
 	        return _this;
 	    }
 	
@@ -3848,7 +4029,8 @@
 	            ev.preventDefault();
 	            PubSub.publish('userTile', {
 	                watch_user: $(ev.currentTarget).data('userid'),
-	                from_user: cookie.get('user')
+	                from_user: cookie.get('user'),
+	                userName: $(ev.currentTarget).data('username')
 	            });
 	        }
 	        // 请求后的回调
@@ -3864,7 +4046,7 @@
 	                    { key: i },
 	                    React.createElement(
 	                        'a',
-	                        { href: '#', onClick: _this2.watchMine.bind(_this2), 'data-userid': elt.user_id },
+	                        { href: '#', onClick: _this2.watchMine.bind(_this2), 'data-userid': elt.user_id, 'data-username': elt.user_name },
 	                        React.createElement('img', { src: elt.user_icon }),
 	                        React.createElement(
 	                            'span',
@@ -3941,7 +4123,7 @@
 	                { className: _userList2.default.panel + ' userList', ref: 'panel' },
 	                React.createElement(
 	                    'div',
-	                    { className: '' + _userList2.default.menu, onClick: this.menuClick.bind(this) },
+	                    { className: '' + _userList2.default.menu, onClick: this.menuClick },
 	                    React.createElement(
 	                        'div',
 	                        { ref: 'lineWrap' },
@@ -3950,7 +4132,7 @@
 	                        React.createElement('i', { className: _userList2.default.line_3 + ' ' + _userList2.default.reformLine3 })
 	                    )
 	                ),
-	                React.createElement('i', { className: '' + _userList2.default.mask, ref: 'mask', onClick: this.userListRefresh }),
+	                React.createElement('i', { className: '' + _userList2.default.mask, ref: 'mask', onClick: this.menuClick }),
 	                React.createElement(
 	                    'div',
 	                    { className: '' + _userList2.default.listWrap, ref: 'listWrap' },
@@ -3962,7 +4144,7 @@
 	                    React.createElement(
 	                        'h3',
 	                        { className: '' + _userList2.default.listTitle },
-	                        'Users Whome Shared'
+	                        'Users Who Shared'
 	                    ),
 	                    React.createElement(
 	                        'ul',

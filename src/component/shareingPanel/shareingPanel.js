@@ -50,7 +50,7 @@ export default class ShareingPanel extends React.Component{
 					$(this.refs.panelWrap).toggle(100);
 					PubSub.publish('globalHint',{rawText: 'Sharing', endText: 'Succeed in Sharing'});
 					PubSub.publish('updateTile', data.data);
-					
+
 
 				}else if(data.message == 1){
 					this.bubbleHint('先登录哦',this.refs.submitBtn);
@@ -170,6 +170,18 @@ export default class ShareingPanel extends React.Component{
 			img = this.refs.uploadImg;
 
 		let file = fileList[fileList.length-1];
+
+		if(file.type.search(/^image/) == -1){
+			PubSub.publish('globalHint',{rawText: 'Sharing', endText: 'Invalid image type'});
+			return;
+		}
+
+		if(file.size >=2097152){
+			PubSub.publish('globalHint',{rawText: 'Sharing', endText: 'Image size overflow'});
+			return;
+		}
+
+
 
 		if(!file){ return; }
 		this.setState({img: file});
