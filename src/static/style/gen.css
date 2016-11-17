@@ -49,6 +49,19 @@ i.f-refreshing{
     to{ bottom: 100%; }
 }
 
+.f-shaking{
+    animation: shaking 0.1s 0s infinite ease alternate none ;
+}
+@keyframes shaking{
+    0%{
+        transform:translateY(-0.5px) translateX(0.5px) rotateZ(-0.5deg);
+    }
+    100%{
+        transform:translateY(0.5px) translateX(-0.5px) rotateZ(0.5deg);
+    }
+}
+
+
 /* fontface */
 
 i{font-family: 'icomoon';}

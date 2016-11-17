@@ -103,6 +103,7 @@ export default class UserList extends React.Component{
     componentDidMount(){
         this.reqUser(null,this.updateList);
         PubSub.subscribe('toggleUserList', this.toggleUserList);
+
     }
 
     render(){

@@ -25,9 +25,12 @@ export default class Content extends React.Component{
         this.handlerScroll = this.handlerScroll.bind(this);
         this.toggleWelcome = this.toggleWelcome.bind(this);
         this.updateTile = this.updateTile.bind(this);
+        this.tileEidtState = this.tileEidtState.bind(this);
+        this.recordDropTile = this.recordDropTile.bind(this);
         // 控制是否可以发起请求
         // 它在发起一次请求后变成false，state更新后变成true
         this.canReq = true;
+        this.editState = false;
         // 用于判断向什么角色发起请求，
         // all代表向全局发起请求，
         // 非all向user发起请求，值代表userid， watch_user
@@ -36,10 +39,13 @@ export default class Content extends React.Component{
         this.filterType = 0;
         this.sortBy = 'TIME';
         this.order = 'DESC';
+
+        this.dropList = [];
     }
     // 这是一个初始化请求
     // 它应该在访问首页的时候调用一次
     initTile( msg, args={} ){
+        this.editState = false;
         // ajax的请求数据
         this.ajaxData = {
             offset:0,
@@ -79,6 +85,7 @@ export default class Content extends React.Component{
 
     // 处理查看每个user的tile请求, 在你点击用户的时候调用，需要传入用户的id
     userTile(subName,args){
+        this.editState = false;
         if(!args.from_user){
             args.from_user = 0
         }
@@ -109,13 +116,15 @@ export default class Content extends React.Component{
 
             data = data.map((elt,i)=>{
                 if(elt.thumb_status !=1 ){elt.thumb_status =0;};
-                return (<Item key={Math.random().toString().slice(2)} data={elt}/>);
+                return (<Item key={Math.random().toString().slice(2)} handleDrop={this.recordDropTile} data={elt}/>);
             });
             this.setState({
                 tileList: null
             },()=>{
                 this.setState({
                     tileList: data
+                }, ()=>{
+                    (typeof args.cb === 'function') && args.cb();
                 });
             });
         });
@@ -162,7 +171,7 @@ export default class Content extends React.Component{
     // 一个通用的tile请求请求,需要传入数据
     updateTile(msg, data){
         this.queryString = 'p=home&c=tile&a=getTile';
-
+        this.editState = false;
         $(this.refs.timeArrow).addClass(style.redColor);
         $(this.refs.thumbArrow).removeClass(style.redColor);
         this.setState({ belong: "All" });
@@ -186,6 +195,7 @@ export default class Content extends React.Component{
 
     // 通用的tile请求
     requestTile(data,cb){
+        this.editState = false;
         $.ajax({
             url: `${config.url}?${this.queryString}`,
             type: 'POST',
@@ -335,17 +345,24 @@ export default class Content extends React.Component{
             direction: 'left'
         };
         let $tiles = $(this.refs.tileWrap);
-        imagesLoaded($tiles,function() {
-            // Destroy the old handler
-            if ($tiles.wookmarkInstance) {
-                $tiles.wookmarkInstance.clear();
-            }
 
-            // Create a new layout handler.
-            // $handler = $('li', $tiles);
-            $tiles.wookmark(options);
-            $tiles.wookmarkInstance.layout(true);
-        });
+
+        $tiles.imagesLoaded()
+            .always( ()=>{
+                // Destroy the old handler
+                if ($tiles.wookmarkInstance) {
+                    $tiles.wookmarkInstance.clear();
+                }
+
+                // Create a new layout handler.
+                // $handler = $('li', $tiles);
+                $tiles.wookmark(options);
+                $tiles.wookmarkInstance.layout(true);
+            } )
+            .progress( (instance, image)=>{
+                $(image.img).attr('height', image.img.height);
+            } );
+
     }
 
     toggleWelcome(){
@@ -363,6 +380,55 @@ export default class Content extends React.Component{
 
 
     }
+
+    // 编辑方面的逻辑
+	tileEidtState(msg, args){
+
+        if(this.editState){ return };
+        this.editState = true;
+        if(args.message === true){
+            $(this.refs.tileWrap.children).each((i, elt)=>{
+                $(elt).css('animation', 'shaking 0.1s '+ Math.random() +'s infinite ease alternate none');
+            });
+
+        }else{
+            $(this.refs.tileWrap.children).each((i, elt)=>{
+                $(elt).css('animation', '');
+            });
+        }
+        PubSub.publish('tileEditUI',{message: args.message});
+        this.wookmarkLayout();
+
+	}
+    outTileEidt(ev){
+        ev.stopPropagation();
+        ev.preventDefault();
+        if(ev.currentTarget === ev.target){
+            PubSub.publish('tileEidtState', {message: false});
+            this.wookmarkLayout();
+        }
+        this.editState = false;
+
+        if(this.dropList.length === 0){ return }
+    }
+
+    recordDropTile(tile,tileid){
+        $.ajax({
+            url: `${config.url}?h=home&c=tile&a=dropTile`,
+            data:{tileid: tileid},
+            dataType: 'JSON'
+        })
+        .done( (data)=>{
+            if(data.message === 1){
+                PubSub.publish('globalHint',{rawText: 'Sharing', endText: 'Fail to delete'});
+            }else if(data.message === 0){
+                PubSub.publish('globalHint',{rawText: 'Sharing', endText: 'Drop tile done!'});
+                $(tile).remove();
+                this.wookmarkLayout();
+            }
+        } );
+    }
+
     /**
      * react的生命周期函数
      */
@@ -373,6 +439,7 @@ export default class Content extends React.Component{
         PubSub.subscribe('initTile',this.initTile);
         PubSub.subscribe('toggleWelcome', this.toggleWelcome);
         PubSub.subscribe('updateTile', this.updateTile);
+        PubSub.subscribe('tileEidtState', this.tileEidtState);
         this.initTile();
 
         //请求分类信息
@@ -394,14 +461,15 @@ export default class Content extends React.Component{
 
     componentDidUpdate(){
         this.wookmarkLayout();
+        this.outTileEidt = this.outTileEidt.bind(this);
     }
 
     render(){
         return(
             <section className={`${style.contentBox}`} ref="content">
-                <div className={`${style["g-left"]}`} ref="leftWrap">
-                    <div className={`${style.layoutWrap}`}>
-                        <ul ref="tileWrap">
+                <div className={`${style["g-left"]}`} ref="leftWrap" onClick={this.outTileEidt}>
+                    <div className={`${style.layoutWrap}`} onClick={this.outTileEidt}>
+                        <ul ref="tileWrap" onClick={this.outTileEidt}>
                             {this.state.tileList}
                         </ul>
                     </div>

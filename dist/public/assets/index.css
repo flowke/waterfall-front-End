@@ -269,6 +269,30 @@
 .postInfo_ZXgqpza8Co .author_2yrSM4Yxtl:hover i {
   color: #fd0202;
 }
+.hide_2n5S-xEgoO {
+  display: none;
+}
+.imgWrap_3MpPiOacCA {
+  transition: .8s;
+  height: auto;
+}
+.editIcon_346U8kREGF {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  left: -10px;
+  top: -10px;
+  font-size: 9px;
+  border-radius: 50%;
+  color: #656565;
+  background: #d1d9da;
+  line-height: 20px;
+  text-align: center;
+}
+.editHeight_1GEAhbfpy3 {
+  height: 100px;
+  overflow: hidden;
+}
 .contentBox_3s92cNA0wt {
   min-height: 200px;
   position: relative;

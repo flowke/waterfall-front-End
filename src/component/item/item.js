@@ -15,6 +15,9 @@ export default class Item extends React.Component{
 
 		this.requestData = null;
 		this.thumbTimer = null;
+
+		this.tileEditUI = this.tileEditUI.bind(this);
+
 	}
 	//点赞后的动作
 	thumbMe(ev){
@@ -82,11 +85,38 @@ export default class Item extends React.Component{
 			}
 		});
 	}
+
+	tileEditUI(msg, args){
+		if(args.message === true){
+			$(this.refs.editIcon).removeClass(style.hide);
+			$(this.refs.imgWrap).addClass(style.editHeight);
+		}else{
+			$(this.refs.editIcon).addClass(style.hide);
+			$(this.refs.imgWrap).removeClass(style.editHeight);
+		}
+
+	}
+
+	recordDropTile(ev){
+		ev.stopPropagation();
+		ev.preventDefault();
+		console.log(this.props)
+		this.props.handleDrop(this.refs.tile, $(this.refs.tile).data('tileid') );
+
+	}
+
+	componentDidMount(){
+		PubSub.subscribe('tileEditUI',this.tileEditUI);
+	}
+
     render(){
         let props = this.props.data;
         return(
-            <li className={style.tileWrap} data-tileid={props.tile_id} ref='tile'>
-	        	<img src={props.tile_cover} width="200" height="214" />
+            <li className={`${style.tileWrap} `} data-tileid={props.tile_id} ref='tile'>
+                <i className={`${style.editIcon} ${style.hide} icon-cross`} onClick={this.recordDropTile.bind(this)} ref="editIcon"></i>
+				<div ref="imgWrap" className={`${style.imgWrap}`}>
+					<img src={props.tile_cover} width="200" height="214" />
+				</div>
 	        	<div className={`${style.postInfo}`}>
 	        		<div className={`${style.basicInfo}`}>
 		        		<h3><a href="#">{props.tile_title}</a></h3>

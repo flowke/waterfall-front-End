@@ -296,6 +296,22 @@
 	                userName: this.state.username
 	            });
 	        }
+	        //编辑我的
+	
+	    }, {
+	        key: 'editMine',
+	        value: function editMine(ev) {
+	            this.watchMine(ev);
+	            // 从content里订阅了
+	            PubSub.publish('userTile', {
+	                watch_user: this.state.userid,
+	                from_user: cookie.get('user'),
+	                userName: this.state.username,
+	                cb: function cb() {
+	                    PubSub.publish('tileEidtState', { message: true });
+	                }
+	            });
+	        }
 	        // 主页刷新
 	
 	    }, {
@@ -490,6 +506,11 @@
 	                                        'a',
 	                                        { href: '#', onClick: this.watchMine.bind(this) },
 	                                        '\u67E5\u770B\u6211\u7684'
+	                                    ),
+	                                    React.createElement(
+	                                        'a',
+	                                        { href: '#', onClick: this.editMine.bind(this) },
+	                                        '\u7F16\u8F91\u6211\u7684'
 	                                    ),
 	                                    React.createElement(
 	                                        'a',
@@ -777,9 +798,12 @@
 	        _this.handlerScroll = _this.handlerScroll.bind(_this);
 	        _this.toggleWelcome = _this.toggleWelcome.bind(_this);
 	        _this.updateTile = _this.updateTile.bind(_this);
+	        _this.tileEidtState = _this.tileEidtState.bind(_this);
+	        _this.recordDropTile = _this.recordDropTile.bind(_this);
 	        // 控制是否可以发起请求
 	        // 它在发起一次请求后变成false，state更新后变成true
 	        _this.canReq = true;
+	        _this.editState = false;
 	        // 用于判断向什么角色发起请求，
 	        // all代表向全局发起请求，
 	        // 非all向user发起请求，值代表userid， watch_user
@@ -788,6 +812,8 @@
 	        _this.filterType = 0;
 	        _this.sortBy = 'TIME';
 	        _this.order = 'DESC';
+	
+	        _this.dropList = [];
 	        return _this;
 	    }
 	    // 这是一个初始化请求
@@ -801,6 +827,7 @@
 	
 	            var args = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 	
+	            this.editState = false;
 	            // ajax的请求数据
 	            this.ajaxData = {
 	                offset: 0,
@@ -847,6 +874,7 @@
 	        value: function userTile(subName, args) {
 	            var _this3 = this;
 	
+	            this.editState = false;
 	            if (!args.from_user) {
 	                args.from_user = 0;
 	            }
@@ -879,13 +907,15 @@
 	                    if (elt.thumb_status != 1) {
 	                        elt.thumb_status = 0;
 	                    };
-	                    return React.createElement(_item2.default, { key: Math.random().toString().slice(2), data: elt });
+	                    return React.createElement(_item2.default, { key: Math.random().toString().slice(2), handleDrop: _this3.recordDropTile, data: elt });
 	                });
 	                _this3.setState({
 	                    tileList: null
 	                }, function () {
 	                    _this3.setState({
 	                        tileList: data
+	                    }, function () {
+	                        typeof args.cb === 'function' && args.cb();
 	                    });
 	                });
 	            });
@@ -944,7 +974,7 @@
 	            var _this5 = this;
 	
 	            this.queryString = 'p=home&c=tile&a=getTile';
-	
+	            this.editState = false;
 	            $(this.refs.timeArrow).addClass(_content2.default.redColor);
 	            $(this.refs.thumbArrow).removeClass(_content2.default.redColor);
 	            this.setState({ belong: "All" });
@@ -972,6 +1002,7 @@
 	    }, {
 	        key: 'requestTile',
 	        value: function requestTile(data, cb) {
+	            this.editState = false;
 	            $.ajax({
 	                url: config.url + '?' + this.queryString,
 	                type: 'POST',
@@ -1119,7 +1150,8 @@
 	                direction: 'left'
 	            };
 	            var $tiles = $(this.refs.tileWrap);
-	            imagesLoaded($tiles, function () {
+	
+	            $tiles.imagesLoaded().always(function () {
 	                // Destroy the old handler
 	                if ($tiles.wookmarkInstance) {
 	                    $tiles.wookmarkInstance.clear();
@@ -1129,6 +1161,8 @@
 	                // $handler = $('li', $tiles);
 	                $tiles.wookmark(options);
 	                $tiles.wookmarkInstance.layout(true);
+	            }).progress(function (instance, image) {
+	                $(image.img).attr('height', image.img.height);
 	            });
 	        }
 	    }, {
@@ -1148,6 +1182,64 @@
 	            $(this.refs.icon_cross).toggleClass(_content2.default.spreadRotate);
 	            this.wookmarkLayout();
 	        }
+	
+	        // 编辑方面的逻辑
+	
+	    }, {
+	        key: 'tileEidtState',
+	        value: function tileEidtState(msg, args) {
+	
+	            if (this.editState) {
+	                return;
+	            };
+	            this.editState = true;
+	            if (args.message === true) {
+	                $(this.refs.tileWrap.children).each(function (i, elt) {
+	                    $(elt).css('animation', 'shaking 0.1s ' + Math.random() + 's infinite ease alternate none');
+	                });
+	            } else {
+	                $(this.refs.tileWrap.children).each(function (i, elt) {
+	                    $(elt).css('animation', '');
+	                });
+	            }
+	            PubSub.publish('tileEditUI', { message: args.message });
+	            this.wookmarkLayout();
+	        }
+	    }, {
+	        key: 'outTileEidt',
+	        value: function outTileEidt(ev) {
+	            ev.stopPropagation();
+	            ev.preventDefault();
+	            if (ev.currentTarget === ev.target) {
+	                PubSub.publish('tileEidtState', { message: false });
+	                this.wookmarkLayout();
+	            }
+	            this.editState = false;
+	
+	            if (this.dropList.length === 0) {
+	                return;
+	            }
+	        }
+	    }, {
+	        key: 'recordDropTile',
+	        value: function recordDropTile(tile, tileid) {
+	            var _this6 = this;
+	
+	            $.ajax({
+	                url: config.url + '?h=home&c=tile&a=dropTile',
+	                data: { tileid: tileid },
+	                dataType: 'JSON'
+	            }).done(function (data) {
+	                if (data.message === 1) {
+	                    PubSub.publish('globalHint', { rawText: 'Sharing', endText: 'Fail to delete' });
+	                } else if (data.message === 0) {
+	                    PubSub.publish('globalHint', { rawText: 'Sharing', endText: 'Drop tile done!' });
+	                    $(tile).remove();
+	                    _this6.wookmarkLayout();
+	                }
+	            });
+	        }
+	
 	        /**
 	         * react的生命周期函数
 	         */
@@ -1155,7 +1247,7 @@
 	    }, {
 	        key: 'componentDidMount',
 	        value: function componentDidMount() {
-	            var _this6 = this;
+	            var _this7 = this;
 	
 	            $(window).on('scroll', this.handlerScroll);
 	            // 订阅订阅tile请求
@@ -1163,6 +1255,7 @@
 	            PubSub.subscribe('initTile', this.initTile);
 	            PubSub.subscribe('toggleWelcome', this.toggleWelcome);
 	            PubSub.subscribe('updateTile', this.updateTile);
+	            PubSub.subscribe('tileEidtState', this.tileEidtState);
 	            this.initTile();
 	
 	            //请求分类信息
@@ -1173,16 +1266,16 @@
 	                    data = data.map(function (elt, indx) {
 	                        return React.createElement(
 	                            'li',
-	                            { key: indx, 'data-categoryid': elt.category_id, onClick: _this6.listClick.bind(_this6) },
+	                            { key: indx, 'data-categoryid': elt.category_id, onClick: _this7.listClick.bind(_this7) },
 	                            elt.category_name
 	                        );
 	                    });
 	                    data.unshift(React.createElement(
 	                        'li',
-	                        { key: Math.random().toString().slice(2), 'data-categoryid': 0, onClick: _this6.listClick.bind(_this6) },
+	                        { key: Math.random().toString().slice(2), 'data-categoryid': 0, onClick: _this7.listClick.bind(_this7) },
 	                        'All'
 	                    ));
-	                    _this6.setState({ typeList: data });
+	                    _this7.setState({ typeList: data });
 	                }
 	            });
 	
@@ -1192,6 +1285,7 @@
 	        key: 'componentDidUpdate',
 	        value: function componentDidUpdate() {
 	            this.wookmarkLayout();
+	            this.outTileEidt = this.outTileEidt.bind(this);
 	        }
 	    }, {
 	        key: 'render',
@@ -1201,13 +1295,13 @@
 	                { className: '' + _content2.default.contentBox, ref: 'content' },
 	                React.createElement(
 	                    'div',
-	                    { className: '' + _content2.default["g-left"], ref: 'leftWrap' },
+	                    { className: '' + _content2.default["g-left"], ref: 'leftWrap', onClick: this.outTileEidt },
 	                    React.createElement(
 	                        'div',
-	                        { className: '' + _content2.default.layoutWrap },
+	                        { className: '' + _content2.default.layoutWrap, onClick: this.outTileEidt },
 	                        React.createElement(
 	                            'ul',
-	                            { ref: 'tileWrap' },
+	                            { ref: 'tileWrap', onClick: this.outTileEidt },
 	                            this.state.tileList
 	                        )
 	                    )
@@ -1330,6 +1424,9 @@
 	
 			_this.requestData = null;
 			_this.thumbTimer = null;
+	
+			_this.tileEditUI = _this.tileEditUI.bind(_this);
+	
 			return _this;
 		}
 		//点赞后的动作
@@ -1412,13 +1509,42 @@
 				});
 			}
 		}, {
+			key: 'tileEditUI',
+			value: function tileEditUI(msg, args) {
+				if (args.message === true) {
+					$(this.refs.editIcon).removeClass(_item2.default.hide);
+					$(this.refs.imgWrap).addClass(_item2.default.editHeight);
+				} else {
+					$(this.refs.editIcon).addClass(_item2.default.hide);
+					$(this.refs.imgWrap).removeClass(_item2.default.editHeight);
+				}
+			}
+		}, {
+			key: 'recordDropTile',
+			value: function recordDropTile(ev) {
+				ev.stopPropagation();
+				ev.preventDefault();
+				console.log(this.props);
+				this.props.handleDrop(this.refs.tile, $(this.refs.tile).data('tileid'));
+			}
+		}, {
+			key: 'componentDidMount',
+			value: function componentDidMount() {
+				PubSub.subscribe('tileEditUI', this.tileEditUI);
+			}
+		}, {
 			key: 'render',
 			value: function render() {
 				var props = this.props.data;
 				return React.createElement(
 					'li',
-					{ className: _item2.default.tileWrap, 'data-tileid': props.tile_id, ref: 'tile' },
-					React.createElement('img', { src: props.tile_cover, width: '200', height: '214' }),
+					{ className: _item2.default.tileWrap + ' ', 'data-tileid': props.tile_id, ref: 'tile' },
+					React.createElement('i', { className: _item2.default.editIcon + ' ' + _item2.default.hide + ' icon-cross', onClick: this.recordDropTile.bind(this), ref: 'editIcon' }),
+					React.createElement(
+						'div',
+						{ ref: 'imgWrap', className: '' + _item2.default.imgWrap },
+						React.createElement('img', { src: props.tile_cover, width: '200', height: '214' })
+					),
 					React.createElement(
 						'div',
 						{ className: '' + _item2.default.postInfo },
@@ -1495,7 +1621,7 @@
 /***/ function(module, exports) {
 
 	// removed by extract-text-webpack-plugin
-	module.exports = {"tileWrap":"tileWrap_2aqlJqjlMx","postInfo":"postInfo_ZXgqpza8Co","basicInfo":"basicInfo_2CKGUkSS3i","rateBar":"rateBar_qF419WA4m8","rate":"rate_hYs_PXMBsJ","author":"author_2yrSM4Yxtl"};
+	module.exports = {"tileWrap":"tileWrap_2aqlJqjlMx","postInfo":"postInfo_ZXgqpza8Co","basicInfo":"basicInfo_2CKGUkSS3i","rateBar":"rateBar_qF419WA4m8","rate":"rate_hYs_PXMBsJ","author":"author_2yrSM4Yxtl","hide":"hide_2n5S-xEgoO","imgWrap":"imgWrap_3MpPiOacCA","editIcon":"editIcon_346U8kREGF","editHeight":"editHeight_1GEAhbfpy3"};
 
 /***/ },
 /* 13 */
@@ -4204,7 +4330,7 @@
 	
 	
 	// module
-	exports.push([module.id, "/* css reset */\nhtml,body,h1,h2,h3,h4,h5,h6,div,dl,dt,dd,ul,ol,li,p,blockquote,pre,hr,figure,table,caption,th,td,form,fieldset,legend,input,button,textarea,menu{margin:0;padding:0;}\nheader,footer,section,article,aside,nav,hgroup,address,figure,figcaption,menu,details{display:block;}\ntable{border-collapse:collapse;border-spacing:0;}\ncaption,th{text-align:left;font-weight:normal;}\nhtml,body,fieldset,img,iframe,abbr{border:0;}\ni,cite,em,var,address,dfn{font-style:normal;}\n[hidefocus],summary{outline:0;}\nli{list-style:none;}\nh1,h2,h3,h4,h5,h6,small{font-size:100%;}\nsup,sub{font-size:83%;}\npre,code,kbd,samp{font-family:inherit;}\nq:before,q:after{content:none;}\ntextarea{overflow:auto;resize:none;}\nlabel,summary{cursor:default;}\na,button{cursor:pointer;}\nh1,h2,h3,h4,h5,h6,em,strong,b{font-weight:normal;}\ndel,ins,u,s,a,a:hover{text-decoration:none;}\nbody,textarea,input,button,select,keygen,legend{font:14px/1.14 \"Microsoft YaHei\", arial, simsun; color:#333; outline:0;}\nbody{background:#fff; font-size: 14px;}\nimg{user-select:none;}\na,a:hover{color:#333;}\n/* all will be global */\n\n.f-clear:after{content:\"\";display:block;clear:both;}\n.f-clear{*zoom:1}\n\n.f-inlineBlock{ display: inline-block; *zoom:1; *display: inline; }\n.f-hide{display: none;}\ni.f-refreshing{\n    animation: rotate 2s linear infinite;\n}\n.f-blingbling{ animation: blingbling .6s 6 alternate; }\n\n@keyframes blingbling {\n    from{box-shadow:0 4px 5px rgba(255, 0, 0, 0);}\n    to{box-shadow: 0 0 15px #fd0202;}\n}\n@keyframes rotate{\n    from{transform: rotate(0);}\n    to{transform: rotate(1turn);}\n}\n\n\n@keyframes globalBubble{\n    from{ bottom: 100%; }\n    20%{ bottom: 30%; }\n    50%{ bottom: 30%; }\n    to{ bottom: 100%; }\n}\n\n/* fontface */\n\ni{font-family: 'icomoon';}\n@font-face {\n  font-family: 'icomoon';\n  src:  url('/public/assets/icomoon.eot?687xqw');\n  src:  url('/public/assets/icomoon.eot?687xqw#iefix') format('embedded-opentype'),\n    url('/public/assets/icomoon.ttf?687xqw') format('truetype'),\n    url('/public/assets/icomoon.woff?687xqw') format('woff'),\n    url('/public/assets/icomoon.svg?687xqw#icomoon') format('svg');\n  font-weight: normal;\n  font-style: normal;\n}\n.icon-user:before {\n  content: \"\\E900\";\n}\n.icon-heart1:before {\n  content: \"\\E901\";\n}\n.icon-heart2:before {\n  content: \"\\E902\";\n}\n.icon-marker:before {\n  content: \"\\E903\";\n}\n.icon-link:before {\n  content: \"\\E005\";\n}\n.icon-cross:before {\n  content: \"\\E117\";\n}\n.icon-location:before {\n  content: \"\\E947\";\n}\n.icon-loop2:before {\n  content: \"\\EA2E\";\n}\n.icon-home:before {\n  content: \"\\E904\";\n}\n\n.icon-arrow-down2:before {\n  content: \"\\EA3E\";\n}\n.icon-arrow-up2:before {\n  content: \"\\EA3A\";\n}\n/* end of fontface */\n\n/* unit */\n.u-btn{ cursor: pointer; -webkit-user-select: none;}\n.u-bubbleHint{\n    position: absolute; top: -88%; left: -30px; font-size: 10px; padding: 0 5px; border-radius: 4px; background: #fc8282; box-shadow: 0 0 4px rgba(255, 127, 110, 0.49); text-align: center; color: #fff; font-weight: normal; white-space:nowrap;}\n", ""]);
+	exports.push([module.id, "/* css reset */\nhtml,body,h1,h2,h3,h4,h5,h6,div,dl,dt,dd,ul,ol,li,p,blockquote,pre,hr,figure,table,caption,th,td,form,fieldset,legend,input,button,textarea,menu{margin:0;padding:0;}\nheader,footer,section,article,aside,nav,hgroup,address,figure,figcaption,menu,details{display:block;}\ntable{border-collapse:collapse;border-spacing:0;}\ncaption,th{text-align:left;font-weight:normal;}\nhtml,body,fieldset,img,iframe,abbr{border:0;}\ni,cite,em,var,address,dfn{font-style:normal;}\n[hidefocus],summary{outline:0;}\nli{list-style:none;}\nh1,h2,h3,h4,h5,h6,small{font-size:100%;}\nsup,sub{font-size:83%;}\npre,code,kbd,samp{font-family:inherit;}\nq:before,q:after{content:none;}\ntextarea{overflow:auto;resize:none;}\nlabel,summary{cursor:default;}\na,button{cursor:pointer;}\nh1,h2,h3,h4,h5,h6,em,strong,b{font-weight:normal;}\ndel,ins,u,s,a,a:hover{text-decoration:none;}\nbody,textarea,input,button,select,keygen,legend{font:14px/1.14 \"Microsoft YaHei\", arial, simsun; color:#333; outline:0;}\nbody{background:#fff; font-size: 14px;}\nimg{user-select:none;}\na,a:hover{color:#333;}\n/* all will be global */\n\n.f-clear:after{content:\"\";display:block;clear:both;}\n.f-clear{*zoom:1}\n\n.f-inlineBlock{ display: inline-block; *zoom:1; *display: inline; }\n.f-hide{display: none;}\ni.f-refreshing{\n    animation: rotate 2s linear infinite;\n}\n.f-blingbling{ animation: blingbling .6s 6 alternate; }\n\n@keyframes blingbling {\n    from{box-shadow:0 4px 5px rgba(255, 0, 0, 0);}\n    to{box-shadow: 0 0 15px #fd0202;}\n}\n@keyframes rotate{\n    from{transform: rotate(0);}\n    to{transform: rotate(1turn);}\n}\n\n\n@keyframes globalBubble{\n    from{ bottom: 100%; }\n    20%{ bottom: 30%; }\n    50%{ bottom: 30%; }\n    to{ bottom: 100%; }\n}\n\n.f-shaking{\n    animation: shaking 0.1s 0s infinite ease alternate none ;\n}\n@keyframes shaking{\n    0%{\n        transform:translateY(-0.5px) translateX(0.5px) rotateZ(-0.5deg);\n    }\n    100%{\n        transform:translateY(0.5px) translateX(-0.5px) rotateZ(0.5deg);\n    }\n}\n\n\n/* fontface */\n\ni{font-family: 'icomoon';}\n@font-face {\n  font-family: 'icomoon';\n  src:  url('/public/assets/icomoon.eot?687xqw');\n  src:  url('/public/assets/icomoon.eot?687xqw#iefix') format('embedded-opentype'),\n    url('/public/assets/icomoon.ttf?687xqw') format('truetype'),\n    url('/public/assets/icomoon.woff?687xqw') format('woff'),\n    url('/public/assets/icomoon.svg?687xqw#icomoon') format('svg');\n  font-weight: normal;\n  font-style: normal;\n}\n.icon-user:before {\n  content: \"\\E900\";\n}\n.icon-heart1:before {\n  content: \"\\E901\";\n}\n.icon-heart2:before {\n  content: \"\\E902\";\n}\n.icon-marker:before {\n  content: \"\\E903\";\n}\n.icon-link:before {\n  content: \"\\E005\";\n}\n.icon-cross:before {\n  content: \"\\E117\";\n}\n.icon-location:before {\n  content: \"\\E947\";\n}\n.icon-loop2:before {\n  content: \"\\EA2E\";\n}\n.icon-home:before {\n  content: \"\\E904\";\n}\n\n.icon-arrow-down2:before {\n  content: \"\\EA3E\";\n}\n.icon-arrow-up2:before {\n  content: \"\\EA3A\";\n}\n/* end of fontface */\n\n/* unit */\n.u-btn{ cursor: pointer; -webkit-user-select: none;}\n.u-bubbleHint{\n    position: absolute; top: -88%; left: -30px; font-size: 10px; padding: 0 5px; border-radius: 4px; background: #fc8282; box-shadow: 0 0 4px rgba(255, 127, 110, 0.49); text-align: center; color: #fff; font-weight: normal; white-space:nowrap;}\n", ""]);
 	
 	// exports
 

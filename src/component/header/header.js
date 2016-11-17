@@ -103,6 +103,19 @@ export default class Header extends React.Component{
             userName: this.state.username
         });
     }
+    //编辑我的
+    editMine(ev){
+        this.watchMine(ev);
+        // 从content里订阅了
+        PubSub.publish('userTile',{
+            watch_user:this.state.userid,
+            from_user: cookie.get('user'),
+            userName: this.state.username,
+            cb: ()=>{
+                PubSub.publish('tileEidtState', {message: true});
+            }
+        });
+    }
     // 主页刷新
     homeRefresh(ev){
         if(typeof ev !== 'string' && ev.target !== ev.currentTarget){
@@ -236,6 +249,7 @@ export default class Header extends React.Component{
                             <div className={`${style.arrow_box} ${style.bubleFrame}`} ref='userSetting'>
                                 <div className={`${style.bubleWrap}`} onMouseEnter={()=>{clearTimeout(this.timer)}}>
                                     <a href="#" onClick={this.watchMine.bind(this)}>查看我的</a>
+                                    <a href="#" onClick={this.editMine.bind(this)}>编辑我的</a>
                                     <a href="#" onClick={this.updateAvatar.bind(this)}>更改头像</a>
                                     <input type="file" className={`${style.hide}`} onChange={this.AvatarChange.bind(this)} ref="avatarUpload"/>
                                     <a onClick = {()=>{cookie.remove('user')}} href={`${config.url}?p=home&c=user&a=logout`}>注销</a>
