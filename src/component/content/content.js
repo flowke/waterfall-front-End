@@ -148,6 +148,13 @@ export default class Content extends React.Component{
                 PubSub.publish('progressLoadingDone');
                 if(data.length===0){
                     this.canReq = true;
+                    if(!this.canQuestTile){
+                        this.canQuestTile = setInterval( ()=>{
+                            this.canReq = true;
+
+                        },2000);
+                    }
+
                     return;
                 }
                 let length = this.state.tileList.length;
