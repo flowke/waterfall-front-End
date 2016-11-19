@@ -65,6 +65,7 @@ export default class Content extends React.Component{
             PubSub.publish('progressLoadingDone');
             if(data.length==0){
                 PubSub.publish('globalHint',{ rawText: 'Sharing', endText: 'Nothing at all'});
+                return;
             }
             data = data.map((elt,i)=>{
 
@@ -112,6 +113,7 @@ export default class Content extends React.Component{
 
             if(data.length==0){
                 PubSub.publish('globalHint',{ rawText: 'Sharing', endText: 'Nothing at all'});
+                return;
             }
             let length = this.state.tileList.length;
             data = data.map((elt,i)=>{
@@ -141,20 +143,20 @@ export default class Content extends React.Component{
             // 进度条载入
             PubSub.publish('progressLoading');
 
+            if(this.canQuestTile){
+                return;
+            }
             this.ajaxData.offset = this.refs.tileWrap.children.length;
             this.ajaxData.limit = 10;
             this.canReq = false;
+
             this.requestTile(this.ajaxData,(data)=>{
                 PubSub.publish('progressLoadingDone');
                 if(data.length===0){
-                    this.canReq = true;
-                    if(!this.canQuestTile){
-                        this.canQuestTile = setInterval( ()=>{
-                            this.canReq = true;
-
-                        },2000);
-                    }
-
+                    this.canQuestTile = setTimeout( ()=>{
+                        this.canReq = true;
+                        this.canQuestTile = null;
+                    },2000);
                     return;
                 }
                 let length = this.state.tileList.length;

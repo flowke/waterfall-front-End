@@ -833,6 +833,7 @@
 	                PubSub.publish('progressLoadingDone');
 	                if (data.length == 0) {
 	                    PubSub.publish('globalHint', { rawText: 'Sharing', endText: 'Nothing at all' });
+	                    return;
 	                }
 	                data = data.map(function (elt, i) {
 	
@@ -886,6 +887,7 @@
 	
 	                if (data.length == 0) {
 	                    PubSub.publish('globalHint', { rawText: 'Sharing', endText: 'Nothing at all' });
+	                    return;
 	                }
 	                var length = _this3.state.tileList.length;
 	                data = data.map(function (elt, i) {
@@ -921,13 +923,20 @@
 	                // 进度条载入
 	                PubSub.publish('progressLoading');
 	
+	                if (this.canQuestTile) {
+	                    return;
+	                }
 	                this.ajaxData.offset = this.refs.tileWrap.children.length;
 	                this.ajaxData.limit = 10;
 	                this.canReq = false;
+	
 	                this.requestTile(this.ajaxData, function (data) {
 	                    PubSub.publish('progressLoadingDone');
 	                    if (data.length === 0) {
-	                        _this4.canReq = true;
+	                        _this4.canQuestTile = setTimeout(function () {
+	                            _this4.canReq = true;
+	                            _this4.canQuestTile = null;
+	                        }, 2000);
 	                        return;
 	                    }
 	                    var length = _this4.state.tileList.length;
