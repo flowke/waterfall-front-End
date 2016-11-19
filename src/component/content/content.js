@@ -15,7 +15,7 @@ export default class Content extends React.Component{
         * typeList 请求分类数据
          */
         this.state = {
-            tileList: null,
+            tileList:  [],
             typeList: null,
             belong: 'All'
         };
@@ -26,11 +26,10 @@ export default class Content extends React.Component{
         this.toggleWelcome = this.toggleWelcome.bind(this);
         this.updateTile = this.updateTile.bind(this);
         this.tileEidtState = this.tileEidtState.bind(this);
-        this.recordDropTile = this.recordDropTile.bind(this);
+        this.dropTile = this.dropTile.bind(this);
         // 控制是否可以发起请求
         // 它在发起一次请求后变成false，state更新后变成true
         this.canReq = true;
-        this.editState = false;
         // 用于判断向什么角色发起请求，
         // all代表向全局发起请求，
         // 非all向user发起请求，值代表userid， watch_user
@@ -45,7 +44,6 @@ export default class Content extends React.Component{
     // 这是一个初始化请求
     // 它应该在访问首页的时候调用一次
     initTile( msg, args={} ){
-        this.editState = false;
         // ajax的请求数据
         this.ajaxData = {
             offset:0,
@@ -69,9 +67,11 @@ export default class Content extends React.Component{
                 PubSub.publish('globalHint',{ rawText: 'Sharing', endText: 'Nothing at all'});
             }
             data = data.map((elt,i)=>{
+
                 if(elt.thumb_status !=1 ){elt.thumb_status =0;};
-                return (<Item key={Math.random().toString().slice(2)} data={elt}/>);
+                return (<Item key={Math.random().toString().slice(2)} handleDrop={this.dropTile} data={elt}/>);
             });
+            this.editState = true;
 
             this.setState({
                 tileList: null
@@ -85,7 +85,7 @@ export default class Content extends React.Component{
 
     // 处理查看每个user的tile请求, 在你点击用户的时候调用，需要传入用户的id
     userTile(subName,args){
-        this.editState = false;
+
         if(!args.from_user){
             args.from_user = 0
         }
@@ -113,18 +113,21 @@ export default class Content extends React.Component{
             if(data.length==0){
                 PubSub.publish('globalHint',{ rawText: 'Sharing', endText: 'Nothing at all'});
             }
-
+            let length = this.state.tileList.length;
             data = data.map((elt,i)=>{
                 if(elt.thumb_status !=1 ){elt.thumb_status =0;};
-                return (<Item key={Math.random().toString().slice(2)} handleDrop={this.recordDropTile} data={elt}/>);
+                return (<Item key={Math.random().toString().slice(2)} indx={i} handleDrop={this.dropTile} data={elt}/>);
             });
             this.setState({
                 tileList: null
             },()=>{
                 this.setState({
                     tileList: data
-                }, ()=>{
-                    (typeof args.cb === 'function') && args.cb();
+                },()=>{
+                    if(args.editState && args.editState){
+                        PubSub.publish('tileEidtState', {message: true});
+                    }
+
                 });
             });
         });
@@ -144,11 +147,13 @@ export default class Content extends React.Component{
             this.requestTile(this.ajaxData,(data)=>{
                 PubSub.publish('progressLoadingDone');
                 if(data.length===0){
+                    this.canReq = true;
                     return;
                 }
+                let length = this.state.tileList.length;
                 data = data.map((elt, i)=>{
                     if(elt.thumb_status !=1 ){elt.thumb_status =0;};
-                    return (<Item key={Math.random().toString().slice(2)} data={elt}/>);
+                    return (<Item key={Math.random().toString().slice(2)} indx={length++} handleDrop={this.dropTile} data={elt}/>);
                 });
                 let list = this.state.tileList.concat(data);
                 this.setState({
@@ -171,14 +176,16 @@ export default class Content extends React.Component{
     // 一个通用的tile请求请求,需要传入数据
     updateTile(msg, data){
         this.queryString = 'p=home&c=tile&a=getTile';
-        this.editState = false;
+
         $(this.refs.timeArrow).addClass(style.redColor);
         $(this.refs.thumbArrow).removeClass(style.redColor);
         this.setState({ belong: "All" });
+        let length =  this.state.tileList.length;
         data = data.map((elt,i)=>{
             if(elt.thumb_status !=1 ){elt.thumb_status =0;};
-            return (<Item key={Math.random().toString().slice(2)} data={elt}/>);
+            return (<Item key={Math.random().toString().slice(2)} indx={length++} handleDrop={this.dropTile} data={elt}/>);
         });
+
         this.setState({
             tileList: null
         },()=>{
@@ -323,6 +330,7 @@ export default class Content extends React.Component{
     }
 
     backTohome(){
+
         PubSub.publish('initTile',{
             filterType: 0,
             sortBy: 'TIME',
@@ -376,28 +384,29 @@ export default class Content extends React.Component{
         $(this.refs.leftWrap).toggleClass(style.leftSpread);
         $(this.refs.rightWrap).toggleClass(style.rightSpread);
         $(this.refs.icon_cross).toggleClass(style.spreadRotate);
+        $(this.refs.outEdit).toggleClass(style.outSpreaded);
         this.wookmarkLayout();
-
 
     }
 
     // 编辑方面的逻辑
 	tileEidtState(msg, args){
 
-        if(this.editState){ return };
-        this.editState = true;
         if(args.message === true){
             $(this.refs.tileWrap.children).each((i, elt)=>{
-                $(elt).css('animation', 'shaking 0.1s '+ Math.random() +'s infinite ease alternate none');
+                $(elt).css('animation', 'shaking 0.1s '+ Math.random()/5 +'s infinite ease alternate none');
             });
-
+            $(this.refs.outEdit).removeClass(style.hide);
+            this.outTileEdit = false;
         }else{
             $(this.refs.tileWrap.children).each((i, elt)=>{
                 $(elt).css('animation', '');
             });
+            $(this.refs.outEdit).addClass(style.hide);
         }
         PubSub.publish('tileEditUI',{message: args.message});
         this.wookmarkLayout();
+
 
 	}
     outTileEidt(ev){
@@ -405,14 +414,11 @@ export default class Content extends React.Component{
         ev.preventDefault();
         if(ev.currentTarget === ev.target){
             PubSub.publish('tileEidtState', {message: false});
-            this.wookmarkLayout();
         }
-        this.editState = false;
-
-        if(this.dropList.length === 0){ return }
     }
 
-    recordDropTile(tile,tileid){
+    dropTile(indx,tileid){
+        this.outTileEdit = false;
         $.ajax({
             url: `${config.url}?h=home&c=tile&a=dropTile`,
             data:{tileid: tileid},
@@ -423,8 +429,10 @@ export default class Content extends React.Component{
                 PubSub.publish('globalHint',{rawText: 'Sharing', endText: 'Fail to delete'});
             }else if(data.message === 0){
                 PubSub.publish('globalHint',{rawText: 'Sharing', endText: 'Drop tile done!'});
-                $(tile).remove();
-                this.wookmarkLayout();
+                this.state.tileList.splice(indx,1);
+                this.setState({
+                    tileList: this.state.tileList
+                });
             }
         } );
     }
@@ -454,14 +462,18 @@ export default class Content extends React.Component{
 				this.setState({typeList: data});
 			}
 		});
-
+        this.outTileEidt = this.outTileEidt.bind(this);
         $(this.refs.timeArrow).addClass(style.redColor);
 
     }
 
     componentDidUpdate(){
         this.wookmarkLayout();
-        this.outTileEidt = this.outTileEidt.bind(this);
+        if(this.outTileEdit){
+           $(this.refs.outEdit).addClass(style.hide);
+        }
+        this.outTileEdit = true;
+
     }
 
     render(){
@@ -492,6 +504,9 @@ export default class Content extends React.Component{
                 </div>
                 <span ref="spreadMenu" className={`${style.spreadMenu}`} onClick={this.toggleSpread.bind(this)}>
                     <i className="icon-cross" ref="icon_cross"></i>
+                </span>
+                <span ref="outEdit" className={`${style.spreadMenu} ${style.outEdit} ${style.hide}`} onClick={this.outTileEidt}>
+                    完成
                 </span>
             </section>
         );

@@ -63,10 +63,6 @@ export default class UserList extends React.Component{
 
         this.setState({
             userList: list
-        },()=>{
-            setTimeout(()=>{
-                $(this.refs.loopIcon).removeClass('f-refreshing');
-            },1000)
         });
     }
 

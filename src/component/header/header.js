@@ -111,20 +111,8 @@ export default class Header extends React.Component{
             watch_user:this.state.userid,
             from_user: cookie.get('user'),
             userName: this.state.username,
-            cb: ()=>{
-                PubSub.publish('tileEidtState', {message: true});
-            }
+            editState: true
         });
-    }
-    // 主页刷新
-    homeRefresh(ev){
-        if(typeof ev !== 'string' && ev.target !== ev.currentTarget){
-            return;
-        }
-        ev.stopPropagation();
-        ev.preventDefault();
-        PubSub.publish('initTile');
-
     }
     // 点击更改头像更改头像
     updateAvatar(){

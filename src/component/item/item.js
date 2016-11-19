@@ -18,6 +18,7 @@ export default class Item extends React.Component{
 
 		this.tileEditUI = this.tileEditUI.bind(this);
 
+
 	}
 	//点赞后的动作
 	thumbMe(ev){
@@ -97,11 +98,11 @@ export default class Item extends React.Component{
 
 	}
 
-	recordDropTile(ev){
+	dropTile(ev){
 		ev.stopPropagation();
 		ev.preventDefault();
-		console.log(this.props)
-		this.props.handleDrop(this.refs.tile, $(this.refs.tile).data('tileid') );
+
+		this.props.handleDrop(this.props.indx, $(this.refs.tile).data('tileid') );
 
 	}
 
@@ -112,8 +113,8 @@ export default class Item extends React.Component{
     render(){
         let props = this.props.data;
         return(
-            <li className={`${style.tileWrap} `} data-tileid={props.tile_id} ref='tile'>
-                <i className={`${style.editIcon} ${style.hide} icon-cross`} onClick={this.recordDropTile.bind(this)} ref="editIcon"></i>
+            <li className={`${style.tileWrap} `} data-tileid={props.tile_id} data-indx={this.props.indx} ref='tile'>
+                <i className={`${style.editIcon} ${style.hide} icon-cross`} onClick={this.dropTile.bind(this)} ref="editIcon"></i>
 				<div ref="imgWrap" className={`${style.imgWrap}`}>
 					<img src={props.tile_cover} width="200" height="214" />
 				</div>

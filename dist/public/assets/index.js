@@ -307,22 +307,8 @@
 	                watch_user: this.state.userid,
 	                from_user: cookie.get('user'),
 	                userName: this.state.username,
-	                cb: function cb() {
-	                    PubSub.publish('tileEidtState', { message: true });
-	                }
+	                editState: true
 	            });
-	        }
-	        // 主页刷新
-	
-	    }, {
-	        key: 'homeRefresh',
-	        value: function homeRefresh(ev) {
-	            if (typeof ev !== 'string' && ev.target !== ev.currentTarget) {
-	                return;
-	            }
-	            ev.stopPropagation();
-	            ev.preventDefault();
-	            PubSub.publish('initTile');
 	        }
 	        // 点击更改头像更改头像
 	
@@ -788,7 +774,7 @@
 	        var _this = _possibleConstructorReturn(this, (Content.__proto__ || Object.getPrototypeOf(Content)).call(this, props));
 	
 	        _this.state = {
-	            tileList: null,
+	            tileList: [],
 	            typeList: null,
 	            belong: 'All'
 	        };
@@ -799,11 +785,10 @@
 	        _this.toggleWelcome = _this.toggleWelcome.bind(_this);
 	        _this.updateTile = _this.updateTile.bind(_this);
 	        _this.tileEidtState = _this.tileEidtState.bind(_this);
-	        _this.recordDropTile = _this.recordDropTile.bind(_this);
+	        _this.dropTile = _this.dropTile.bind(_this);
 	        // 控制是否可以发起请求
 	        // 它在发起一次请求后变成false，state更新后变成true
 	        _this.canReq = true;
-	        _this.editState = false;
 	        // 用于判断向什么角色发起请求，
 	        // all代表向全局发起请求，
 	        // 非all向user发起请求，值代表userid， watch_user
@@ -827,7 +812,6 @@
 	
 	            var args = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 	
-	            this.editState = false;
 	            // ajax的请求数据
 	            this.ajaxData = {
 	                offset: 0,
@@ -851,11 +835,13 @@
 	                    PubSub.publish('globalHint', { rawText: 'Sharing', endText: 'Nothing at all' });
 	                }
 	                data = data.map(function (elt, i) {
+	
 	                    if (elt.thumb_status != 1) {
 	                        elt.thumb_status = 0;
 	                    };
-	                    return React.createElement(_item2.default, { key: Math.random().toString().slice(2), data: elt });
+	                    return React.createElement(_item2.default, { key: Math.random().toString().slice(2), handleDrop: _this2.dropTile, data: elt });
 	                });
+	                _this2.editState = true;
 	
 	                _this2.setState({
 	                    tileList: null
@@ -874,7 +860,6 @@
 	        value: function userTile(subName, args) {
 	            var _this3 = this;
 	
-	            this.editState = false;
 	            if (!args.from_user) {
 	                args.from_user = 0;
 	            }
@@ -902,12 +887,12 @@
 	                if (data.length == 0) {
 	                    PubSub.publish('globalHint', { rawText: 'Sharing', endText: 'Nothing at all' });
 	                }
-	
+	                var length = _this3.state.tileList.length;
 	                data = data.map(function (elt, i) {
 	                    if (elt.thumb_status != 1) {
 	                        elt.thumb_status = 0;
 	                    };
-	                    return React.createElement(_item2.default, { key: Math.random().toString().slice(2), handleDrop: _this3.recordDropTile, data: elt });
+	                    return React.createElement(_item2.default, { key: Math.random().toString().slice(2), indx: i, handleDrop: _this3.dropTile, data: elt });
 	                });
 	                _this3.setState({
 	                    tileList: null
@@ -915,7 +900,9 @@
 	                    _this3.setState({
 	                        tileList: data
 	                    }, function () {
-	                        typeof args.cb === 'function' && args.cb();
+	                        if (args.editState && args.editState) {
+	                            PubSub.publish('tileEidtState', { message: true });
+	                        }
 	                    });
 	                });
 	            });
@@ -940,13 +927,15 @@
 	                this.requestTile(this.ajaxData, function (data) {
 	                    PubSub.publish('progressLoadingDone');
 	                    if (data.length === 0) {
+	                        _this4.canReq = true;
 	                        return;
 	                    }
+	                    var length = _this4.state.tileList.length;
 	                    data = data.map(function (elt, i) {
 	                        if (elt.thumb_status != 1) {
 	                            elt.thumb_status = 0;
 	                        };
-	                        return React.createElement(_item2.default, { key: Math.random().toString().slice(2), data: elt });
+	                        return React.createElement(_item2.default, { key: Math.random().toString().slice(2), indx: length++, handleDrop: _this4.dropTile, data: elt });
 	                    });
 	                    var list = _this4.state.tileList.concat(data);
 	                    _this4.setState({
@@ -974,16 +963,18 @@
 	            var _this5 = this;
 	
 	            this.queryString = 'p=home&c=tile&a=getTile';
-	            this.editState = false;
+	
 	            $(this.refs.timeArrow).addClass(_content2.default.redColor);
 	            $(this.refs.thumbArrow).removeClass(_content2.default.redColor);
 	            this.setState({ belong: "All" });
+	            var length = this.state.tileList.length;
 	            data = data.map(function (elt, i) {
 	                if (elt.thumb_status != 1) {
 	                    elt.thumb_status = 0;
 	                };
-	                return React.createElement(_item2.default, { key: Math.random().toString().slice(2), data: elt });
+	                return React.createElement(_item2.default, { key: Math.random().toString().slice(2), indx: length++, handleDrop: _this5.dropTile, data: elt });
 	            });
+	
 	            this.setState({
 	                tileList: null
 	            }, function () {
@@ -1127,6 +1118,7 @@
 	    }, {
 	        key: 'backTohome',
 	        value: function backTohome() {
+	
 	            PubSub.publish('initTile', {
 	                filterType: 0,
 	                sortBy: 'TIME',
@@ -1180,6 +1172,7 @@
 	            $(this.refs.leftWrap).toggleClass(_content2.default.leftSpread);
 	            $(this.refs.rightWrap).toggleClass(_content2.default.rightSpread);
 	            $(this.refs.icon_cross).toggleClass(_content2.default.spreadRotate);
+	            $(this.refs.outEdit).toggleClass(_content2.default.outSpreaded);
 	            this.wookmarkLayout();
 	        }
 	
@@ -1189,18 +1182,17 @@
 	        key: 'tileEidtState',
 	        value: function tileEidtState(msg, args) {
 	
-	            if (this.editState) {
-	                return;
-	            };
-	            this.editState = true;
 	            if (args.message === true) {
 	                $(this.refs.tileWrap.children).each(function (i, elt) {
-	                    $(elt).css('animation', 'shaking 0.1s ' + Math.random() + 's infinite ease alternate none');
+	                    $(elt).css('animation', 'shaking 0.1s ' + Math.random() / 5 + 's infinite ease alternate none');
 	                });
+	                $(this.refs.outEdit).removeClass(_content2.default.hide);
+	                this.outTileEdit = false;
 	            } else {
 	                $(this.refs.tileWrap.children).each(function (i, elt) {
 	                    $(elt).css('animation', '');
 	                });
+	                $(this.refs.outEdit).addClass(_content2.default.hide);
 	            }
 	            PubSub.publish('tileEditUI', { message: args.message });
 	            this.wookmarkLayout();
@@ -1212,19 +1204,14 @@
 	            ev.preventDefault();
 	            if (ev.currentTarget === ev.target) {
 	                PubSub.publish('tileEidtState', { message: false });
-	                this.wookmarkLayout();
-	            }
-	            this.editState = false;
-	
-	            if (this.dropList.length === 0) {
-	                return;
 	            }
 	        }
 	    }, {
-	        key: 'recordDropTile',
-	        value: function recordDropTile(tile, tileid) {
+	        key: 'dropTile',
+	        value: function dropTile(indx, tileid) {
 	            var _this6 = this;
 	
+	            this.outTileEdit = false;
 	            $.ajax({
 	                url: config.url + '?h=home&c=tile&a=dropTile',
 	                data: { tileid: tileid },
@@ -1234,8 +1221,10 @@
 	                    PubSub.publish('globalHint', { rawText: 'Sharing', endText: 'Fail to delete' });
 	                } else if (data.message === 0) {
 	                    PubSub.publish('globalHint', { rawText: 'Sharing', endText: 'Drop tile done!' });
-	                    $(tile).remove();
-	                    _this6.wookmarkLayout();
+	                    _this6.state.tileList.splice(indx, 1);
+	                    _this6.setState({
+	                        tileList: _this6.state.tileList
+	                    });
 	                }
 	            });
 	        }
@@ -1278,14 +1267,17 @@
 	                    _this7.setState({ typeList: data });
 	                }
 	            });
-	
+	            this.outTileEidt = this.outTileEidt.bind(this);
 	            $(this.refs.timeArrow).addClass(_content2.default.redColor);
 	        }
 	    }, {
 	        key: 'componentDidUpdate',
 	        value: function componentDidUpdate() {
 	            this.wookmarkLayout();
-	            this.outTileEidt = this.outTileEidt.bind(this);
+	            if (this.outTileEdit) {
+	                $(this.refs.outEdit).addClass(_content2.default.hide);
+	            }
+	            this.outTileEdit = true;
 	        }
 	    }, {
 	        key: 'render',
@@ -1368,6 +1360,11 @@
 	                    'span',
 	                    { ref: 'spreadMenu', className: '' + _content2.default.spreadMenu, onClick: this.toggleSpread.bind(this) },
 	                    React.createElement('i', { className: 'icon-cross', ref: 'icon_cross' })
+	                ),
+	                React.createElement(
+	                    'span',
+	                    { ref: 'outEdit', className: _content2.default.spreadMenu + ' ' + _content2.default.outEdit + ' ' + _content2.default.hide, onClick: this.outTileEidt },
+	                    '\u5B8C\u6210'
 	                )
 	            );
 	        }
@@ -1520,12 +1517,12 @@
 				}
 			}
 		}, {
-			key: 'recordDropTile',
-			value: function recordDropTile(ev) {
+			key: 'dropTile',
+			value: function dropTile(ev) {
 				ev.stopPropagation();
 				ev.preventDefault();
-				console.log(this.props);
-				this.props.handleDrop(this.refs.tile, $(this.refs.tile).data('tileid'));
+	
+				this.props.handleDrop(this.props.indx, $(this.refs.tile).data('tileid'));
 			}
 		}, {
 			key: 'componentDidMount',
@@ -1538,8 +1535,8 @@
 				var props = this.props.data;
 				return React.createElement(
 					'li',
-					{ className: _item2.default.tileWrap + ' ', 'data-tileid': props.tile_id, ref: 'tile' },
-					React.createElement('i', { className: _item2.default.editIcon + ' ' + _item2.default.hide + ' icon-cross', onClick: this.recordDropTile.bind(this), ref: 'editIcon' }),
+					{ className: _item2.default.tileWrap + ' ', 'data-tileid': props.tile_id, 'data-indx': this.props.indx, ref: 'tile' },
+					React.createElement('i', { className: _item2.default.editIcon + ' ' + _item2.default.hide + ' icon-cross', onClick: this.dropTile.bind(this), ref: 'editIcon' }),
 					React.createElement(
 						'div',
 						{ ref: 'imgWrap', className: '' + _item2.default.imgWrap },
@@ -1628,7 +1625,7 @@
 /***/ function(module, exports) {
 
 	// removed by extract-text-webpack-plugin
-	module.exports = {"contentBox":"contentBox_3s92cNA0wt","layoutWrap":"layoutWrap_3lsSYpAvN0","g-left":"g-left_1irHrfbe1e","leftSpread":"leftSpread_EBarCVtHhA","g-right":"g-right_11Go81irgz","rightSpread":"rightSpread_1-TiCHl_lg","aside":"aside_3_7Tv4TGTN","sortElement":"sortElement_3Z9qFB1fgb","typeList":"typeList_1hESDwKzKf","spreadMenu":"spreadMenu_3E_-yAmX4z","spreadRotate":"spreadRotate_28CIQK2Fy4","MenuSpreaded":"MenuSpreaded_cp-rt1CFqo","notLogin":"notLogin_373DqV1sgo","hide":"hide_cqspzJvttZ","redColor":"redColor_1meIouxnOg"};
+	module.exports = {"contentBox":"contentBox_3s92cNA0wt","layoutWrap":"layoutWrap_3lsSYpAvN0","g-left":"g-left_1irHrfbe1e","leftSpread":"leftSpread_EBarCVtHhA","g-right":"g-right_11Go81irgz","rightSpread":"rightSpread_1-TiCHl_lg","aside":"aside_3_7Tv4TGTN","sortElement":"sortElement_3Z9qFB1fgb","typeList":"typeList_1hESDwKzKf","spreadMenu":"spreadMenu_3E_-yAmX4z","spreadRotate":"spreadRotate_28CIQK2Fy4","outEdit":"outEdit_1s_lrfTJW9","MenuSpreaded":"MenuSpreaded_cp-rt1CFqo","outSpreaded":"outSpreaded_1wOzlATa7d","notLogin":"notLogin_373DqV1sgo","hide":"hide_cqspzJvttZ","redColor":"redColor_1meIouxnOg"};
 
 /***/ },
 /* 14 */
@@ -4195,10 +4192,6 @@
 	
 	            this.setState({
 	                userList: list
-	            }, function () {
-	                setTimeout(function () {
-	                    $(_this2.refs.loopIcon).removeClass('f-refreshing');
-	                }, 1000);
 	            });
 	        }
 	    }, {

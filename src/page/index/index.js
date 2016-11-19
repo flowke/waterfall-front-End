@@ -9,7 +9,6 @@ import ShareingPanel from 'component/shareingPanel/shareingPanel.js';
 import UserEntry from 'component/userEntry/userEntry.js';
 import UserList from 'component/userList/userList.js';
 
-
 class Index extends React.Component{
     render(){
         return (

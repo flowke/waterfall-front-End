@@ -190,6 +190,17 @@
 .bubbleAnima {
   animation: globalBubble 3s ;
 }
+@media screen and (max-width: 630px) {
+  .userInfo_3RF2mg6rpu span {
+    display: none;
+  }
+  .home_3o9XVyY8BO {
+    left: 58px;
+  }
+  .bubleFrame_4bpVGZLxnM {
+    width: 80px;
+  }
+}
 .tileWrap_2aqlJqjlMx {
   width: 260px;
   box-shadow: 0 0 3px rgba(0, 0, 0, 0.1);
@@ -398,23 +409,34 @@
   border-radius: 50%;
   background: #fd0202;
   transition: right 1s;
+  text-align: center;
+  line-height: 30px;
+  color: #fff;
+  user-select: none;
 }
 .spreadMenu_3E_-yAmX4z i {
   display: block;
   width: 100%;
   height: 100%;
-  text-align: center;
   font-size: 18px;
-  line-height: 30px;
-  color: #fff;
   transform: rotate(45deg);
   transition: transform 1s;
 }
 .spreadMenu_3E_-yAmX4z i.spreadRotate_28CIQK2Fy4 {
   transform: rotate(0);
 }
+.outEdit_1s_lrfTJW9 {
+  top: 70px;
+  font-size: 12px;
+  padding: 0 10px;
+  cursor: default;
+  border-radius: 15px;
+}
 .MenuSpreaded_cp-rt1CFqo {
   right: 265px;
+}
+.outSpreaded_1wOzlATa7d {
+  right: 255px;
 }
 /* 通用样式 */
 .notLogin_373DqV1sgo {

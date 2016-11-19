@@ -8,7 +8,7 @@
     "start": "webpack-dev-server --env=dev",
     "dll": "webpack --env=dll",
     "dist": "webpack --env=dist",
-    "all": "gulp move & webpack --env=dll & webpack --env=dist"
+    "all": "gulp move & webpack --env=dll & webpack --env=dist "
   },
   "author": "",
   "license": "ISC",
@@ -31,6 +31,8 @@
     "file-loader": "^0.9.0",
     "gulp": "^3.9.1",
     "gulp-clean": "^0.3.2",
+    "gulp-run-sequence": "^0.3.2",
+    "gulp-sequence": "^0.4.6",
     "html-webpack-plugin": "^2.22.0",
     "imagesloaded": "^4.1.1",
     "imports-loader": "^0.6.5",
