@@ -16,13 +16,12 @@ export default class ShareingPanel extends React.Component{
 		this.closePanelWrap = this.closePanelWrap.bind(this);
 		this.state = {
 			type : '请选择一种类型',
-			typeList: null,
 			title: '没有标题哦',
 			desc: '没有描述',
 			img: null,
 			category_id:'0'
 		};
-
+		
 		// 注册验证
 		this.validation.addByValue('title',[
 			{strategy: 'isEmpty', errorMsg:'title不能是空'}
@@ -30,7 +29,8 @@ export default class ShareingPanel extends React.Component{
 		this.validation.addByValue('desc',[
 			{strategy: 'isEmpty', errorMsg:'输入点描述吧'}
 		]);
-
+        // 创建category
+		this.category = null;
 	}
 	/**
 	 * 点击分享时候所发起的ajax请求
@@ -215,6 +215,22 @@ export default class ShareingPanel extends React.Component{
 	/**
 	 * 	React 组件生命周期的函数在下方声明
 	 */
+
+
+
+	componentWillReceiveProps(nextProps){
+		if( !this.category ){
+			this.category = nextProps.category.map((elt,indx)=>{
+				return (<li key={indx} data-categoryid={elt.category_id}  onMouseOut={this.listOut} onMouseOver={this.listIn} onClick={this.listClick.bind(this)}>{elt.category_name}</li>);
+			});
+			this.forceUpdate();
+		}
+	}
+
+	/* componentWillUpdate(){
+		console.log(' w u ')
+	} */
+
 	componentDidMount(){
 		// 订阅分享按钮的点击，header可能会订阅它
 		PubSub.subscribe('togglePanelWrap',this.togglePanelWrap);
@@ -226,19 +242,9 @@ export default class ShareingPanel extends React.Component{
 		this.refs.imgWrap.onclick = ()=>{
 			this.refs.file.click();
 		}
-
-		//请求分类信息
-		$.ajax({
-			url: `${config.url}?h=home&c=category&a=getCategory`,
-			dataType: 'json',
-			success: (data)=>{
-				data = data.map((elt,indx)=>{
-					return (<li key={indx} data-categoryid={elt.category_id}  onMouseOut={this.listOut} onMouseOver={this.listIn} onClick={this.listClick.bind(this)}>{elt.category_name}</li>);
-				});
-				this.setState({typeList: data});
-			}
-		});
 	}
+
+
     render(){
         return (
             <div className={`${style.panelWrap} f-hide`} ref="panelWrap" >
@@ -277,7 +283,7 @@ export default class ShareingPanel extends React.Component{
 										<p ref='typeName'>{this.state.type}</p>
 									</div>
 									<ul className={`${style.hide} ${style.typeList}`} ref='typeList'>
-										{this.state.typeList}
+										{this.category}
 									</ul>
 								</div>
 								<div className={`${style.upload}`} ref="coverBtn">

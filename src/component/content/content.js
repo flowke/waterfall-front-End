@@ -19,6 +19,7 @@ export default class Content extends React.Component{
             typeList: null,
             belong: 'All'
         };
+
         // 修改this绑定
         this.userTile = this.userTile.bind(this);
         this.initTile = this.initTile.bind(this);
@@ -27,6 +28,7 @@ export default class Content extends React.Component{
         this.updateTile = this.updateTile.bind(this);
         this.tileEidtState = this.tileEidtState.bind(this);
         this.dropTile = this.dropTile.bind(this);
+        this.listClick = this.listClick.bind(this);
         // 控制是否可以发起请求
         // 它在发起一次请求后变成false，state更新后变成true
         this.canReq = true;
@@ -40,6 +42,9 @@ export default class Content extends React.Component{
         this.order = 'DESC';
 
         this.dropList = [];
+
+        // 分类信息
+        this.typeList = null;
     }
     // 这是一个初始化请求
     // 它应该在访问首页的时候调用一次
@@ -65,7 +70,6 @@ export default class Content extends React.Component{
             PubSub.publish('progressLoadingDone');
             if(data.length==0){
                 PubSub.publish('globalHint',{ rawText: 'Sharing', endText: 'Nothing at all'});
-                return;
             }
             data = data.map((elt,i)=>{
 
@@ -113,7 +117,6 @@ export default class Content extends React.Component{
 
             if(data.length==0){
                 PubSub.publish('globalHint',{ rawText: 'Sharing', endText: 'Nothing at all'});
-                return;
             }
             let length = this.state.tileList.length;
             data = data.map((elt,i)=>{
@@ -129,7 +132,6 @@ export default class Content extends React.Component{
                     if(args.editState && args.editState){
                         PubSub.publish('tileEidtState', {message: true});
                     }
-
                 });
             });
         });
@@ -439,9 +441,9 @@ export default class Content extends React.Component{
             }else if(data.message === 0){
                 PubSub.publish('globalHint',{rawText: 'Sharing', endText: 'Drop tile done!'});
                 this.state.tileList.splice(indx,1);
-                this.setState({
+                this.setState( {
                     tileList: this.state.tileList
-                });
+                } );
             }
         } );
     }
@@ -449,31 +451,18 @@ export default class Content extends React.Component{
     /**
      * react的生命周期函数
      */
-    componentDidMount(){
-        $(window).on('scroll', this.handlerScroll);
-        // 订阅订阅tile请求
-        PubSub.subscribe('userTile',this.userTile);
-        PubSub.subscribe('initTile',this.initTile);
-        PubSub.subscribe('toggleWelcome', this.toggleWelcome);
-        PubSub.subscribe('updateTile', this.updateTile);
-        PubSub.subscribe('tileEidtState', this.tileEidtState);
-        this.initTile();
 
-        //请求分类信息
-		$.ajax({
-			url: `${config.url}?h=home&c=category&a=getCategory`,
-			dataType: 'json',
-			success: (data)=>{
-				data = data.map((elt,indx)=>{
-					return (<li key={indx} data-categoryid={elt.category_id} onClick={this.listClick.bind(this)}>{elt.category_name}</li>);
-				});
-                data.unshift(<li key={Math.random().toString().slice(2)} data-categoryid={0} onClick={this.listClick.bind(this)}>All</li>)
-				this.setState({typeList: data});
-			}
-		});
-        this.outTileEidt = this.outTileEidt.bind(this);
-        $(this.refs.timeArrow).addClass(style.redColor);
 
+    componentWillReceiveProps(nProps){
+
+        // 更新typelist
+        if( !this.typeList ){
+            this.typeList = nProps.category.map((elt,indx)=>{
+                return ( <li key={indx} data-categoryid={ elt.category_id } onClick={this.listClick}>{elt.category_name}</li>);
+            });
+            this.typeList.unshift(<li key={Math.random().toString().slice(2)} data-categoryid={0} onClick={this.listClick}>All</li>)
+            this.forceUpdate();
+        }
     }
 
     componentDidUpdate(){
@@ -484,6 +473,22 @@ export default class Content extends React.Component{
         this.outTileEdit = true;
 
     }
+
+    componentDidMount(){
+        $(window).on('scroll', this.handlerScroll);
+        // 订阅订阅tile请求
+        PubSub.subscribe('userTile',this.userTile);
+        PubSub.subscribe('initTile',this.initTile);
+        PubSub.subscribe('toggleWelcome', this.toggleWelcome);
+        PubSub.subscribe('updateTile', this.updateTile);
+        PubSub.subscribe('tileEidtState', this.tileEidtState);
+        this.initTile();
+
+        this.outTileEidt = this.outTileEidt.bind(this);
+        $(this.refs.timeArrow).addClass(style.redColor);
+
+    }
+
 
     render(){
         return(
@@ -504,7 +509,7 @@ export default class Content extends React.Component{
                             <li onClick={ this.typeShow.bind(this) }>
                                 TYPE: <span ref="typeName" >All</span>
                                 <ul className={`${style.typeList} ${style.hide}`} ref="typeList">
-                                    {this.state.typeList}
+                                    {this.typeList}
                                 </ul>
                             </li>
                             <li onClick={this.orderTime.bind(this)}><span>TIME</span><i className="icon-arrow-down2" ref="timeArrow"></i></li>

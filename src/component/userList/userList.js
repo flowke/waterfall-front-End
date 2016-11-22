@@ -50,7 +50,7 @@ export default class UserList extends React.Component{
             return (
                 <li key={i}>
                     <a href="#" onClick={this.watchMine.bind(this)} data-userid={elt.user_id} data-username={elt.user_name}>
-                        <img src={elt.user_icon}/>
+                        <div className={`${style.imgWrap}`} ><img src={elt.user_icon}/></div>
                         <span>{elt.user_name}</span>
                         <span className={`${style.starWrap}`}>
                             <span className={`${style.starNum}`}>{elt.user_star}</span>

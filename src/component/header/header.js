@@ -28,8 +28,6 @@ export default class Header extends React.Component{
         this.globalHint = this.globalHint.bind(this);
         // 控制fadein的开关
         this.userEntrySwitch = false;
-
-
     }
 
     // 用户点击了分享按钮，只涉及到ui上的隐藏和显示

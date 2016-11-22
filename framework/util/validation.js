@@ -107,8 +107,9 @@ export default class Validator{
         this.valueRuleCache = {};
     }
     /*
-    add方法负责给某个表单控件绑定验证规则, 把验证规则存到ruleCache中
+    *add方法负责给某个表单控件绑定验证规则, 把验证规则存到ruleCache中
     它支持同时一次添加多条规则到同一个dom上
+    *rule的规则是一个数组，每个元素格式大概： {}
     */
     addByDom(dom, name, rules){
         let ary = [],

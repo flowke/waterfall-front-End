@@ -80,27 +80,47 @@
 	
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 	
+	var config = __webpack_require__(8);
 	__webpack_require__(30);
 	
 	var Index = function (_React$Component) {
 	    _inherits(Index, _React$Component);
 	
-	    function Index() {
+	    function Index(props) {
 	        _classCallCheck(this, Index);
 	
-	        return _possibleConstructorReturn(this, (Index.__proto__ || Object.getPrototypeOf(Index)).apply(this, arguments));
+	        var _this = _possibleConstructorReturn(this, (Index.__proto__ || Object.getPrototypeOf(Index)).call(this, props));
+	
+	        _this.state = {
+	            category: []
+	        };
+	        return _this;
 	    }
 	
 	    _createClass(Index, [{
+	        key: 'componentDidMount',
+	        value: function componentDidMount() {
+	            var _this2 = this;
+	
+	            //请求分类信息
+	            $.ajax({
+	                url: config.url + '?h=home&c=category&a=getCategory',
+	                dataType: 'json'
+	            }).done(function (data) {
+	                _this2.setState({ category: data });
+	            });
+	        }
+	    }, {
 	        key: 'render',
 	        value: function render() {
+	
 	            return React.createElement(
 	                'div',
 	                { id: 'index' },
 	                React.createElement(_header2.default, null),
 	                React.createElement(_welcomePanel2.default, null),
-	                React.createElement(_content2.default, null),
-	                React.createElement(_shareingPanel2.default, null),
+	                React.createElement(_content2.default, { category: this.state.category }),
+	                React.createElement(_shareingPanel2.default, { category: this.state.category }),
 	                React.createElement(_userEntry2.default, null),
 	                React.createElement(_userList2.default, null)
 	            );
@@ -190,7 +210,6 @@
 	        _this.globalHint = _this.globalHint.bind(_this);
 	        // 控制fadein的开关
 	        _this.userEntrySwitch = false;
-	
 	        return _this;
 	    }
 	
@@ -778,6 +797,7 @@
 	            typeList: null,
 	            belong: 'All'
 	        };
+	
 	        // 修改this绑定
 	        _this.userTile = _this.userTile.bind(_this);
 	        _this.initTile = _this.initTile.bind(_this);
@@ -786,6 +806,7 @@
 	        _this.updateTile = _this.updateTile.bind(_this);
 	        _this.tileEidtState = _this.tileEidtState.bind(_this);
 	        _this.dropTile = _this.dropTile.bind(_this);
+	        _this.listClick = _this.listClick.bind(_this);
 	        // 控制是否可以发起请求
 	        // 它在发起一次请求后变成false，state更新后变成true
 	        _this.canReq = true;
@@ -799,6 +820,9 @@
 	        _this.order = 'DESC';
 	
 	        _this.dropList = [];
+	
+	        // 分类信息
+	        _this.typeList = null;
 	        return _this;
 	    }
 	    // 这是一个初始化请求
@@ -833,7 +857,6 @@
 	                PubSub.publish('progressLoadingDone');
 	                if (data.length == 0) {
 	                    PubSub.publish('globalHint', { rawText: 'Sharing', endText: 'Nothing at all' });
-	                    return;
 	                }
 	                data = data.map(function (elt, i) {
 	
@@ -887,7 +910,6 @@
 	
 	                if (data.length == 0) {
 	                    PubSub.publish('globalHint', { rawText: 'Sharing', endText: 'Nothing at all' });
-	                    return;
 	                }
 	                var length = _this3.state.tileList.length;
 	                data = data.map(function (elt, i) {
@@ -1243,41 +1265,26 @@
 	         */
 	
 	    }, {
-	        key: 'componentDidMount',
-	        value: function componentDidMount() {
+	        key: 'componentWillReceiveProps',
+	        value: function componentWillReceiveProps(nProps) {
 	            var _this7 = this;
 	
-	            $(window).on('scroll', this.handlerScroll);
-	            // 订阅订阅tile请求
-	            PubSub.subscribe('userTile', this.userTile);
-	            PubSub.subscribe('initTile', this.initTile);
-	            PubSub.subscribe('toggleWelcome', this.toggleWelcome);
-	            PubSub.subscribe('updateTile', this.updateTile);
-	            PubSub.subscribe('tileEidtState', this.tileEidtState);
-	            this.initTile();
-	
-	            //请求分类信息
-	            $.ajax({
-	                url: config.url + '?h=home&c=category&a=getCategory',
-	                dataType: 'json',
-	                success: function success(data) {
-	                    data = data.map(function (elt, indx) {
-	                        return React.createElement(
-	                            'li',
-	                            { key: indx, 'data-categoryid': elt.category_id, onClick: _this7.listClick.bind(_this7) },
-	                            elt.category_name
-	                        );
-	                    });
-	                    data.unshift(React.createElement(
+	            // 更新typelist
+	            if (!this.typeList) {
+	                this.typeList = nProps.category.map(function (elt, indx) {
+	                    return React.createElement(
 	                        'li',
-	                        { key: Math.random().toString().slice(2), 'data-categoryid': 0, onClick: _this7.listClick.bind(_this7) },
-	                        'All'
-	                    ));
-	                    _this7.setState({ typeList: data });
-	                }
-	            });
-	            this.outTileEidt = this.outTileEidt.bind(this);
-	            $(this.refs.timeArrow).addClass(_content2.default.redColor);
+	                        { key: indx, 'data-categoryid': elt.category_id, onClick: _this7.listClick },
+	                        elt.category_name
+	                    );
+	                });
+	                this.typeList.unshift(React.createElement(
+	                    'li',
+	                    { key: Math.random().toString().slice(2), 'data-categoryid': 0, onClick: this.listClick },
+	                    'All'
+	                ));
+	                this.forceUpdate();
+	            }
 	        }
 	    }, {
 	        key: 'componentDidUpdate',
@@ -1287,6 +1294,21 @@
 	                $(this.refs.outEdit).addClass(_content2.default.hide);
 	            }
 	            this.outTileEdit = true;
+	        }
+	    }, {
+	        key: 'componentDidMount',
+	        value: function componentDidMount() {
+	            $(window).on('scroll', this.handlerScroll);
+	            // 订阅订阅tile请求
+	            PubSub.subscribe('userTile', this.userTile);
+	            PubSub.subscribe('initTile', this.initTile);
+	            PubSub.subscribe('toggleWelcome', this.toggleWelcome);
+	            PubSub.subscribe('updateTile', this.updateTile);
+	            PubSub.subscribe('tileEidtState', this.tileEidtState);
+	            this.initTile();
+	
+	            this.outTileEidt = this.outTileEidt.bind(this);
+	            $(this.refs.timeArrow).addClass(_content2.default.redColor);
 	        }
 	    }, {
 	        key: 'render',
@@ -1349,7 +1371,7 @@
 	                                React.createElement(
 	                                    'ul',
 	                                    { className: _content2.default.typeList + ' ' + _content2.default.hide, ref: 'typeList' },
-	                                    this.state.typeList
+	                                    this.typeList
 	                                )
 	                            ),
 	                            React.createElement(
@@ -3053,7 +3075,6 @@
 			_this.closePanelWrap = _this.closePanelWrap.bind(_this);
 			_this.state = {
 				type: '请选择一种类型',
-				typeList: null,
 				title: '没有标题哦',
 				desc: '没有描述',
 				img: null,
@@ -3063,7 +3084,8 @@
 			// 注册验证
 			_this.validation.addByValue('title', [{ strategy: 'isEmpty', errorMsg: 'title不能是空' }]);
 			_this.validation.addByValue('desc', [{ strategy: 'isEmpty', errorMsg: '输入点描述吧' }]);
-	
+			// 创建category
+			_this.category = null;
 			return _this;
 		}
 		/**
@@ -3287,9 +3309,30 @@
 	   */
 	
 		}, {
+			key: 'componentWillReceiveProps',
+			value: function componentWillReceiveProps(nextProps) {
+				var _this3 = this;
+	
+				if (!this.category) {
+					this.category = nextProps.category.map(function (elt, indx) {
+						return React.createElement(
+							'li',
+							{ key: indx, 'data-categoryid': elt.category_id, onMouseOut: _this3.listOut, onMouseOver: _this3.listIn, onClick: _this3.listClick.bind(_this3) },
+							elt.category_name
+						);
+					});
+					this.forceUpdate();
+				}
+			}
+	
+			/* componentWillUpdate(){
+	  	console.log(' w u ')
+	  } */
+	
+		}, {
 			key: 'componentDidMount',
 			value: function componentDidMount() {
-				var _this3 = this;
+				var _this4 = this;
 	
 				// 订阅分享按钮的点击，header可能会订阅它
 				PubSub.subscribe('togglePanelWrap', this.togglePanelWrap);
@@ -3299,29 +3342,13 @@
 				this.refs.imgWrap.addEventListener('drop', this.fileUpload.bind(this), false);
 				this.refs.imgWrap.addEventListener('dragover', this.imgDragover.bind(this), false);
 				this.refs.imgWrap.onclick = function () {
-					_this3.refs.file.click();
+					_this4.refs.file.click();
 				};
-	
-				//请求分类信息
-				$.ajax({
-					url: config.url + '?h=home&c=category&a=getCategory',
-					dataType: 'json',
-					success: function success(data) {
-						data = data.map(function (elt, indx) {
-							return React.createElement(
-								'li',
-								{ key: indx, 'data-categoryid': elt.category_id, onMouseOut: _this3.listOut, onMouseOver: _this3.listIn, onClick: _this3.listClick.bind(_this3) },
-								elt.category_name
-							);
-						});
-						_this3.setState({ typeList: data });
-					}
-				});
 			}
 		}, {
 			key: 'render',
 			value: function render() {
-				var _this4 = this;
+				var _this5 = this;
 	
 				return React.createElement(
 					'div',
@@ -3414,10 +3441,10 @@
 									'form',
 									{ className: '' + _shareingPanel2.default.subForm, onSubmit: this.submit.bind(this) },
 									React.createElement('input', { type: 'text', placeholder: 'title', name: 'title', onChange: function onChange(ev) {
-											_this4.setState({ title: ev.target.value });
+											_this5.setState({ title: ev.target.value });
 										}, onFocus: this.titleFocus.bind(this) }),
 									React.createElement('textarea', { rows: '8', placeholder: '\u8BF4\u70B9\u63CF\u8FF0\u5427', name: 'desc', onChange: function onChange(ev) {
-											_this4.setState({ desc: ev.target.value });
+											_this5.setState({ desc: ev.target.value });
 										}, onFocus: this.descFocus.bind(this) }),
 									React.createElement(
 										'div',
@@ -3434,7 +3461,7 @@
 										React.createElement(
 											'ul',
 											{ className: _shareingPanel2.default.hide + ' ' + _shareingPanel2.default.typeList, ref: 'typeList' },
-											this.state.typeList
+											this.category
 										)
 									),
 									React.createElement(
@@ -3591,8 +3618,9 @@
 	        this.valueRuleCache = {};
 	    }
 	    /*
-	    add方法负责给某个表单控件绑定验证规则, 把验证规则存到ruleCache中
+	    *add方法负责给某个表单控件绑定验证规则, 把验证规则存到ruleCache中
 	    它支持同时一次添加多条规则到同一个dom上
+	    *rule的规则是一个数组，每个元素格式大概： {}
 	    */
 	
 	
@@ -4179,7 +4207,11 @@
 	                    React.createElement(
 	                        'a',
 	                        { href: '#', onClick: _this2.watchMine.bind(_this2), 'data-userid': elt.user_id, 'data-username': elt.user_name },
-	                        React.createElement('img', { src: elt.user_icon }),
+	                        React.createElement(
+	                            'div',
+	                            { className: '' + _userList2.default.imgWrap },
+	                            React.createElement('img', { src: elt.user_icon })
+	                        ),
 	                        React.createElement(
 	                            'span',
 	                            null,
@@ -4295,7 +4327,7 @@
 /***/ function(module, exports) {
 
 	// removed by extract-text-webpack-plugin
-	module.exports = {"panel":"panel_2gNOsLDbT1","menu":"menu_17x2Wl6iEN","line_1":"line_1_3xEmjFAoOm","line_2":"line_2_2prxqY_I3_","line_3":"line_3_2rwZrmYMME","menu-in":"menu-in_3G2DISoNE6","reformLine1":"reformLine1_31ti3-OIax","reformLine2":"reformLine2_34uN3WjDfy","reformLine3":"reformLine3_KMjqrpAC-I","home":"home_2Zzc7EOUlG","mask":"mask_2BgDS0F_kJ","panelShow":"panelShow_mWFph1K3jb","maskShow":"maskShow_3zFytcwy3T","listWrap":"listWrap_2PmI_xCLSf","listShow":"listShow_GYy9qD0vM4","starWrap":"starWrap_1vS3N8yBvD","starNum":"starNum_150aaQMUJB","listTitle":"listTitle_2R9_soBmgw"};
+	module.exports = {"panel":"panel_2gNOsLDbT1","menu":"menu_17x2Wl6iEN","line_1":"line_1_3xEmjFAoOm","line_2":"line_2_2prxqY_I3_","line_3":"line_3_2rwZrmYMME","menu-in":"menu-in_3G2DISoNE6","reformLine1":"reformLine1_31ti3-OIax","reformLine2":"reformLine2_34uN3WjDfy","reformLine3":"reformLine3_KMjqrpAC-I","home":"home_2Zzc7EOUlG","mask":"mask_2BgDS0F_kJ","panelShow":"panelShow_mWFph1K3jb","maskShow":"maskShow_3zFytcwy3T","listWrap":"listWrap_2PmI_xCLSf","listShow":"listShow_GYy9qD0vM4","imgWrap":"imgWrap_Rw69LcJmbb","starWrap":"starWrap_1vS3N8yBvD","starNum":"starNum_150aaQMUJB","listTitle":"listTitle_2R9_soBmgw"};
 
 /***/ },
 /* 30 */

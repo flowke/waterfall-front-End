@@ -984,7 +984,8 @@
   height: 40px;
   line-height: 40px;
   margin-bottom: 10px;
-  text-indent: 28px;
+  box-sizing: border-box;
+  padding-left: 28px;
 }
 .listWrap_2PmI_xCLSf li:hover {
   border-left: 10px solid #fd0202;
@@ -995,9 +996,18 @@
   display: block;
   height: 100%;
 }
+.listWrap_2PmI_xCLSf li a .imgWrap_Rw69LcJmbb {
+  display: inline-block;
+  width: 40px;
+  height: 40px;
+  text-align: center;
+  margin-right: 10px;
+  overflow: hidden;
+  border-radius: 50%;
+}
 .listWrap_2PmI_xCLSf li img {
   height: 100%;
-  margin-right: 10px;
+  width: auto;
   vertical-align: middle;
 }
 .listWrap_2PmI_xCLSf li i {
