@@ -1,4 +1,4 @@
- import style from './item.less';
+import style from './item.less';
 let cookie = require('util/cookie.js');
 let config = require('config/config.json');
 export default class Item extends React.Component{
@@ -17,8 +17,6 @@ export default class Item extends React.Component{
 		this.thumbTimer = null;
 
 		this.tileEditUI = this.tileEditUI.bind(this);
-
-
 	}
 	//点赞后的动作
 	thumbMe(ev){
@@ -36,7 +34,7 @@ export default class Item extends React.Component{
 			bubbleHint.call(this,'不能thumb自己');
 			return;
 		}
-
+		
 		datas.thumb_status = datas.thumb_status == 0 ? 1 : 0;
 		let stu = datas.thumb_status == 0 ? -1 : 1;
 

@@ -21,7 +21,7 @@ export default class ShareingPanel extends React.Component{
 			img: null,
 			category_id:'0'
 		};
-		
+
 		// 注册验证
 		this.validation.addByValue('title',[
 			{strategy: 'isEmpty', errorMsg:'title不能是空'}
@@ -32,6 +32,16 @@ export default class ShareingPanel extends React.Component{
         // 创建category
 		this.category = null;
 	}
+	/* 无状态组件声明-start */
+	typeList(data){
+		return (
+			data.map((elt,indx)=>{
+				return (<li key={indx} data-categoryid={elt.category_id}  onMouseOut={this.listOut} onMouseOver={this.listIn} onClick={this.listClick.bind(this)}>{elt.category_name}</li>);
+			})
+		);
+	}
+	/* 无状态组件声明-end */
+
 	/**
 	 * 点击分享时候所发起的ajax请求
 	 */
@@ -64,7 +74,7 @@ export default class ShareingPanel extends React.Component{
 	}
 	/**
 	 * 点击分享时做的动作,包括调用ajax方法
-	 * 表单会触发此submit事件
+	 * 表单提交会触发此submit事件
 	 */
 	submit(ev){
 		ev.preventDefault();
@@ -216,13 +226,9 @@ export default class ShareingPanel extends React.Component{
 	 * 	React 组件生命周期的函数在下方声明
 	 */
 
-
-
 	componentWillReceiveProps(nextProps){
 		if( !this.category ){
-			this.category = nextProps.category.map((elt,indx)=>{
-				return (<li key={indx} data-categoryid={elt.category_id}  onMouseOut={this.listOut} onMouseOver={this.listIn} onClick={this.listClick.bind(this)}>{elt.category_name}</li>);
-			});
+			this.category = this.typeList(nextProps);
 			this.forceUpdate();
 		}
 	}

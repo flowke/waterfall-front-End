@@ -43,9 +43,28 @@ export default class Content extends React.Component{
 
         this.dropList = [];
 
-        // 分类信息
+        // 分类信息, 它是一个保存dom节点的数组
         this.typeList = null;
+        //
     }
+
+    /* 无状态组件-start */
+    typeList(data){
+        data = data.map((elt,indx)=>{
+            return ( <li key={indx} data-categoryid={ elt.category_id } onClick={this.listClick}> {elt.category_name} </li>) ;
+        });
+        data.unshift(<li key={ Math.random().toString().slice(2) } data-categoryid={0} onClick={this.listClick}>All</li>);
+
+        return data;
+    }
+    tile(data){
+        return data.map((elt,i)=>{
+            if(elt.thumb_status !=1 ){elt.thumb_status =0;};
+            return (<Item key={Math.random().toString().slice(2)} indx={i} handleDrop={this.dropTile} data={elt}/>);
+        });
+    }
+    /* 无状态组件-end */
+
     // 这是一个初始化请求
     // 它应该在访问首页的时候调用一次
     initTile( msg, args={} ){
@@ -71,11 +90,7 @@ export default class Content extends React.Component{
             if(data.length==0){
                 PubSub.publish('globalHint',{ rawText: 'Sharing', endText: 'Nothing at all'});
             }
-            data = data.map((elt,i)=>{
-
-                if(elt.thumb_status !=1 ){elt.thumb_status =0;};
-                return (<Item key={Math.random().toString().slice(2)} handleDrop={this.dropTile} data={elt}/>);
-            });
+            data = this.tile(data);
             this.editState = true;
 
             this.setState({
@@ -119,10 +134,7 @@ export default class Content extends React.Component{
                 PubSub.publish('globalHint',{ rawText: 'Sharing', endText: 'Nothing at all'});
             }
             let length = this.state.tileList.length;
-            data = data.map((elt,i)=>{
-                if(elt.thumb_status !=1 ){elt.thumb_status =0;};
-                return (<Item key={Math.random().toString().slice(2)} indx={i} handleDrop={this.dropTile} data={elt}/>);
-            });
+            data = this.tile(data);
             this.setState({
                 tileList: null
             },()=>{
@@ -162,10 +174,7 @@ export default class Content extends React.Component{
                     return;
                 }
                 let length = this.state.tileList.length;
-                data = data.map((elt, i)=>{
-                    if(elt.thumb_status !=1 ){elt.thumb_status =0;};
-                    return (<Item key={Math.random().toString().slice(2)} indx={length++} handleDrop={this.dropTile} data={elt}/>);
-                });
+                data = this.tile(data);
                 let list = this.state.tileList.concat(data);
                 this.setState({
                     tileList: list
@@ -190,14 +199,12 @@ export default class Content extends React.Component{
 
         $(this.refs.timeArrow).addClass(style.redColor);
         $(this.refs.thumbArrow).removeClass(style.redColor);
+
         this.setState({ belong: "All" });
         let length =  this.state.tileList.length;
-        data = data.map((elt,i)=>{
-            if(elt.thumb_status !=1 ){elt.thumb_status =0;};
-            return (<Item key={Math.random().toString().slice(2)} indx={length++} handleDrop={this.dropTile} data={elt}/>);
-        });
+        data = this.tile(data);
 
-        this.setState({
+        this.setState( {
             tileList: null
         },()=>{
             setTimeout(()=>{
@@ -297,8 +304,6 @@ export default class Content extends React.Component{
                 userName: this.state.belong
             });
         }
-
-
     }
 
     orderTime(ev){
@@ -420,6 +425,7 @@ export default class Content extends React.Component{
 
 
 	}
+
     outTileEidt(ev){
         ev.stopPropagation();
         ev.preventDefault();
@@ -452,15 +458,11 @@ export default class Content extends React.Component{
      * react的生命周期函数
      */
 
-
     componentWillReceiveProps(nProps){
 
         // 更新typelist
         if( !this.typeList ){
-            this.typeList = nProps.category.map((elt,indx)=>{
-                return ( <li key={indx} data-categoryid={ elt.category_id } onClick={this.listClick}>{elt.category_name}</li>);
-            });
-            this.typeList.unshift(<li key={Math.random().toString().slice(2)} data-categoryid={0} onClick={this.listClick}>All</li>)
+            this.typeList = this.typeList(nProps);
             this.forceUpdate();
         }
     }
@@ -496,7 +498,7 @@ export default class Content extends React.Component{
                 <div className={`${style["g-left"]}`} ref="leftWrap" onClick={this.outTileEidt}>
                     <div className={`${style.layoutWrap}`} onClick={this.outTileEidt}>
                         <ul ref="tileWrap" onClick={this.outTileEidt}>
-                            {this.state.tileList}
+                            { this.tileList }
                         </ul>
                     </div>
                 </div>
