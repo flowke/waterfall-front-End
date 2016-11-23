@@ -21,7 +21,7 @@ export default class ShareingPanel extends React.Component{
 			img: null,
 			category_id:'0'
 		};
-		
+
 		// 注册验证
 		this.validation.addByValue('title',[
 			{strategy: 'isEmpty', errorMsg:'title不能是空'}
@@ -227,9 +227,6 @@ export default class ShareingPanel extends React.Component{
 		}
 	}
 
-	/* componentWillUpdate(){
-		console.log(' w u ')
-	} */
 
 	componentDidMount(){
 		// 订阅分享按钮的点击，header可能会订阅它

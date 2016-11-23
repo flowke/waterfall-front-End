@@ -91,9 +91,7 @@
 	
 	        var _this = _possibleConstructorReturn(this, (Index.__proto__ || Object.getPrototypeOf(Index)).call(this, props));
 	
-	        _this.state = {
-	            category: []
-	        };
+	        _this.category = [];
 	        return _this;
 	    }
 	
@@ -107,7 +105,8 @@
 	                url: config.url + '?h=home&c=category&a=getCategory',
 	                dataType: 'json'
 	            }).done(function (data) {
-	                _this2.setState({ category: data });
+	                _this2.category = data;
+	                _this2.forceUpdate();
 	            });
 	        }
 	    }, {
@@ -119,8 +118,8 @@
 	                { id: 'index' },
 	                React.createElement(_header2.default, null),
 	                React.createElement(_welcomePanel2.default, null),
-	                React.createElement(_content2.default, { category: this.state.category }),
-	                React.createElement(_shareingPanel2.default, { category: this.state.category }),
+	                React.createElement(_content2.default, { category: this.category }),
+	                React.createElement(_shareingPanel2.default, { category: this.category }),
 	                React.createElement(_userEntry2.default, null),
 	                React.createElement(_userList2.default, null)
 	            );
@@ -810,6 +809,7 @@
 	        // 控制是否可以发起请求
 	        // 它在发起一次请求后变成false，state更新后变成true
 	        _this.canReq = true;
+	        _this.oneTimeRequire = false;
 	        // 用于判断向什么角色发起请求，
 	        // all代表向全局发起请求，
 	        // 非all向user发起请求，值代表userid， watch_user
@@ -853,8 +853,9 @@
 	            this.setState({ belong: "All" });
 	
 	            PubSub.publish('progressLoading');
+	            this.oneTimeRequire = true;
 	            this.requestTile(this.ajaxData, function (data) {
-	                PubSub.publish('progressLoadingDone');
+	
 	                if (data.length == 0) {
 	                    PubSub.publish('globalHint', { rawText: 'Sharing', endText: 'Nothing at all' });
 	                }
@@ -905,8 +906,8 @@
 	            // 重置queryString
 	            this.queryString = 'p=home&c=tile&a=userTile';
 	            PubSub.publish('progressLoading');
+	            this.oneTimeRequire = true;
 	            this.requestTile(this.ajaxData, function (data) {
-	                PubSub.publish('progressLoadingDone');
 	
 	                if (data.length == 0) {
 	                    PubSub.publish('globalHint', { rawText: 'Sharing', endText: 'Nothing at all' });
@@ -953,12 +954,12 @@
 	                this.canReq = false;
 	
 	                this.requestTile(this.ajaxData, function (data) {
-	                    PubSub.publish('progressLoadingDone');
 	                    if (data.length === 0) {
 	                        _this4.canQuestTile = setTimeout(function () {
 	                            _this4.canReq = true;
 	                            _this4.canQuestTile = null;
 	                        }, 2000);
+	                        PubSub.publish('progressLoadingDone');
 	                        return;
 	                    }
 	                    var length = _this4.state.tileList.length;
@@ -973,6 +974,7 @@
 	                        tileList: list
 	                    }, function () {
 	                        _this4.canReq = true;
+	                        PubSub.publish('progressLoadingDone');
 	                    });
 	                });
 	            }
@@ -1162,6 +1164,8 @@
 	    }, {
 	        key: 'wookmarkLayout',
 	        value: function wookmarkLayout() {
+	            var _this6 = this;
+	
 	            var options = {
 	                autoResize: true, // This will auto-update the layout when the browser window is resized.
 	                align: 'center',
@@ -1184,6 +1188,10 @@
 	                // $handler = $('li', $tiles);
 	                $tiles.wookmark(options);
 	                $tiles.wookmarkInstance.layout(true);
+	                if (_this6.oneTimeRequire) {
+	                    PubSub.publish('progressLoadingDone');
+	                    _this6.oneTimeRequire = false;
+	                }
 	            }).progress(function (instance, image) {
 	                $(image.img).attr('height', image.img.height);
 	            });
@@ -1240,7 +1248,7 @@
 	    }, {
 	        key: 'dropTile',
 	        value: function dropTile(indx, tileid) {
-	            var _this6 = this;
+	            var _this7 = this;
 	
 	            this.outTileEdit = false;
 	            $.ajax({
@@ -1252,9 +1260,9 @@
 	                    PubSub.publish('globalHint', { rawText: 'Sharing', endText: 'Fail to delete' });
 	                } else if (data.message === 0) {
 	                    PubSub.publish('globalHint', { rawText: 'Sharing', endText: 'Drop tile done!' });
-	                    _this6.state.tileList.splice(indx, 1);
-	                    _this6.setState({
-	                        tileList: _this6.state.tileList
+	                    _this7.state.tileList.splice(indx, 1);
+	                    _this7.setState({
+	                        tileList: _this7.state.tileList
 	                    });
 	                }
 	            });
@@ -1267,14 +1275,14 @@
 	    }, {
 	        key: 'componentWillReceiveProps',
 	        value: function componentWillReceiveProps(nProps) {
-	            var _this7 = this;
+	            var _this8 = this;
 	
 	            // 更新typelist
 	            if (!this.typeList) {
 	                this.typeList = nProps.category.map(function (elt, indx) {
 	                    return React.createElement(
 	                        'li',
-	                        { key: indx, 'data-categoryid': elt.category_id, onClick: _this7.listClick },
+	                        { key: indx, 'data-categoryid': elt.category_id, onClick: _this8.listClick },
 	                        elt.category_name
 	                    );
 	                });
@@ -3324,11 +3332,6 @@
 					this.forceUpdate();
 				}
 			}
-	
-			/* componentWillUpdate(){
-	  	console.log(' w u ')
-	  } */
-	
 		}, {
 			key: 'componentDidMount',
 			value: function componentDidMount() {

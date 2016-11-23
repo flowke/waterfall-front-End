@@ -35,7 +35,7 @@
 
 .listWrap{ transition: .2s ease-out;
     position: fixed; top: 0; right: 100%; bottom: 0; width: 300px; overflow: auto; padding-top: 80px; border-right: 1px solid #e3e3e3; background: #fff; transform-style: flat;
-    ul{overflow: auto; height: 100%;}
+    ul{position: absolute; top: 130px; width: 100%; bottom: 0; overflow: auto; padding-bottom: 10px;}
     li{
         position: relative; height: 40px; line-height: 40px; margin-bottom: 10px; box-sizing: border-box;
         padding-left: 28px;
@@ -43,7 +43,7 @@
         &:hover{border-left: 10px solid #fd0202; cursor: pointer; transition: .15s;}
         a{
             display: block; height: 100%;
-            .imgWrap{ display: inline-block; width: 40px; height: 40px; text-align: center;  margin-right: 10px; overflow: hidden; border-radius: 50%;}
+            .imgWrap{ display: inline-block; width: 40px; height: 40px; text-align: center;  margin-right: 10px; overflow: hidden; border-radius: 50%; vertical-align: middle;}
         }
         img{height: 100%; width: auto; vertical-align: middle;}
 

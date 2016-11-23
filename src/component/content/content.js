@@ -32,6 +32,7 @@ export default class Content extends React.Component{
         // 控制是否可以发起请求
         // 它在发起一次请求后变成false，state更新后变成true
         this.canReq = true;
+        this.oneTimeRequire = false;
         // 用于判断向什么角色发起请求，
         // all代表向全局发起请求，
         // 非all向user发起请求，值代表userid， watch_user
@@ -66,8 +67,9 @@ export default class Content extends React.Component{
         this.setState({ belong: "All" });
 
         PubSub.publish('progressLoading');
+        this.oneTimeRequire = true;
         this.requestTile(this.ajaxData,(data)=>{
-            PubSub.publish('progressLoadingDone');
+
             if(data.length==0){
                 PubSub.publish('globalHint',{ rawText: 'Sharing', endText: 'Nothing at all'});
             }
@@ -112,8 +114,9 @@ export default class Content extends React.Component{
         // 重置queryString
         this.queryString = 'p=home&c=tile&a=userTile';
         PubSub.publish('progressLoading');
+        this.oneTimeRequire = true;
         this.requestTile(this.ajaxData,(data)=>{
-            PubSub.publish('progressLoadingDone');
+
 
             if(data.length==0){
                 PubSub.publish('globalHint',{ rawText: 'Sharing', endText: 'Nothing at all'});
@@ -153,12 +156,12 @@ export default class Content extends React.Component{
             this.canReq = false;
 
             this.requestTile(this.ajaxData,(data)=>{
-                PubSub.publish('progressLoadingDone');
                 if(data.length===0){
                     this.canQuestTile = setTimeout( ()=>{
                         this.canReq = true;
                         this.canQuestTile = null;
                     },2000);
+                    PubSub.publish('progressLoadingDone');
                     return;
                 }
                 let length = this.state.tileList.length;
@@ -171,6 +174,7 @@ export default class Content extends React.Component{
                     tileList: list
                 },()=>{
                     this.canReq = true;
+                    PubSub.publish('progressLoadingDone');
                 });
             });
         }
@@ -254,7 +258,6 @@ export default class Content extends React.Component{
                 userName: this.state.belong
             });
         }
-
 
     }
 
@@ -365,7 +368,6 @@ export default class Content extends React.Component{
         };
         let $tiles = $(this.refs.tileWrap);
 
-
         $tiles.imagesLoaded()
             .always( ()=>{
                 // Destroy the old handler
@@ -377,6 +379,10 @@ export default class Content extends React.Component{
                 // $handler = $('li', $tiles);
                 $tiles.wookmark(options);
                 $tiles.wookmarkInstance.layout(true);
+                if(this.oneTimeRequire){
+                    PubSub.publish('progressLoadingDone');
+                    this.oneTimeRequire = false;
+                }
             } )
             .progress( (instance, image)=>{
                 $(image.img).attr('height', image.img.height);
@@ -451,7 +457,6 @@ export default class Content extends React.Component{
     /**
      * react的生命周期函数
      */
-
 
     componentWillReceiveProps(nProps){
 

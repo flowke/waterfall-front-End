@@ -13,9 +13,8 @@ class Index extends React.Component{
 
     constructor(props){
         super(props);
-        this.state = {
-            category: []
-        }
+
+        this.category = [];
     }
 
     componentDidMount(){
@@ -25,7 +24,8 @@ class Index extends React.Component{
             dataType: 'json'
         })
         .done( (data)=>{
-            this.setState({ category: data });
+            this.category = data;
+            this.forceUpdate();
         } );
     }
 
@@ -35,8 +35,8 @@ class Index extends React.Component{
             <div id="index">
                 <Header></Header>
                 <WelcomePanel/>
-                <Content category={this.state.category}></Content>
-                <ShareingPanel category={this.state.category}/>
+                <Content category={this.category}></Content>
+                <ShareingPanel category={this.category}/>
                 <UserEntry/>
                 <UserList></UserList>
             </div>
