@@ -1,6 +1,16 @@
 const gulp = require('gulp'),
     clean = require('gulp-clean'),
-    sequence = require('gulp-sequence');
+    sequence = require('gulp-sequence'),
+    browserSync = require('browser-sync').create();
+
+gulp.task('bs', ()=>{
+    browserSync.init({
+        server: {
+            baseDir: './dist'
+        },
+        files: ['./dist/**/*.html','./dist/**/*.js']
+    })
+})
 
 gulp.task('move',['clean'],function(){
     return gulp.src(['src/static/image/*.{jpg,png}','./framework/vendor/**','src/static/fonts/*'])

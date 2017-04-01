@@ -44,19 +44,10 @@ export default class Content extends React.Component{
         this.dropList = [];
 
         // 分类信息, 它是一个保存dom节点的数组
-        this.typeList = null;
+        this.typeListComps = null;
         //
     }
 
-    /* 无状态组件-start */
-    typeList(data){
-        data = data.map((elt,indx)=>{
-            return ( <li key={indx} data-categoryid={ elt.category_id } onClick={this.listClick}> {elt.category_name} </li>) ;
-        });
-        data.unshift(<li key={ Math.random().toString().slice(2) } data-categoryid={0} onClick={this.listClick}>All</li>);
-
-        return data;
-    }
     tile(data){
         return data.map((elt,i)=>{
             if(elt.thumb_status !=1 ){elt.thumb_status =0;};
@@ -461,10 +452,10 @@ export default class Content extends React.Component{
     componentWillReceiveProps(nProps){
 
         // 更新typelist
-        if( !this.typeList ){
-            this.typeList = this.typeList(nProps);
-            this.forceUpdate();
-        }
+        // if( !this.typeListComps ){
+        //     this.typeListComps = this.typeList(nProps);
+        //     this.forceUpdate();
+        // }
     }
 
     componentDidUpdate(){
@@ -489,16 +480,27 @@ export default class Content extends React.Component{
         this.outTileEidt = this.outTileEidt.bind(this);
         $(this.refs.timeArrow).addClass(style.redColor);
 
+
+
     }
 
 
     render(){
+
+        let {category} = this.props,
+            { tileList } = this.state;
+
+        let typeList = category.map((elt,indx)=>{
+            return ( <li key={indx} data-categoryid={ elt.category_id } onClick={this.listClick}> {elt.category_name} </li>) ;
+        });
+        category.unshift(<li key={ Math.random().toString().slice(2) } data-categoryid={0} onClick={this.listClick}>All</li>);
+
         return(
             <section className={`${style.contentBox}`} ref="content">
                 <div className={`${style["g-left"]}`} ref="leftWrap" onClick={this.outTileEidt}>
                     <div className={`${style.layoutWrap}`} onClick={this.outTileEidt}>
                         <ul ref="tileWrap" onClick={this.outTileEidt}>
-                            { this.tileList }
+                            { tileList }
                         </ul>
                     </div>
                 </div>
@@ -511,7 +513,7 @@ export default class Content extends React.Component{
                             <li onClick={ this.typeShow.bind(this) }>
                                 TYPE: <span ref="typeName" >All</span>
                                 <ul className={`${style.typeList} ${style.hide}`} ref="typeList">
-                                    {this.typeList}
+                                    {typeList}
                                 </ul>
                             </li>
                             <li onClick={this.orderTime.bind(this)}><span>TIME</span><i className="icon-arrow-down2" ref="timeArrow"></i></li>

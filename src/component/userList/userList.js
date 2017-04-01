@@ -2,6 +2,8 @@ let config = require('config/config.json');
 let cookie = require('util/cookie.js');
 import style from './userList.less';
 
+
+
 export default class UserList extends React.Component{
 
     constructor(props){
@@ -114,7 +116,7 @@ export default class UserList extends React.Component{
                 </div>
                 <i className={`${style.mask}`} ref='mask' onClick={this.menuClick}></i>
                 <div className={`${style.listWrap}`} ref='listWrap'>
-                    <a href="http://www.flowke.com" className={`${style.home}`}><i className={`icon-home`} ref='loopIcon'></i></a>
+                    <a href="http://www.flowke.site" className={`${style.home}`}><i className={`icon-home`} ref='loopIcon'></i></a>
                     <h3 className={`${style.listTitle}`}>Users Who Shared</h3>
                     <ul>
                         {this.state.userList}

@@ -6,6 +6,10 @@ import Validation from 'util/validation.js';
 
 import style from './shareingPanel.less';
 
+const propTypes = {
+    category: React.PropTypes.array.isRequired
+}
+
 export default class ShareingPanel extends React.Component{
 	constructor(props){
 		super(props);
@@ -32,15 +36,6 @@ export default class ShareingPanel extends React.Component{
         // 创建category
 		this.category = null;
 	}
-	/* 无状态组件声明-start */
-	typeList(data){
-		return (
-			data.map((elt,indx)=>{
-				return (<li key={indx} data-categoryid={elt.category_id}  onMouseOut={this.listOut} onMouseOver={this.listIn} onClick={this.listClick.bind(this)}>{elt.category_name}</li>);
-			})
-		);
-	}
-	/* 无状态组件声明-end */
 
 	/**
 	 * 点击分享时候所发起的ajax请求
@@ -191,8 +186,6 @@ export default class ShareingPanel extends React.Component{
 			return;
 		}
 
-
-
 		if(!file){ return; }
 		this.setState({img: file});
 
@@ -222,15 +215,13 @@ export default class ShareingPanel extends React.Component{
 			});
 		},500);
 	}
+
 	/**
 	 * 	React 组件生命周期的函数在下方声明
 	 */
 
 	componentWillReceiveProps(nextProps){
-		if( !this.category ){
-			this.category = this.typeList(nextProps);
-			this.forceUpdate();
-		}
+	
 	}
 
 	/* componentWillUpdate(){
@@ -252,6 +243,14 @@ export default class ShareingPanel extends React.Component{
 
 
     render(){
+
+        let {category: cateDate} = this.props;
+
+        let category = cateDate.map((elt,indx)=>{
+				return (<li key={indx} data-categoryid={elt.category_id}  onMouseOut={this.listOut} onMouseOver={this.listIn} onClick={this.listClick.bind(this)}>{elt.category_name}</li>);
+			});
+
+
         return (
             <div className={`${style.panelWrap} f-hide`} ref="panelWrap" >
 				<div className={`${style.mask}`} onClick={this.togglePanelWrap}></div>
@@ -289,7 +288,7 @@ export default class ShareingPanel extends React.Component{
 										<p ref='typeName'>{this.state.type}</p>
 									</div>
 									<ul className={`${style.hide} ${style.typeList}`} ref='typeList'>
-										{this.category}
+										{category}
 									</ul>
 								</div>
 								<div className={`${style.upload}`} ref="coverBtn">
@@ -307,3 +306,5 @@ export default class ShareingPanel extends React.Component{
         );
     }
 }
+
+ShareingPanel.propTypes = propTypes;

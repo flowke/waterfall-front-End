@@ -113,14 +113,16 @@
 	    }, {
 	        key: 'render',
 	        value: function render() {
+	            var category = this.state.category;
 	
+	            console.log(category);
 	            return React.createElement(
 	                'div',
 	                { id: 'index' },
 	                React.createElement(_header2.default, null),
 	                React.createElement(_welcomePanel2.default, null),
-	                React.createElement(_content2.default, { category: this.state.category }),
-	                React.createElement(_shareingPanel2.default, { category: this.state.category }),
+	                React.createElement(_content2.default, { category: category }),
+	                React.createElement(_shareingPanel2.default, { category: category }),
 	                React.createElement(_userEntry2.default, null),
 	                React.createElement(_userList2.default, null)
 	            );
@@ -468,7 +470,7 @@
 	                    { className: '' + _header2.default.topBar },
 	                    React.createElement(
 	                        'a',
-	                        { href: 'http://www.flowke.com', className: '' + _header2.default.home },
+	                        { href: 'http://www.flowke.site', className: '' + _header2.default.home },
 	                        React.createElement('i', { className: 'icon-home', ref: 'loopIcon' })
 	                    ),
 	                    React.createElement(
@@ -716,7 +718,7 @@
 /***/ function(module, exports) {
 
 	module.exports = {
-		"url": "http://www.flowke.com"
+		"url": "http://www.flowke.site"
 	};
 
 /***/ },
@@ -821,18 +823,33 @@
 	
 	        _this.dropList = [];
 	
-	        // 分类信息
-	        _this.typeList = null;
+	        // 分类信息, 它是一个保存dom节点的数组
+	        _this.typeListComps = null;
+	        //
 	        return _this;
 	    }
-	    // 这是一个初始化请求
-	    // 它应该在访问首页的时候调用一次
-	
 	
 	    _createClass(Content, [{
+	        key: 'tile',
+	        value: function tile(data) {
+	            var _this2 = this;
+	
+	            return data.map(function (elt, i) {
+	                if (elt.thumb_status != 1) {
+	                    elt.thumb_status = 0;
+	                };
+	                return React.createElement(_item2.default, { key: Math.random().toString().slice(2), indx: i, handleDrop: _this2.dropTile, data: elt });
+	            });
+	        }
+	        /* 无状态组件-end */
+	
+	        // 这是一个初始化请求
+	        // 它应该在访问首页的时候调用一次
+	
+	    }, {
 	        key: 'initTile',
 	        value: function initTile(msg) {
-	            var _this2 = this;
+	            var _this3 = this;
 	
 	            var args = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 	
@@ -858,19 +875,13 @@
 	                if (data.length == 0) {
 	                    PubSub.publish('globalHint', { rawText: 'Sharing', endText: 'Nothing at all' });
 	                }
-	                data = data.map(function (elt, i) {
+	                data = _this3.tile(data);
+	                _this3.editState = true;
 	
-	                    if (elt.thumb_status != 1) {
-	                        elt.thumb_status = 0;
-	                    };
-	                    return React.createElement(_item2.default, { key: Math.random().toString().slice(2), handleDrop: _this2.dropTile, data: elt });
-	                });
-	                _this2.editState = true;
-	
-	                _this2.setState({
+	                _this3.setState({
 	                    tileList: null
 	                }, function () {
-	                    _this2.setState({
+	                    _this3.setState({
 	                        tileList: data
 	                    });
 	                });
@@ -882,7 +893,7 @@
 	    }, {
 	        key: 'userTile',
 	        value: function userTile(subName, args) {
-	            var _this3 = this;
+	            var _this4 = this;
 	
 	            if (!args.from_user) {
 	                args.from_user = 0;
@@ -911,17 +922,12 @@
 	                if (data.length == 0) {
 	                    PubSub.publish('globalHint', { rawText: 'Sharing', endText: 'Nothing at all' });
 	                }
-	                var length = _this3.state.tileList.length;
-	                data = data.map(function (elt, i) {
-	                    if (elt.thumb_status != 1) {
-	                        elt.thumb_status = 0;
-	                    };
-	                    return React.createElement(_item2.default, { key: Math.random().toString().slice(2), indx: i, handleDrop: _this3.dropTile, data: elt });
-	                });
-	                _this3.setState({
+	                var length = _this4.state.tileList.length;
+	                data = _this4.tile(data);
+	                _this4.setState({
 	                    tileList: null
 	                }, function () {
-	                    _this3.setState({
+	                    _this4.setState({
 	                        tileList: data
 	                    }, function () {
 	                        if (args.editState && args.editState) {
@@ -938,7 +944,7 @@
 	    }, {
 	        key: 'handlerScroll',
 	        value: function handlerScroll(ev) {
-	            var _this4 = this;
+	            var _this5 = this;
 	
 	            var $elem = $(window);
 	            if (detectScrollBar($elem) && this.canReq) {
@@ -955,24 +961,19 @@
 	                this.requestTile(this.ajaxData, function (data) {
 	                    PubSub.publish('progressLoadingDone');
 	                    if (data.length === 0) {
-	                        _this4.canQuestTile = setTimeout(function () {
-	                            _this4.canReq = true;
-	                            _this4.canQuestTile = null;
+	                        _this5.canQuestTile = setTimeout(function () {
+	                            _this5.canReq = true;
+	                            _this5.canQuestTile = null;
 	                        }, 2000);
 	                        return;
 	                    }
-	                    var length = _this4.state.tileList.length;
-	                    data = data.map(function (elt, i) {
-	                        if (elt.thumb_status != 1) {
-	                            elt.thumb_status = 0;
-	                        };
-	                        return React.createElement(_item2.default, { key: Math.random().toString().slice(2), indx: length++, handleDrop: _this4.dropTile, data: elt });
-	                    });
-	                    var list = _this4.state.tileList.concat(data);
-	                    _this4.setState({
+	                    var length = _this5.state.tileList.length;
+	                    data = _this5.tile(data);
+	                    var list = _this5.state.tileList.concat(data);
+	                    _this5.setState({
 	                        tileList: list
 	                    }, function () {
-	                        _this4.canReq = true;
+	                        _this5.canReq = true;
 	                    });
 	                });
 	            }
@@ -991,29 +992,25 @@
 	    }, {
 	        key: 'updateTile',
 	        value: function updateTile(msg, data) {
-	            var _this5 = this;
+	            var _this6 = this;
 	
 	            this.queryString = 'p=home&c=tile&a=getTile';
 	
 	            $(this.refs.timeArrow).addClass(_content2.default.redColor);
 	            $(this.refs.thumbArrow).removeClass(_content2.default.redColor);
+	
 	            this.setState({ belong: "All" });
 	            var length = this.state.tileList.length;
-	            data = data.map(function (elt, i) {
-	                if (elt.thumb_status != 1) {
-	                    elt.thumb_status = 0;
-	                };
-	                return React.createElement(_item2.default, { key: Math.random().toString().slice(2), indx: length++, handleDrop: _this5.dropTile, data: elt });
-	            });
+	            data = this.tile(data);
 	
 	            this.setState({
 	                tileList: null
 	            }, function () {
 	                setTimeout(function () {
-	                    _this5.setState({
+	                    _this6.setState({
 	                        tileList: data
 	                    }, function () {
-	                        $(_this5.refs.tileWrap.children[0]).addClass('f-blingbling');
+	                        $(_this6.refs.tileWrap.children[0]).addClass('f-blingbling');
 	                    });
 	                }, 300);
 	            });
@@ -1240,7 +1237,7 @@
 	    }, {
 	        key: 'dropTile',
 	        value: function dropTile(indx, tileid) {
-	            var _this6 = this;
+	            var _this7 = this;
 	
 	            this.outTileEdit = false;
 	            $.ajax({
@@ -1252,9 +1249,9 @@
 	                    PubSub.publish('globalHint', { rawText: 'Sharing', endText: 'Fail to delete' });
 	                } else if (data.message === 0) {
 	                    PubSub.publish('globalHint', { rawText: 'Sharing', endText: 'Drop tile done!' });
-	                    _this6.state.tileList.splice(indx, 1);
-	                    _this6.setState({
-	                        tileList: _this6.state.tileList
+	                    _this7.state.tileList.splice(indx, 1);
+	                    _this7.setState({
+	                        tileList: _this7.state.tileList
 	                    });
 	                }
 	            });
@@ -1267,24 +1264,12 @@
 	    }, {
 	        key: 'componentWillReceiveProps',
 	        value: function componentWillReceiveProps(nProps) {
-	            var _this7 = this;
 	
 	            // 更新typelist
-	            if (!this.typeList) {
-	                this.typeList = nProps.category.map(function (elt, indx) {
-	                    return React.createElement(
-	                        'li',
-	                        { key: indx, 'data-categoryid': elt.category_id, onClick: _this7.listClick },
-	                        elt.category_name
-	                    );
-	                });
-	                this.typeList.unshift(React.createElement(
-	                    'li',
-	                    { key: Math.random().toString().slice(2), 'data-categoryid': 0, onClick: this.listClick },
-	                    'All'
-	                ));
-	                this.forceUpdate();
-	            }
+	            // if( !this.typeListComps ){
+	            //     this.typeListComps = this.typeList(nProps);
+	            //     this.forceUpdate();
+	            // }
 	        }
 	    }, {
 	        key: 'componentDidUpdate',
@@ -1313,6 +1298,27 @@
 	    }, {
 	        key: 'render',
 	        value: function render() {
+	            var _this8 = this;
+	
+	            var category = this.props.category;
+	            var tileList = this.state.tileList;
+	
+	
+	            var typeList = category.map(function (elt, indx) {
+	                return React.createElement(
+	                    'li',
+	                    { key: indx, 'data-categoryid': elt.category_id, onClick: _this8.listClick },
+	                    ' ',
+	                    elt.category_name,
+	                    ' '
+	                );
+	            });
+	            category.unshift(React.createElement(
+	                'li',
+	                { key: Math.random().toString().slice(2), 'data-categoryid': 0, onClick: this.listClick },
+	                'All'
+	            ));
+	
 	            return React.createElement(
 	                'section',
 	                { className: '' + _content2.default.contentBox, ref: 'content' },
@@ -1325,7 +1331,7 @@
 	                        React.createElement(
 	                            'ul',
 	                            { ref: 'tileWrap', onClick: this.outTileEidt },
-	                            this.state.tileList
+	                            tileList
 	                        )
 	                    )
 	                ),
@@ -1371,7 +1377,7 @@
 	                                React.createElement(
 	                                    'ul',
 	                                    { className: _content2.default.typeList + ' ' + _content2.default.hide, ref: 'typeList' },
-	                                    this.typeList
+	                                    typeList
 	                                )
 	                            ),
 	                            React.createElement(
@@ -1454,7 +1460,6 @@
 			_this.thumbTimer = null;
 	
 			_this.tileEditUI = _this.tileEditUI.bind(_this);
-	
 			return _this;
 		}
 		//点赞后的动作
@@ -3061,6 +3066,10 @@
 	var config = __webpack_require__(8);
 	var cookie = __webpack_require__(9);
 	
+	var propTypes = {
+		category: React.PropTypes.array.isRequired
+	};
+	
 	var ShareingPanel = function (_React$Component) {
 		_inherits(ShareingPanel, _React$Component);
 	
@@ -3088,6 +3097,7 @@
 			_this.category = null;
 			return _this;
 		}
+	
 		/**
 	  * 点击分享时候所发起的ajax请求
 	  */
@@ -3122,7 +3132,7 @@
 			}
 			/**
 	   * 点击分享时做的动作,包括调用ajax方法
-	   * 表单会触发此submit事件
+	   * 表单提交会触发此submit事件
 	   */
 	
 		}, {
@@ -3304,26 +3314,14 @@
 					});
 				}, 500);
 			}
+	
 			/**
 	   * 	React 组件生命周期的函数在下方声明
 	   */
 	
 		}, {
 			key: 'componentWillReceiveProps',
-			value: function componentWillReceiveProps(nextProps) {
-				var _this3 = this;
-	
-				if (!this.category) {
-					this.category = nextProps.category.map(function (elt, indx) {
-						return React.createElement(
-							'li',
-							{ key: indx, 'data-categoryid': elt.category_id, onMouseOut: _this3.listOut, onMouseOver: _this3.listIn, onClick: _this3.listClick.bind(_this3) },
-							elt.category_name
-						);
-					});
-					this.forceUpdate();
-				}
-			}
+			value: function componentWillReceiveProps(nextProps) {}
 	
 			/* componentWillUpdate(){
 	  	console.log(' w u ')
@@ -3332,7 +3330,7 @@
 		}, {
 			key: 'componentDidMount',
 			value: function componentDidMount() {
-				var _this4 = this;
+				var _this3 = this;
 	
 				// 订阅分享按钮的点击，header可能会订阅它
 				PubSub.subscribe('togglePanelWrap', this.togglePanelWrap);
@@ -3342,13 +3340,24 @@
 				this.refs.imgWrap.addEventListener('drop', this.fileUpload.bind(this), false);
 				this.refs.imgWrap.addEventListener('dragover', this.imgDragover.bind(this), false);
 				this.refs.imgWrap.onclick = function () {
-					_this4.refs.file.click();
+					_this3.refs.file.click();
 				};
 			}
 		}, {
 			key: 'render',
 			value: function render() {
-				var _this5 = this;
+				var _this4 = this;
+	
+				var cateDate = this.props.category;
+	
+	
+				var category = cateDate.map(function (elt, indx) {
+					return React.createElement(
+						'li',
+						{ key: indx, 'data-categoryid': elt.category_id, onMouseOut: _this4.listOut, onMouseOver: _this4.listIn, onClick: _this4.listClick.bind(_this4) },
+						elt.category_name
+					);
+				});
 	
 				return React.createElement(
 					'div',
@@ -3441,10 +3450,10 @@
 									'form',
 									{ className: '' + _shareingPanel2.default.subForm, onSubmit: this.submit.bind(this) },
 									React.createElement('input', { type: 'text', placeholder: 'title', name: 'title', onChange: function onChange(ev) {
-											_this5.setState({ title: ev.target.value });
+											_this4.setState({ title: ev.target.value });
 										}, onFocus: this.titleFocus.bind(this) }),
 									React.createElement('textarea', { rows: '8', placeholder: '\u8BF4\u70B9\u63CF\u8FF0\u5427', name: 'desc', onChange: function onChange(ev) {
-											_this5.setState({ desc: ev.target.value });
+											_this4.setState({ desc: ev.target.value });
 										}, onFocus: this.descFocus.bind(this) }),
 									React.createElement(
 										'div',
@@ -3461,7 +3470,7 @@
 										React.createElement(
 											'ul',
 											{ className: _shareingPanel2.default.hide + ' ' + _shareingPanel2.default.typeList, ref: 'typeList' },
-											this.category
+											category
 										)
 									),
 									React.createElement(
@@ -3487,6 +3496,9 @@
 	}(React.Component);
 	
 	exports.default = ShareingPanel;
+	
+	
+	ShareingPanel.propTypes = propTypes;
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1)))
 
 /***/ },
@@ -4298,7 +4310,7 @@
 	                    { className: '' + _userList2.default.listWrap, ref: 'listWrap' },
 	                    React.createElement(
 	                        'a',
-	                        { href: 'http://www.flowke.com', className: '' + _userList2.default.home },
+	                        { href: 'http://www.flowke.site', className: '' + _userList2.default.home },
 	                        React.createElement('i', { className: 'icon-home', ref: 'loopIcon' })
 	                    ),
 	                    React.createElement(

@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "webpack-dev-server --env=dev",
     "dll": "webpack --env=dll",
-    "dist": "webpack --env=dist",
+    "dist": "webpack --watch --env=dist",
     "all": "gulp move & webpack --env=dll & webpack --env=dist "
   },
   "author": "",
@@ -23,6 +23,7 @@
     "babel-preset-react": "^6.16.0",
     "babel-preset-react-hmre": "^1.1.1",
     "bower-webpack-plugin": "^0.1.9",
+    "browser-sync": "^2.18.8",
     "css-loader": "^0.25.0",
     "eslint": "^3.8.1",
     "eslint-loader": "^1.6.0",

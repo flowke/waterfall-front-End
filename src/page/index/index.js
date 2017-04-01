@@ -13,7 +13,9 @@ class Index extends React.Component{
 
     constructor(props){
         super(props);
-        this.category = [];
+        this.state = {
+            category: []
+        }
     }
 
     componentDidMount(){
@@ -23,18 +25,19 @@ class Index extends React.Component{
             dataType: 'json'
         })
         .done( (data)=>{
-            this.category = data;
-            this.forceUpdate();
+            this.setState({category: data})
         } );
     }
 
     render(){
+        let {category} = this.state;
+        console.log(category)
         return (
             <div id="index">
                 <Header></Header>
                 <WelcomePanel/>
-                <Content category={this.category}></Content>
-                <ShareingPanel category={this.category}/>
+                <Content category={category}></Content>
+                <ShareingPanel category={category}/>
                 <UserEntry/>
                 <UserList></UserList>
             </div>

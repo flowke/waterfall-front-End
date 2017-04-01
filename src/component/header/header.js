@@ -222,7 +222,7 @@ export default class Header extends React.Component{
             <header className={`${style['m-header']}`} ref="headerWrap">
 
                 <div className={`${style.topBar}`}>
-                    <a href="http://www.flowke.com" className={`${style.home}`}><i className={`icon-home`} ref='loopIcon'></i></a>
+                    <a href="http://www.flowke.site" className={`${style.home}`}><i className={`icon-home`} ref='loopIcon'></i></a>
                     <button className={`${style.share_btn} u-btn`} onClick={this.shareBtnClick.bind(this)} ref="shareBtn">Sharing</button>
 
                     <div className={`${style['topBar-info']}`}>
